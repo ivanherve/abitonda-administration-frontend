@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+.highlight {
+  color: red;
+  background-color: yellow;
+  font-weight: bold;
+  font-style: italic;
+}
