@@ -33,6 +33,7 @@ function formatNumb(numb) {
 export default function ContactParent(props) {
   const [showAddParent, setShowAddParent] = useState(false);
   const [parents, setParents] = useState([]);
+  const [studentId, setStudentId] = useState(0);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
@@ -44,7 +45,10 @@ export default function ContactParent(props) {
       )
         .then((r) => r.json())
         .then((r) => {
-          if (r.status) setParents(r.response);
+          if (r.status) {
+            setParents(r.response);
+            setStudentId(props.studentId);
+          }
         });
   }, [parents]);
 
@@ -103,7 +107,11 @@ export default function ContactParent(props) {
           </div>
         ))
       )}
-      <AddParent show={showAddParent} hide={() => setShowAddParent(false)} />
+      <AddParent
+        show={showAddParent}
+        hide={() => setShowAddParent(false)}
+        studentId={studentId}
+      />
     </div>
   );
 }
