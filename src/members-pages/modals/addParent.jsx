@@ -16,8 +16,8 @@ export default function AddParent(props) {
   const addParent = () => {
     let data = JSON.stringify({
       StudentId: props.studentId,
-      firstname: firstname,
-      lastname: lastname,
+      firstname: firstname.toUpperCase(),
+      lastname: lastname.toUpperCase(),
       telephone: telephone,
       email: email,
       address: address,

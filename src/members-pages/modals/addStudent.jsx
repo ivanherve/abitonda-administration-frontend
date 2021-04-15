@@ -24,26 +24,26 @@ export default function AddStudent(props) {
 
   const addStudent = () => {
     let data = JSON.stringify({
-      Lastname: lastname,
-      Firstname: firstname,
+      Lastname: lastname.toUpperCase(),
+      Firstname: firstname.toUpperCase(),
       Birthdate: birthdate,
       Canteen: canteen,
       Transport: transport,
       Classe: classe,
       Picture: picture,
     });
+
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status)
-          //console.log(r);
-          swal(
-            "Nouvel élève!",
-            `${r.response.Firstname} ${r.response.Lastname} a bien été ajouté`,
-            "success"
-          ).then(() => {
-            props.hide();
-          });
+        if (!r.status) console.log(r, classe);
+        swal(
+          "Nouvel élève!",
+          `${r.response.Firstname} ${r.response.Lastname} a bien été ajouté`,
+          "success"
+        ).then(() => {
+          props.hide();
+        });
       });
   };
 
@@ -141,7 +141,7 @@ export default function AddStudent(props) {
                     key={classes.indexOf(c)}
                     onClick={() => console.log(c)}
                   >
-                    {c.Classe}
+                    {c.Name}
                   </option>
                 ))}
               </Form.Control>

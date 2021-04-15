@@ -48,7 +48,7 @@ export default function ContactParent(props) {
           if (r.status) {
             setParents(r.response);
             setStudentId(props.studentId);
-          }
+          } else setParents([]);
         });
   }, [parents]);
 

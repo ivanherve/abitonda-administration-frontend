@@ -24,7 +24,7 @@ export default function Classe(props) {
   //setTimeout(setPresenceLoading(true), 3000);
 
   useEffect(() => {
-    //if (students.length < 1) getStudentPerClasse(selectedClasse);
+    if (students.length < 1) getStudentPerClasse(selectedClasse);
   }, [students, selectedClasse]);
 
   return (
