@@ -176,7 +176,7 @@ export default function GeneralInformation(props) {
               </Col>
             </Form.Group>
             <hr />
-            <Form.Group as={Row} controlId="formPlaintextActivities">
+            <Form.Group as={Row} controlId="formPlaintextExtraActivities">
               <Form.Label column sm="4">
                 Activités Parascolaires
               </Form.Label>
@@ -191,7 +191,7 @@ export default function GeneralInformation(props) {
               </Col>
             </Form.Group>
             <hr />
-            <Form.Group as={Row} controlId="formPlaintextActivities">
+            <Form.Group as={Row} controlId="formPlaintextGarde">
               <Form.Label column sm="4">
                 Mode de garde *
               </Form.Label>
@@ -212,7 +212,7 @@ export default function GeneralInformation(props) {
                 />
               </Col>
             </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextActivities">
+            <Form.Group as={Row} controlId="formPlaintextAllergies">
               <Form.Label column sm="4">
                 Allergies
               </Form.Label>
