@@ -20,15 +20,22 @@ library.add(faEdit, faTimes, faArrowCircleDown);
 export default function GeneralInformation(props) {
   const [toEdit, setToEdit] = useState(false);
   const [showBirthDayAlert, setShowBirthDayAlert] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  setTimeout(() => {
+    setLoading(false);
+  }, 5000);
 
   const student = props.student;
 
-  return (
+  return loading ? (
+    <div>Chargement ...</div>
+  ) : (
     <div>
       <Row>
         <Col xs="3">
           {student.Picture ? (
-            <Image src={student.Picture} rounded />
+            <Image src={student.Picture} width="200" height="200" rounded />
           ) : (
             <Image src={pic} rounded width="200" height="200" />
           )}
