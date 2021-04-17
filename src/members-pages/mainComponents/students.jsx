@@ -49,6 +49,13 @@ export default function Student(props) {
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [loadingLink, setLoadingLink] = useState(false);
+  const [isParents, setIsParents] = useState(true);
+
+  setTimeout(() => {
+    setIsParents(false);
+    setLoadingLink(false);
+  }, 3000);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
@@ -62,26 +69,21 @@ export default function Student(props) {
     console.log(page);
   };
 
-  const prevInfo = usePrevious({ students, currentPage });
-
   useEffect(() => {
     if (link.length < 1) setLink("link-0");
-    //if (prevInfo.currentPage !== currentPage)
-    if (students.length < 1)
-      fetch(
-        ENDPOINT("students/pagination?limit=10&page=" + currentPage),
-        getAuthRequest(token)
-      )
-        .then((r) => r.json())
-        .then((r) => {
-          //console.log(r)
-          //if (r.response.data !== students)
-          setStudents(r.response.data);
-          createPages(r.response.last_page, (e) => changePage(e), currentPage);
-          if (!oneStudent) setOneStudent(r.response.data[0]);
-        });
-    //console.log(prevInfo)
-  }, [link, students, oneStudent, currentPage]);
+    fetch(
+      ENDPOINT("students/pagination?limit=10&page=" + currentPage),
+      getAuthRequest(token)
+    )
+      .then((r) => r.json())
+      .then((r) => {
+        //console.log(r)
+        //if (r.response.data !== students)
+        setStudents(r.response.data);
+        createPages(r.response.last_page, (e) => changePage(e), currentPage);
+        if (!oneStudent) setOneStudent(r.response.data[0]);
+      });
+  }, []);
 
   return (
     <div>
@@ -115,7 +117,10 @@ export default function Student(props) {
                 <ListGroup.Item
                   action
                   key={students.indexOf(s)}
-                  onClick={() => setOneStudent(s)}
+                  onClick={() => {
+                    setOneStudent(s);
+                    setIsParents(true);
+                  }}
                 >
                   <strong>{s.Lastname}</strong> {s.Firstname}
                 </ListGroup.Item>
@@ -130,7 +135,10 @@ export default function Student(props) {
                 justify
                 variant="tabs"
                 defaultActiveKey="link-0"
-                onSelect={(e) => (e ? setLink(e) : setLink("link-0"))}
+                onSelect={(e) => {
+                  e ? setLink(e) : setLink("link-0");
+                  setLoadingLink(true);
+                }}
               >
                 <Nav.Item>
                   <Nav.Link eventKey="link-1">Informations Générales</Nav.Link>
@@ -147,7 +155,11 @@ export default function Student(props) {
               </Nav>
             </Card.Header>
             <Card.Body>
-              <Links link={link} student={oneStudent} />
+              {loadingLink ? (
+                <div>Chargement...</div>
+              ) : (
+                <Links link={link} student={oneStudent} isParents={isParents} />
+              )}
             </Card.Body>
           </Card>
           <br />
@@ -176,7 +188,10 @@ export default function Student(props) {
 function Links(props) {
   if (props.link === "link-0") {
     return (
-      <ContactParent studentId={props.student ? props.student.StudentId : 1} />
+      <ContactParent
+        studentId={props.student ? props.student.StudentId : 1}
+        isParents={props.isParents}
+      />
     );
   } else if (props.link === "link-1") {
     return <GeneralInformation student={props.student} />;

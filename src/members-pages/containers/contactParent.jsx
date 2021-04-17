@@ -38,19 +38,19 @@ export default function ContactParent(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   useEffect(() => {
-    if (parents.length < 1)
-      fetch(
-        ENDPOINT(`parents?studentid=${props.studentId}`),
-        getAuthRequest(token)
-      )
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.status) {
-            setParents(r.response);
-            setStudentId(props.studentId);
-          } else setParents([]);
-        });
-  }, [parents]);
+    fetch(
+      ENDPOINT(`parents?studentid=${props.studentId}`),
+      getAuthRequest(token)
+    )
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) {
+          if (r.response.length < 1) setParents([]);
+          setParents(r.response);
+          setStudentId(props.studentId);
+        }
+      });
+  }, [props.studentId]);
 
   return (
     <div>
