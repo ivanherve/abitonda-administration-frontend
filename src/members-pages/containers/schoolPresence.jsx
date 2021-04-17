@@ -20,14 +20,12 @@ export default function SchoolPresence(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   useEffect(() => {
-    if (students.length < 1) {
-      fetch(ENDPOINT("students"), getAuthRequest(token))
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.status) setStudents(r.response);
-        });
-    }
-  }, [students]);
+    fetch(ENDPOINT("students"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setStudents(r.response);
+      });
+  }, []);
 
   const yesterday = () => {
     let mainDate = today;

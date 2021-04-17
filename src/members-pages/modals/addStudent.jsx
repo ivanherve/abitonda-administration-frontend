@@ -48,15 +48,14 @@ export default function AddStudent(props) {
   };
 
   useEffect(() => {
-    if (classes.length < 1)
-      fetch(ENDPOINT("classes"), getAuthRequest(token))
-        .then((r) => r.json())
-        .then((r) => {
-          if (r.status) setClasses(r.response);
-          //console.log(r)
-        });
+    fetch(ENDPOINT("classes"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setClasses(r.response);
+        //console.log(r)
+      });
     //console.log([prevInfo.classes, classes])
-  }, [classes]);
+  }, []);
 
   return (
     <Modal show={props.show} onHide={props.hide} centered size="xl">

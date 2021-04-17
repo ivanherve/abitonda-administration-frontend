@@ -25,7 +25,7 @@ export default function Classe(props) {
 
   useEffect(() => {
     if (students.length < 1) getStudentPerClasse(selectedClasse);
-  }, [students, selectedClasse]);
+  }, [selectedClasse]);
 
   return (
     <div>
