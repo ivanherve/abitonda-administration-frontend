@@ -37,13 +37,14 @@ export default function AddStudent(props) {
       .then((r) => r.json())
       .then((r) => {
         if (!r.status) console.log(r, classe);
-        swal(
-          "Nouvel élève!",
-          `${r.response.Firstname} ${r.response.Lastname} a bien été ajouté`,
-          "success"
-        ).then(() => {
-          props.hide();
-        });
+        else
+          swal(
+            "Nouvel élève!",
+            `${r.response.Firstname} ${r.response.Lastname} a bien été ajouté`,
+            "success"
+          ).then(() => {
+            window.location.reload();
+          });
       });
   };
 
