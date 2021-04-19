@@ -158,6 +158,18 @@ export default function GeneralInformation(props) {
               </Col>
             </Form.Group>
             <hr />
+            <Form.Group as={Row} controlId="formPlaintextRegistering">
+              <Form.Label column sm="2">
+                Inscription
+              </Form.Label>
+              <Col sm="1">
+                <Form.Check
+                  type="checkbox"
+                  disabled={!toEdit}
+                  defaultChecked={student.Registered}
+                />
+              </Col>
+            </Form.Group>
             <Form.Group as={Row} controlId="formPlaintextCantine">
               <Form.Label column sm="2">
                 Cantine
