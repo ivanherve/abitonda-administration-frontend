@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button, Card, Col, ListGroup, Nav, Row, Table } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 
-const classes = ["TPS", "MS", "GS", "CP", "CE1"];
+const classes = ["TPS", "PS", "MS", "GS", "CP", "CE1"];
 
 export default function Classe(props) {
   const [link, setLink] = useState("link-0");
@@ -16,15 +16,18 @@ export default function Classe(props) {
     fetch(ENDPOINT("sclasse?classe=" + classe), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status) setStudents(r.response);
-        //console.log(r)
+        if (r.status) {
+          if (r.response.length < 1) setStudents([]);
+          else setStudents(r.response);
+        } else setStudents([]);
+        //console.log(r);
       });
   };
 
   //setTimeout(setPresenceLoading(true), 3000);
 
   useEffect(() => {
-    if (students.length < 1) getStudentPerClasse(selectedClasse);
+    getStudentPerClasse(selectedClasse);
   }, [selectedClasse]);
 
   return (
@@ -135,8 +138,17 @@ function Informations(props) {
     <Card.Body>
       <h2>{props.classe}</h2>
       <div>
-        Some quick example text to build on the card title and make up the bulk
-        of the card's content.
+        <h3>
+          <u>Enseignant(e)</u>
+        </h3>
+        Jean-Pierre Dubois
+        <br />
+        <h5>
+          <u>
+            <i>Assistant(e)</i>
+          </u>
+        </h5>
+        Julie Dubois
       </div>
     </Card.Body>
   );

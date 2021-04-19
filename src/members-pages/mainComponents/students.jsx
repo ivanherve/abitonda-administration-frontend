@@ -9,16 +9,14 @@ import {
   Form,
   ListGroup,
   Nav,
+  OverlayTrigger,
   Pagination,
   Row,
+  Tooltip,
 } from "react-bootstrap";
-import {
-  ENDPOINT,
-  getAuthRequest,
-  Loading,
-  usePrevious,
-} from "../../links/links";
+import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import ContactParent from "../containers/contactParent";
+import DownloadDocuments from "../modals/downloadDocuments";
 import GeneralInformation from "../containers/generalInformation";
 import Payment from "../containers/studentPayment";
 import StudentPresence from "../containers/studentPresence";
@@ -51,6 +49,8 @@ export default function Student(props) {
   const [loading, setLoading] = useState(false);
   const [loadingLink, setLoadingLink] = useState(false);
   const [isParents, setIsParents] = useState(true);
+  const [showDownloadDocuments, setShowDownloadDocuments] = useState(false);
+  const [nameClicked, setNameClicked] = useState(false);
 
   setTimeout(() => {
     setIsParents(false);
@@ -101,9 +101,18 @@ export default function Student(props) {
           </Button>
         </Col>
         <Col xs="1">
-          <Button variant="outline-secondary" style={{ width: "100%" }}>
-            <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
-          </Button>
+          <OverlayTrigger
+            placement="auto"
+            overlay={<Tooltip>Télécharger documents</Tooltip>}
+          >
+            <Button
+              variant="outline-secondary"
+              style={{ width: "100%" }}
+              onClick={() => setShowDownloadDocuments(true)}
+            >
+              <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
+            </Button>
+          </OverlayTrigger>
         </Col>
       </Row>
       <br />
@@ -120,9 +129,12 @@ export default function Student(props) {
                   onClick={() => {
                     setOneStudent(s);
                     setIsParents(true);
+                    //console.log(s);
                   }}
                 >
-                  <strong>{s.Lastname}</strong> {s.Firstname}
+                  <div>
+                    <strong>{s.Lastname}</strong> {s.Firstname}
+                  </div>
                 </ListGroup.Item>
               ))
             )}
@@ -158,7 +170,18 @@ export default function Student(props) {
               {loadingLink ? (
                 <div>Chargement...</div>
               ) : (
-                <Links link={link} student={oneStudent} isParents={isParents} />
+                <div>
+                  {oneStudent ? (
+                    <h6>{oneStudent.Firstname + " " + oneStudent.Lastname}</h6>
+                  ) : (
+                    <div>...</div>
+                  )}
+                  <Links
+                    link={link}
+                    student={oneStudent}
+                    isParents={isParents}
+                  />
+                </div>
               )}
             </Card.Body>
           </Card>
@@ -181,6 +204,10 @@ export default function Student(props) {
         </Col>
       </Row>
       <AddStudent show={showAddStudent} hide={() => setShowAddStudent(false)} />
+      <DownloadDocuments
+        show={showDownloadDocuments}
+        hide={() => setShowDownloadDocuments(false)}
+      />
     </div>
   );
 }
