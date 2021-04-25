@@ -9,6 +9,7 @@ export default function Login(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isLogging, setIsLogging] = useState(false);
 
   const signIn = () => {
     let data = {
@@ -16,6 +17,7 @@ export default function Login(props) {
       password: password,
     };
     data = JSON.stringify(data);
+    setIsLogging(true);
     fetch(ENDPOINT("signin"), postRequest(data))
       .then((r) => r.json())
       .then((r) => {
@@ -29,6 +31,10 @@ export default function Login(props) {
         }
       });
   };
+
+  setTimeout(() => {
+    setIsLogging(false);
+  }, 5000);
 
   if (loggedIn) {
     return <Redirect to="/" />;
@@ -79,8 +85,9 @@ export default function Login(props) {
             <Button
               variant="outline-primary"
               onClick={() => signIn(email, password)}
+              disabled={isLogging}
             >
-              Connexion
+              {isLogging ? "Connexion" : "Connexion ..."}
             </Button>
           </Card.Footer>
         </Card>
