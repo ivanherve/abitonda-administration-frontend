@@ -1,5 +1,9 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faArrowCircleDown, faPlus } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowCircleDown,
+  faArrowCircleUp,
+  faPlus,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
 import {
@@ -21,8 +25,9 @@ import GeneralInformation from "../containers/generalInformation";
 import Payment from "../containers/studentPayment";
 import StudentPresence from "../containers/studentPresence";
 import AddStudent from "../modals/addStudent";
+import UploadCSV from "../modals/uploadCsv";
 
-library.add(faPlus, faArrowCircleDown);
+library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
 
 let pages = [];
 const createPages = (max, click, activePage) => {
@@ -50,6 +55,7 @@ export default function Student(props) {
   const [loadingLink, setLoadingLink] = useState(false);
   const [isParents, setIsParents] = useState(true);
   const [showDownloadDocuments, setShowDownloadDocuments] = useState(false);
+  const [showUploadCsv, setShowUploadCsv] = useState(false);
   const [nameClicked, setNameClicked] = useState(false);
 
   setTimeout(() => {
@@ -83,7 +89,7 @@ export default function Student(props) {
         createPages(r.response.last_page, (e) => changePage(e), currentPage);
         if (!oneStudent) setOneStudent(r.response.data[0]);
       });
-  }, []);
+  }, [currentPage]);
 
   return (
     <div>
@@ -97,7 +103,7 @@ export default function Student(props) {
             style={{ width: "100%" }}
             onClick={() => setShowAddStudent(true)}
           >
-            Ajouter un élève <FontAwesomeIcon icon={["fas", "plus"]} />
+            Ajouter des élèves <FontAwesomeIcon icon={["fas", "plus"]} />
           </Button>
         </Col>
         <Col xs="1">
@@ -208,6 +214,7 @@ export default function Student(props) {
         show={showDownloadDocuments}
         hide={() => setShowDownloadDocuments(false)}
       />
+      <UploadCSV show={showUploadCsv} hide={() => setShowUploadCsv(false)} />
     </div>
   );
 }
