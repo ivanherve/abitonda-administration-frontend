@@ -101,7 +101,12 @@ function Presence(props) {
     return (
       <div>
         <Card.Body>
-          Tout séléctionner <input type="checkbox" />
+          <h6>
+            {
+              /*Tout séléctionner <input type="checkbox" />*/
+              students.length + " élèves"
+            }
+          </h6>
         </Card.Body>
         <Table striped bordered hover size="lg" style={{ marginBottom: "0" }}>
           <tbody>
