@@ -3,7 +3,8 @@ import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { faArrowCircleDown, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { useState } from "react";
+import FileBase64 from "react-file-base64";
+import { useEffect, useState } from "react";
 import {
   Button,
   Col,
@@ -21,6 +22,7 @@ export default function GeneralInformation(props) {
   const [toEdit, setToEdit] = useState(false);
   const [showBirthDayAlert, setShowBirthDayAlert] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [newPic, setNewPic] = useState(null);
 
   setTimeout(() => {
     setLoading(false);
@@ -28,18 +30,29 @@ export default function GeneralInformation(props) {
 
   const student = props.student;
 
+  useEffect(() => {
+    if (!newPic) {
+      if (student.Picture) setNewPic(student.Picture);
+      else setNewPic(pic);
+    } else console.log("useEffect");
+  }, [student, newPic]);
+
   return loading ? (
     <div>Chargement ...</div>
   ) : (
     <div>
       <Row>
         <Col xs="3">
-          {student.Picture ? (
-            <Image src={student.Picture} width="200" height="200" rounded />
-          ) : (
-            <Image src={pic} rounded width="200" height="200" />
+          <Image src={newPic} width="200" height="200" rounded />
+          <br />
+          {toEdit && (
+            <div style={{ width: "100%" }}>
+              <FileBase64
+                className="form-control"
+                onDone={(e) => setNewPic(e.base64)}
+              />
+            </div>
           )}
-
           <hr />
           <h4>{student.Lastname}</h4>
           <h6>

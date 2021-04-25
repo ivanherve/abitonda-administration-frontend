@@ -9257,7 +9257,7 @@ react-error-overlay@^6.0.8:
 
 react-file-base64@^1.0.3:
   version "1.0.3"
-  resolved "https://registry.npmjs.org/react-file-base64/-/react-file-base64-1.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/react-file-base64/-/react-file-base64-1.0.3.tgz#4174efa79445b139902ecc2730fc417efe79cb88"
   integrity sha1-QXTvp5RFsTmQLswnMPxBfv55y4g=
   dependencies:
     react "^15.6.1"
