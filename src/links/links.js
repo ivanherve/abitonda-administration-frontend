@@ -26,6 +26,16 @@ export const postAuthRequest = (data, token) => {
   };
 };
 
+export const postAuthRequestFormData = (data, token) => {
+  return {
+    method: "post",
+    headers: {
+      Authorization: token,
+    },
+    body: data,
+  };
+};
+
 export const getAuthRequest = (token) => {
   return {
     method: "get",
