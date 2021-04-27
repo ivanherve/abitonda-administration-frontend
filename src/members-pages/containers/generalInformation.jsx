@@ -3,7 +3,6 @@ import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { faArrowCircleDown, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import FileBase64 from "react-file-base64";
 import { useEffect, useState } from "react";
 import {
   Button,
@@ -14,7 +13,10 @@ import {
   Row,
   Tooltip,
 } from "react-bootstrap";
+import FileBase64 from "react-file-base64";
+import swal from "sweetalert";
 import pic from "../../img/ppx.jpg";
+import { ENDPOINT, postAuthRequestFormData } from "../../links/links";
 
 library.add(faEdit, faTimes, faArrowCircleDown);
 
@@ -22,7 +24,16 @@ export default function GeneralInformation(props) {
   const [toEdit, setToEdit] = useState(false);
   const [showBirthDayAlert, setShowBirthDayAlert] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [newPic, setNewPic] = useState(null);
+  const [newPic, setNewPic] = useState(pic);
+
+  const [lastname, setLastname] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [birthdate, setBirthdate] = useState("");
+  const [classe, setClasse] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [canteen, setCanteen] = useState(false);
+  const [transport, setTransport] = useState(false);
+  const [registered, setRegistered] = useState(false);
 
   setTimeout(() => {
     setLoading(false);
@@ -30,11 +41,41 @@ export default function GeneralInformation(props) {
 
   const student = props.student;
 
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+
+  const editStudent = () => {
+    let data = new FormData();
+    data.append("studentId", student.StudentId);
+    data.append("lastname", lastname);
+    data.append("firstname", firstname);
+    data.append("birthdate", birthdate);
+    data.append("classe", classe);
+    data.append("allergies", allergies);
+    data.append("Canteen", canteen);
+    data.append("Transport", transport);
+    data.append("Registered", registered);
+    data.append("Picture", newPic);
+    fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status)
+          swal("Parfait!", r.response, "success").then(() =>
+            window.location.reload()
+          );
+        else {
+          swal("Oups!", "Une erreur s'est produit", "warning");
+          console.log(r);
+        }
+      });
+  };
+
   useEffect(() => {
-    if (!newPic) {
-      if (student.Picture) setNewPic(student.Picture);
-      else setNewPic(pic);
-    } else console.log("useEffect");
+    if (student.Picture) setNewPic(student.Picture);
+    else setNewPic(pic);
+    console.log(student.Picture === newPic);
+    if (student.Registered) setRegistered(student.Registered);
+    if (student.Canteen) setCanteen(student.Canteen);
+    if (student.Transport) setTransport(student.Transport);
   }, [student, newPic]);
 
   return loading ? (
@@ -119,6 +160,7 @@ export default function GeneralInformation(props) {
                 <Form.Control
                   disabled={!toEdit}
                   placeholder={student.Lastname}
+                  onChange={(e) => setLastname(e.target.value)}
                 />
               </Col>
             </Form.Group>
@@ -130,6 +172,7 @@ export default function GeneralInformation(props) {
                 <Form.Control
                   disabled={!toEdit}
                   placeholder={student.Firstname}
+                  onChange={(e) => setFirstname(e.target.value)}
                 />
               </Col>
             </Form.Group>
@@ -146,7 +189,10 @@ export default function GeneralInformation(props) {
                     )}
                   />
                 ) : (
-                  <Form.Control type="date" />
+                  <Form.Control
+                    type="date"
+                    onChange={(e) => setBirthdate(e.target.value)}
+                  />
                 )}
               </Col>
             </Form.Group>
@@ -159,7 +205,12 @@ export default function GeneralInformation(props) {
                 {!toEdit ? (
                   <Form.Control disabled placeholder={student.Classe} />
                 ) : (
-                  <Form.Control as="select" disabled={!toEdit} placeholder="CP">
+                  <Form.Control
+                    as="select"
+                    disabled={!toEdit}
+                    placeholder="CP"
+                    onChange={(e) => setClasse(e.target.value)}
+                  >
                     <option>TPS</option>
                     <option>PS</option>
                     <option>MS</option>
@@ -180,6 +231,7 @@ export default function GeneralInformation(props) {
                   type="checkbox"
                   disabled={!toEdit}
                   defaultChecked={student.Registered}
+                  onChange={(e) => setRegistered(e.target.checked)}
                 />
               </Col>
             </Form.Group>
@@ -191,7 +243,8 @@ export default function GeneralInformation(props) {
                 <Form.Check
                   type="checkbox"
                   disabled={!toEdit}
-                  checked={student.Canteen}
+                  defaultChecked={student.Canteen}
+                  onChange={(e) => setCanteen(e.target.checked)}
                 />
               </Col>
             </Form.Group>
@@ -203,7 +256,8 @@ export default function GeneralInformation(props) {
                 <Form.Check
                   type="checkbox"
                   disabled={!toEdit}
-                  checked={student.Transport}
+                  defaultChecked={student.Transport}
+                  onChange={(e) => setTransport(e.target.checked)}
                 />
               </Col>
             </Form.Group>
@@ -249,11 +303,19 @@ export default function GeneralInformation(props) {
                 Allergies
               </Form.Label>
               <Col sm="8">
-                <Form.Control as="textarea" disabled={!toEdit} />
+                <Form.Control
+                  as="textarea"
+                  disabled={!toEdit}
+                  onChange={(e) => setAllergies(e.target.value)}
+                />
               </Col>
             </Form.Group>
             <hr />
-            {toEdit && <Button variant="outline-primary">Sauvegarder</Button>}
+            {toEdit && (
+              <Button variant="outline-primary" onClick={() => editStudent()}>
+                Sauvegarder
+              </Button>
+            )}
           </Form>
         </Col>
       </Row>
