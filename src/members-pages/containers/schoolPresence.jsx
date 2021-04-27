@@ -69,11 +69,7 @@ export default function SchoolPresence(props) {
           <thead>
             <tr>
               <th>Nom</th>
-              <th>
-                <label>Présent</label>
-                <br />
-                <input type="checkbox" />
-              </th>
+              <th>Présent</th>
             </tr>
           </thead>
           <tbody>
