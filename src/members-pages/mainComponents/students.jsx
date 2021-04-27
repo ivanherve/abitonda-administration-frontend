@@ -57,6 +57,7 @@ export default function Student(props) {
   const [showDownloadDocuments, setShowDownloadDocuments] = useState(false);
   const [showUploadCsv, setShowUploadCsv] = useState(false);
   const [nameClicked, setNameClicked] = useState(false);
+  const [nameSearched, setNameSearched] = useState("");
 
   setTimeout(() => {
     setIsParents(false);
@@ -77,25 +78,38 @@ export default function Student(props) {
 
   useEffect(() => {
     if (link.length < 1) setLink("link-0");
-    fetch(
-      ENDPOINT("students/pagination?limit=10&page=" + currentPage),
-      getAuthRequest(token)
-    )
+    if (nameSearched.length < 1)
+      fetch(
+        ENDPOINT("students/pagination?limit=10&page=" + currentPage),
+        getAuthRequest(token)
+      )
+        .then((r) => r.json())
+        .then((r) => {
+          //console.log(r)
+          //if (r.response.data !== students)
+          setStudents(r.response.data);
+          createPages(r.response.last_page, (e) => changePage(e), currentPage);
+          if (!oneStudent) setOneStudent(r.response.data[0]);
+        });
+    else searchStudent(nameSearched);
+  }, [currentPage, nameSearched]);
+
+  const searchStudent = (name) => {
+    fetch(ENDPOINT("searchstudent?name=" + name), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        //console.log(r)
-        //if (r.response.data !== students)
-        setStudents(r.response.data);
-        createPages(r.response.last_page, (e) => changePage(e), currentPage);
-        if (!oneStudent) setOneStudent(r.response.data[0]);
+        if (r.status) setStudents(r.response);
       });
-  }, [currentPage]);
+  };
 
   return (
     <div>
       <Row>
         <Col xs="8">
-          <Form.Control placeholder="Rechercher ..." />
+          <Form.Control
+            placeholder="Rechercher ..."
+            onChange={(e) => setNameSearched(e.target.value)}
+          />
         </Col>
         <Col>
           <Button
