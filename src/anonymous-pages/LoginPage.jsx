@@ -87,7 +87,7 @@ export default function Login(props) {
               onClick={() => signIn(email, password)}
               disabled={isLogging}
             >
-              {isLogging ? "Connexion" : "Connexion ..."}
+              {isLogging ? "Connexion..." : "Connexion"}
             </Button>
           </Card.Footer>
         </Card>
