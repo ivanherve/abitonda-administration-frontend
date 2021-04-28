@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, Col, Form, ListGroup, Row } from "react-bootstrap";
+import { Button, Card, Col, Form, ListGroup, Row } from "react-bootstrap";
 
 const numbFormat = (number) => {
   let numb = parseInt(number);
@@ -101,6 +101,12 @@ export default function Employees(props) {
 
   return (
     <div>
+      {/**/}
+      <Row>
+        <Button style={{ width: "100%" }} variant="outline-success">
+          Ajouter un employée
+        </Button>
+      </Row>
       <Row>
         <Col xs="2">
           <ListGroup>
