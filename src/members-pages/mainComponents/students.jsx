@@ -25,7 +25,6 @@ import GeneralInformation from "../containers/generalInformation";
 import Payment from "../containers/studentPayment";
 import StudentPresence from "../containers/studentPresence";
 import AddStudent from "../modals/addStudent";
-import UploadCSV from "../modals/uploadCsv";
 
 library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
 
@@ -55,7 +54,6 @@ export default function Student(props) {
   const [loadingLink, setLoadingLink] = useState(false);
   const [isParents, setIsParents] = useState(true);
   const [showDownloadDocuments, setShowDownloadDocuments] = useState(false);
-  const [showUploadCsv, setShowUploadCsv] = useState(false);
   const [nameClicked, setNameClicked] = useState(false);
   const [nameSearched, setNameSearched] = useState("");
 
@@ -228,7 +226,6 @@ export default function Student(props) {
         show={showDownloadDocuments}
         hide={() => setShowDownloadDocuments(false)}
       />
-      <UploadCSV show={showUploadCsv} hide={() => setShowUploadCsv(false)} />
     </div>
   );
 }
