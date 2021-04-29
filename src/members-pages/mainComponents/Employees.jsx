@@ -1,5 +1,10 @@
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Button, Card, Col, Form, ListGroup, Row } from "react-bootstrap";
+
+library.add(faPlus);
 
 const numbFormat = (number) => {
   let numb = parseInt(number);
@@ -103,10 +108,13 @@ export default function Employees(props) {
     <div>
       {/**/}
       <Row>
-        <Button style={{ width: "100%" }} variant="outline-success">
-          Ajouter un employée
-        </Button>
+        <Col sm="12">
+          <Button style={{ width: "100%" }} variant="outline-success">
+            <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter un employée
+          </Button>
+        </Col>
       </Row>
+      <br />
       <Row>
         <Col xs="2">
           <ListGroup>
