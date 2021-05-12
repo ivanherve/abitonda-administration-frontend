@@ -6,9 +6,11 @@ import {
   Switch,
 } from "react-router-dom";
 import Header from "./header";
+import Birthday from "./mainComponents/birthday";
 import Classe from "./mainComponents/classes";
 import Employees from "./mainComponents/Employees";
 import Presence from "./mainComponents/presence";
+import Statistics from "./mainComponents/statistics";
 import Student from "./mainComponents/students";
 
 export default function Layout(props) {
@@ -35,8 +37,8 @@ export default function Layout(props) {
             />
             <Route path="/activity/karate" render={() => <div>karaté</div>} />
             <Route path="/employees" render={() => <Employees />} />
-            <Route path="/birthdays" render={() => <div>Anniversaires</div>} />
-            <Route path="/statistics" render={() => <div>Statistiques</div>} />
+            <Route path="/birthdays" component={Birthday} />
+            <Route path="/statistics" component={Statistics} />
             <Route path="/schoolreport" render={() => <div>Bulletin</div>} />
           </Switch>
         </Router>
