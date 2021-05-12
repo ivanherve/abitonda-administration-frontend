@@ -16,7 +16,11 @@ import {
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
 import pic from "../../img/ppx.jpg";
-import { ENDPOINT, postAuthRequestFormData } from "../../links/links";
+import {
+  ENDPOINT,
+  getAuthRequest,
+  postAuthRequestFormData,
+} from "../../links/links";
 
 library.add(faEdit, faTimes, faArrowCircleDown);
 
@@ -34,9 +38,15 @@ export default function GeneralInformation(props) {
   const [canteen, setCanteen] = useState(false);
   const [transport, setTransport] = useState(false);
   const [registered, setRegistered] = useState(false);
+  const [neighborhoods, setNeighborhoods] = useState([
+    { SectorId: 0, Neighborhood: "District - Sector" },
+  ]);
+  const [neighborhoodSelected, setNeighborhoodSelected] = useState("");
+  const [address, setAddress] = useState("");
 
   setTimeout(() => {
     setLoading(false);
+    //console.log(student);
   }, 5000);
 
   const student = props.student;
@@ -55,6 +65,8 @@ export default function GeneralInformation(props) {
     data.append("Transport", transport);
     data.append("Registered", registered);
     data.append("Picture", newPic);
+    data.append("neighborhood", neighborhoodSelected);
+    data.append("address", address);
     fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
@@ -69,6 +81,14 @@ export default function GeneralInformation(props) {
       });
   };
 
+  const getNeighborhoods = () => {
+    fetch(ENDPOINT("neighborhoods"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setNeighborhoods(r.response);
+      });
+  };
+
   useEffect(() => {
     if (student.Picture) setNewPic(student.Picture);
     else setNewPic(pic);
@@ -76,6 +96,7 @@ export default function GeneralInformation(props) {
     if (student.Registered) setRegistered(student.Registered);
     if (student.Canteen) setCanteen(student.Canteen);
     if (student.Transport) setTransport(student.Transport);
+    getNeighborhoods();
   }, [student, newPic]);
 
   return loading ? (
@@ -193,6 +214,32 @@ export default function GeneralInformation(props) {
                     type="date"
                     onChange={(e) => setBirthdate(e.target.value)}
                   />
+                )}
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} controlId="formAddress">
+              <Form.Label column sm="2">
+                Adresse
+              </Form.Label>
+              <Col sm="5">
+                <Form.Control
+                  disabled={!toEdit}
+                  placeholder={student.Address}
+                  onChange={(e) => setAddress(e.target.value)}
+                />
+              </Col>
+              <Col sm="5">
+                {!toEdit ? (
+                  <Form.Control disabled placeholder={student.Neighborhood} />
+                ) : (
+                  <Form.Control
+                    as="select"
+                    onChange={(e) => setNeighborhoodSelected(e.target.value)}
+                  >
+                    {neighborhoods.map((n) => (
+                      <option key={n.SectorId}>{n.Neighborhood}</option>
+                    ))}
+                  </Form.Control>
                 )}
               </Col>
             </Form.Group>
