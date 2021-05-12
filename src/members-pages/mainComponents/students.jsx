@@ -105,7 +105,7 @@ export default function Student(props) {
       <Row>
         <Col xs="8">
           <Form.Control
-            placeholder="Rechercher ..."
+            placeholder="Rechercher prénom ..."
             onChange={(e) => setNameSearched(e.target.value)}
           />
         </Col>
