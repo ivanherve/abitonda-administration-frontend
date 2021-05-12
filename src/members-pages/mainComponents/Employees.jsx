@@ -2,9 +2,20 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Button, Card, Col, Form, ListGroup, Row } from "react-bootstrap";
+import AddEmployee from "../modals/addEmployee";
+import EditEmployee from "../modals/editEmployee";
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  ListGroup,
+  Row,
+  Table,
+} from "react-bootstrap";
+import { faEdit } from "@fortawesome/free-regular-svg-icons";
 
-library.add(faPlus);
+library.add(faPlus, faEdit);
 
 const numbFormat = (number) => {
   let numb = parseInt(number);
@@ -23,14 +34,10 @@ export default function Employees(props) {
       Firstname: "Protais",
       Account: "0130-2043600",
       Bank: "COGEBANK",
-      SalaireNet: "100000",
-      SalaireBrut: "",
-      Avance: "7000",
-      Difference: "93000",
-      Position: "Chauffeur/Coursier",
+      Position: ["Chauffeur/Coursier"],
       NbDays: 22,
-      NbRSSB: "",
-      Doc: "",
+      NbRSSB: "3101046700000S",
+      Doc: ["Certificat Formation", "Diplôme Secondaire"],
     },
     {
       EmployeeId: 2,
@@ -38,14 +45,17 @@ export default function Employees(props) {
       Firstname: "Belyse",
       Account: "00048-06790820-06",
       Bank: "BK",
-      SalaireNet: "200000",
-      SalaireBrut: "",
-      Avance: "48500",
-      Difference: "151000",
-      Position: "Enseignante",
+      Position: ["Enseignante", "Responsable Maternelle"],
       NbDays: 22,
       NbRSSB: "",
-      Doc: "",
+      Doc: [
+        "Certificat Formation",
+        "Diplôme Secondaire",
+        "Attestion de Service PTS",
+        "Attestion de Service Les poussins",
+        "Attestion de Service EBK",
+        "Attestion de Service EFASE",
+      ],
     },
     {
       EmployeeId: 3,
@@ -53,14 +63,10 @@ export default function Employees(props) {
       Firstname: "Sophia",
       Account: "00040-65000020-29",
       Bank: "BK",
-      SalaireNet: "100000",
-      SalaireBrut: "",
-      Avance: "3500",
-      Difference: "96500",
-      Position: "Assistante Crèche",
+      Position: ["Assistante Crèche", "Job 2"],
       NbDays: 22,
-      NbRSSB: "",
-      Doc: "",
+      NbRSSB: "3101046700000S",
+      Doc: ["Diplôme secondaire", "Bachelor en pédagogie (Univ. Bukavu)"],
     },
     {
       EmployeeId: 4,
@@ -68,48 +74,27 @@ export default function Employees(props) {
       Firstname: "Leaty",
       Account: "00002-01390241612-83",
       Bank: "COGEBANK",
-      SalaireNet: "300000",
-      SalaireBrut: "",
-      Avance: "68500",
-      Difference: "231500",
-      Position: "Responsable Adm et Fin",
+      Position: ["Responsable Adm et Fin"],
       NbDays: 22,
       NbRSSB: "10216978",
-      Doc: "",
+      Doc: [""],
     },
   ];
-  const [surname, setSurname] = useState("");
-  const [firstname, setfirstname] = useState("");
-  const [account, setAccount] = useState("");
-  const [bank, setBank] = useState("");
-  const [sNet, setSNet] = useState("");
-  const [sBrut, setSBrut] = useState("");
-  const [difference, setDifference] = useState("");
-  const [position, setPosition] = useState("");
-  const [nbDays, setNbDays] = useState("");
-  const [nbRSSB, setNbRSSB] = useState("");
-  const [doc, setDoc] = useState("");
 
-  const selectEmployee = (e) => {
-    setSurname(e.Name);
-    setfirstname(e.Firstname);
-    setAccount(e.Account);
-    setBank(e.Bank);
-    setSNet(e.SalaireNet);
-    setSBrut(e.SalaireBrut);
-    setDifference(e.Difference);
-    setPosition(e.Position);
-    setNbDays(e.NbDays);
-    setNbRSSB(e.NbRSSB);
-    setDoc(e.Doc);
-  };
+  const [employee, setEmployee] = useState(emp[0]);
+  const [showAddEmployee, setShowAddEmployee] = useState(false);
+  const [showEditEmployee, setShowEditEmployee] = useState(false);
 
   return (
     <div>
       {/**/}
       <Row>
         <Col sm="12">
-          <Button style={{ width: "100%" }} variant="outline-success">
+          <Button
+            style={{ width: "100%" }}
+            variant="outline-success"
+            onClick={() => setShowAddEmployee(true)}
+          >
             <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter un employée
           </Button>
         </Col>
@@ -122,7 +107,7 @@ export default function Employees(props) {
               <ListGroup.Item
                 action
                 key={emp.indexOf(e)}
-                onClick={() => selectEmployee(e)}
+                onClick={() => setEmployee(e)}
               >
                 <strong>{e.Name.toUpperCase()}</strong> {e.Firstname}
               </ListGroup.Item>
@@ -132,95 +117,94 @@ export default function Employees(props) {
         <Col>
           <Card>
             <Card.Header>
-              <Card.Title>{`${firstname} ${surname.toUpperCase()}`}</Card.Title>
+              <Row>
+                <Col sm="11">
+                  <Card.Title>{`${
+                    employee.Firstname
+                  } ${employee.Name.toUpperCase()}`}</Card.Title>
+                </Col>
+                <Col sm="1">
+                  <Button
+                    variant="outline-info"
+                    onClick={() => setShowEditEmployee(true)}
+                  >
+                    <FontAwesomeIcon icon={["far", "edit"]} />
+                  </Button>
+                </Col>
+              </Row>
             </Card.Header>
             <Card.Body>
-              <Form>
-                <Form.Group as={Row} controlId="formPlaintextAccount">
-                  <Form.Label column sm="2">
-                    Numéro de compte
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={account} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextBank">
-                  <Form.Label column sm="2">
-                    Banque
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={bank} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextSNet">
-                  <Form.Label column sm="2">
-                    Salaire/Net
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      defaultValue={numbFormat(sNet)}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextSBrut">
-                  <Form.Label column sm="2">
-                    Salaire/Brut
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={sBrut} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextDifference">
-                  <Form.Label column sm="2">
-                    Différence
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control
-                      plaintext
-                      readOnly
-                      defaultValue={difference}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextPosition">
-                  <Form.Label column sm="2">
-                    Poste Occupé
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={position} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNbDays">
-                  <Form.Label column sm="2">
-                    Nombre de jours
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={nbDays} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNbRSSB">
-                  <Form.Label column sm="2">
-                    Nombre de RSSB
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={nbRSSB} />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextDoc">
-                  <Form.Label column sm="2">
-                    Documents Remis
-                  </Form.Label>
-                  <Col sm="10">
-                    <Form.Control plaintext readOnly defaultValue={doc} />
-                  </Col>
-                </Form.Group>
-              </Form>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th style={{ width: "50px" }}></th>
+                    <th>
+                      <h3>
+                        {`${employee.Firstname} ${employee.Name.toUpperCase()}`}
+                      </h3>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(employee).map((e) => (
+                    <tr key={e}>
+                      <td>
+                        <strong>{e}</strong>
+                      </td>
+                      {e === "Position" ? (
+                        <td>
+                          {Object.values(employee)[
+                            Object.keys(employee).indexOf(e)
+                          ].map((p) => (
+                            <Badge
+                              pill
+                              variant="secondary"
+                              style={{ marginRight: "10px", fontSize: "0.9em" }}
+                            >
+                              {p}
+                            </Badge>
+                          ))}
+                        </td>
+                      ) : e === "Doc" ? (
+                        <td>
+                          {Object.values(employee)[
+                            Object.keys(employee).indexOf(e)
+                          ].map((p) => (
+                            <Badge
+                              pill
+                              variant="info"
+                              style={{ marginRight: "10px", fontSize: "0.9em" }}
+                            >
+                              {p}
+                            </Badge>
+                          ))}
+                        </td>
+                      ) : (
+                        <td>
+                          {
+                            Object.values(employee)[
+                              Object.keys(employee).indexOf(e)
+                            ]
+                          }
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+      <AddEmployee
+        show={showAddEmployee}
+        hide={() => setShowAddEmployee(false)}
+      />
+      <EditEmployee
+        show={showEditEmployee}
+        hide={() => setShowEditEmployee(false)}
+        employee={employee}
+      />
     </div>
   );
 }
