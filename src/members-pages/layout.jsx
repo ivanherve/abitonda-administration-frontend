@@ -9,9 +9,11 @@ import Header from "./header";
 import Birthday from "./mainComponents/birthday";
 import Classe from "./mainComponents/classes";
 import Employees from "./mainComponents/Employees";
+import PaymentBook from "./mainComponents/paymentBook";
 import Presence from "./mainComponents/presence";
 import Statistics from "./mainComponents/statistics";
 import Student from "./mainComponents/students";
+import Transcripts from "./mainComponents/transcripts";
 
 export default function Layout(props) {
   if (!sessionStorage.getItem("userData")) {
@@ -39,7 +41,8 @@ export default function Layout(props) {
             <Route path="/employees" render={() => <Employees />} />
             <Route path="/birthdays" component={Birthday} />
             <Route path="/statistics" component={Statistics} />
-            <Route path="/schoolreport" render={() => <div>Bulletin</div>} />
+            <Route path="/schoolreport" component={Transcripts} />
+            <Route path="/payments" component={PaymentBook} />
           </Switch>
         </Router>
       </Container>
