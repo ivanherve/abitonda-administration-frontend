@@ -1,39 +1,86 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import { Button, Col, Form, ListGroup, Modal, Row } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import {
+  Button,
+  Col,
+  Form,
+  ListGroup,
+  Modal,
+  Row,
+  Badge,
+} from "react-bootstrap";
 import swal from "sweetalert";
-
-export const bank = [
-  { BankId: 1, Name: "" },
-  { BankId: 2, Name: "BK" },
-  { BankId: 3, Name: "COGEBANK" },
-];
-
-export const jobs = [
-  { JobId: 1, Name: "Chauffeur/Coursier" },
-  { JobId: 2, Name: "Enseignant(e)" },
-  { JobId: 3, Name: "Assistant(e)" },
-  { JobId: 4, Name: "Gardien(ne)" },
-  { JobId: 5, Name: "Ménagère" },
-  { JobId: 6, Name: "Secrétaire" },
-  { JobId: 7, Name: "Directeur" },
-];
+import {
+  ENDPOINT,
+  getAuthRequest,
+  postAuthRequest,
+  postAuthRequestFormData,
+} from "../../links/links";
 
 export default function AddEmployee(props) {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
+  const [email, setEmail] = useState("");
   const [bankSelected, setBankSelected] = useState("");
   const [account, setAccount] = useState("");
+  const [rssb, setRssb] = useState("");
+  const [nbDays, setNbDays] = useState("");
   const [position, setPosition] = useState([]);
-  const addEmp = () => {
-    console.log({
-      Lastname: lastname,
-      Firstname: firstname,
-      Bank: bankSelected,
-      Account: account,
-      Postions: position,
-    });
+  const [jobs, setJobs] = useState([]);
+  const [banks, setBanks] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [doc, setDoc] = useState("");
+  const [over, setOver] = useState(false);
+  const [over2, setOver2] = useState(false);
+
+  let getJobs = () => {
+    fetch(ENDPOINT("jobs"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setJobs([{ JobId: 0, Name: "" }, ...r.response]);
+      });
   };
+
+  let getBanks = () => {
+    fetch(ENDPOINT("banks"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setBanks([{ BankId: 0, Name: "" }, ...r.response]);
+      });
+  };
+
+  useEffect(() => {
+    getJobs();
+    getBanks();
+  }, []);
+
+  const addEmp = () => {
+    let data = {
+      lastname,
+      firstname,
+      bankSelected,
+      account,
+      position,
+      documents,
+      rssb,
+      nbDays,
+      email,
+    };
+    let formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+    fetch(ENDPOINT("addemployee"), postAuthRequestFormData(formData, token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (!r.status) swal("Oups!", r.response, "warning");
+        else
+          swal("Parfait!", r.response, "success").then(() =>
+            window.location.reload()
+          );
+      });
+  };
+
   return (
     <Modal show={props.show} onHide={props.hide} centered size="xl">
       <Modal.Header>
@@ -51,47 +98,162 @@ export default function AddEmployee(props) {
             label="Prénom"
             change={(e) => setFirstname(e.target.value)}
           />
+          <FrmGroupText
+            controlId="formPlaintextEmail"
+            label="E-mail"
+            change={(e) => setEmail(e.target.value)}
+          />
           <FrmGroupSelect
             controlId="formPlaintextBank"
             label="Banque"
             change={(e) => setBankSelected(e.target.value)}
-            data={bank}
+            data={banks}
           />
           <FrmGroupText
             controlId="formPlaintextBankAccount"
             label="Compte Banquaire"
             change={(e) => setAccount(e.target.value)}
           />
-          <FrmGroupSelect
-            controlId="formPlaintextJob"
-            label="Position"
-            change={(e) =>
-              position.length < 1
-                ? position.indexOf(e.target.value) === -1
-                  ? setPosition([e.target.value])
-                  : swal("Déjà ajouté", "", "warning")
-                : position.indexOf(e.target.value) === -1
-                ? setPosition([...position, e.target.value])
-                : swal("Déjà ajouté", "", "warning")
-            }
-            data={jobs}
+          <FrmGroupText
+            controlId="formPlaintextNumbRSSB"
+            label="Numéro RSSB"
+            change={(e) => setRssb(e.target.value)}
           />
-          <br />
-          <Row>
-            <Col sm="2"></Col>
+          <FrmGroupText
+            controlId="formPlaintextNumbDays"
+            label="Nombre de Jour"
+            change={(e) => setNbDays(e.target.value)}
+          />
+          <Form.Group as={Row} controlId="formPlaintextJob">
+            <Form.Label column sm="2">
+              Position
+            </Form.Label>
             <Col sm="10">
+              <Row>
+                <Col sm="6">
+                  <Form.Control
+                    as="select"
+                    onChange={(e) =>
+                      position.length < 1
+                        ? position.indexOf(e.target.value) === -1
+                          ? setPosition([e.target.value])
+                          : swal("Déjà ajouté", "", "warning")
+                        : position.indexOf(e.target.value) === -1
+                        ? setPosition([...position, e.target.value])
+                        : swal("Déjà ajouté", "", "warning")
+                    }
+                  >
+                    {jobs.map((d) => (
+                      <option key={jobs.indexOf(d)}>{d.Name}</option>
+                    ))}
+                  </Form.Control>
+                </Col>
+                <Col sm="6">
+                  <ListGroup variant="flush">
+                    {position.map((p) => (
+                      <ListGroup.Item key={position.indexOf(p)}>
+                        <Row>
+                          <Col sm="11">{p}</Col>
+                          <Col sm="1">
+                            <Button
+                              variant="light"
+                              onClick={() => {
+                                let arr = [...position];
+                                arr.splice(position.indexOf(p), 1);
+                                setPosition(arr);
+                              }}
+                            >
+                              <FontAwesomeIcon icon={["fas", "times"]} />
+                            </Button>
+                          </Col>
+                        </Row>
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                </Col>
+              </Row>
+            </Col>
+          </Form.Group>
+          <hr />
+          <Form.Group
+            as={Row}
+            controlId="formDocs"
+            style={{ maxHeight: "200px", overflow: "auto" }}
+          >
+            <Form.Label column sm="2">
+              Documents
+            </Form.Label>
+            <Col sm="4">
+              <Form.Control onChange={(e) => setDoc(e.target.value)} />
+              <Badge
+                variant={over ? "info" : "secondary"}
+                style={{
+                  marginRight: "10px",
+                  fontSize: "0.8em",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={() => setOver(!over)}
+                onMouseLeave={() => setOver(!over)}
+                pill
+                onClick={(e) => {
+                  documents.length < 1
+                    ? setDocuments([e.target.innerText])
+                    : documents.indexOf(e.target.innerText) === -1
+                    ? setDocuments([...documents, e.target.innerText])
+                    : swal("Déjà ajouté", "", "warning");
+                }}
+              >
+                Certificat Formation
+              </Badge>
+              <Badge
+                variant={over2 ? "info" : "secondary"}
+                style={{
+                  marginRight: "10px",
+                  fontSize: "0.8em",
+                  cursor: "pointer",
+                }}
+                pill
+                onMouseEnter={() => setOver2(!over2)}
+                onMouseLeave={() => setOver2(!over2)}
+                onClick={(e) => {
+                  documents.length < 1
+                    ? setDocuments([e.target.innerText])
+                    : documents.indexOf(e.target.innerText) === -1
+                    ? setDocuments([...documents, e.target.innerText])
+                    : swal("Déjà ajouté", "", "warning");
+                }}
+              >
+                Diplôme secondaire
+              </Badge>
+            </Col>
+            <Col sm="1">
+              <Button
+                variant="outline-secondary"
+                style={{ width: "100%" }}
+                onClick={() => {
+                  documents.length < 1
+                    ? setDocuments([doc])
+                    : documents.indexOf(doc) === -1
+                    ? setDocuments([...documents, doc])
+                    : swal("Déjà ajouté", "", "warning");
+                }}
+              >
+                <FontAwesomeIcon icon={["fas", "plus"]} />
+              </Button>
+            </Col>
+            <Col sm="5">
               <ListGroup variant="flush">
-                {position.map((p) => (
-                  <ListGroup.Item key={position.indexOf(p)}>
+                {documents.map((p) => (
+                  <ListGroup.Item key={documents.indexOf(p)}>
                     <Row>
                       <Col sm="11">{p}</Col>
                       <Col sm="1">
                         <Button
                           variant="light"
                           onClick={() => {
-                            let arr = [...position];
-                            arr.splice(position.indexOf(p), 1);
-                            setPosition(arr);
+                            let arr = [...documents];
+                            arr.splice(documents.indexOf(p), 1);
+                            setDocuments(arr);
                           }}
                         >
                           <FontAwesomeIcon icon={["fas", "times"]} />
@@ -102,7 +264,7 @@ export default function AddEmployee(props) {
                 ))}
               </ListGroup>
             </Col>
-          </Row>
+          </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
@@ -136,7 +298,7 @@ function FrmGroupSelect(props) {
       <Col sm="10">
         <Form.Control as="select" onChange={props.change}>
           {props.data.map((d) => (
-            <option key={d.BankId}>{d.Name}</option>
+            <option key={props.data.indexOf(d)}>{d.Name}</option>
           ))}
         </Form.Control>
       </Col>
