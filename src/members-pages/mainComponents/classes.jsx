@@ -2,17 +2,18 @@ import { useEffect, useState } from "react";
 import { Button, Card, Col, ListGroup, Nav, Row, Table } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 
-const classes = ["TPS", "PS", "MS", "GS", "CP", "CE1"];
+//const classes = ["TPS", "PS", "MS", "GS", "CP", "CE1"];
 
 export default function Classe(props) {
   const [link, setLink] = useState("link-0");
   const [selectedClasse, setSelectedClasse] = useState("TPS");
   const [students, setStudents] = useState([]);
   const [presenceLoading, setPresenceLoading] = useState(false);
+  const [classes, setClasses] = useState([]);
+
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const getStudentPerClasse = (classe) => {
-    const token = JSON.parse(sessionStorage.getItem("userData")).token
-      .Api_token;
     fetch(ENDPOINT("sclasse?classe=" + classe), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
@@ -24,10 +25,19 @@ export default function Classe(props) {
       });
   };
 
+  const getClasses = () => {
+    fetch(ENDPOINT("classes"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setClasses(r.response);
+      });
+  };
+
   //setTimeout(setPresenceLoading(true), 3000);
 
   useEffect(() => {
     getStudentPerClasse(selectedClasse);
+    getClasses();
   }, [selectedClasse]);
 
   return (
@@ -39,9 +49,9 @@ export default function Classe(props) {
               <ListGroup.Item
                 action
                 key={classes.indexOf(c)}
-                onClick={() => setSelectedClasse(c)}
+                onClick={() => setSelectedClasse(c.Name)}
               >
-                {c}
+                {c.Name}
               </ListGroup.Item>
             ))}
           </ListGroup>
