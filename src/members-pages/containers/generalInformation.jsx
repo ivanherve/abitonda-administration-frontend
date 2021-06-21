@@ -43,6 +43,7 @@ export default function GeneralInformation(props) {
   ]);
   const [neighborhoodSelected, setNeighborhoodSelected] = useState("");
   const [address, setAddress] = useState("");
+  const [allClasses, setAllClasses] = useState([]);
 
   setTimeout(() => {
     setLoading(false);
@@ -89,6 +90,15 @@ export default function GeneralInformation(props) {
       });
   };
 
+  const getClasses = () => {
+    fetch(ENDPOINT("classes"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setAllClasses([{ Name: "" }, ...r.response]);
+        console.log(r.response);
+      });
+  };
+
   useEffect(() => {
     if (student.Picture) setNewPic(student.Picture);
     else setNewPic(pic);
@@ -97,6 +107,7 @@ export default function GeneralInformation(props) {
     if (student.Canteen) setCanteen(student.Canteen);
     if (student.Transport) setTransport(student.Transport);
     getNeighborhoods();
+    getClasses();
   }, [student, newPic]);
 
   return loading ? (
@@ -258,12 +269,9 @@ export default function GeneralInformation(props) {
                     placeholder="CP"
                     onChange={(e) => setClasse(e.target.value)}
                   >
-                    <option>TPS</option>
-                    <option>PS</option>
-                    <option>MS</option>
-                    <option>GS</option>
-                    <option>CP</option>
-                    <option>CE1</option>
+                    {allClasses.map((c) => (
+                      <option key={allClasses.indexOf(c)}>{c.Name}</option>
+                    ))}
                   </Form.Control>
                 )}
               </Col>
