@@ -55,16 +55,47 @@ export default function PaymentBook(props) {
   return (
     <Card>
       <Card.Header>
-        <Card.Title>Livret de caisse</Card.Title>
+        <Row>
+          <Col>
+            <Card.Title>Livret de caisse</Card.Title>
+          </Col>
+          <Col>
+            <Button
+              style={{ width: "100%" }}
+              variant="outline-success"
+              onClick={() => setShowAddBill(true)}
+            >
+              Ajouter une facture
+            </Button>
+          </Col>
+        </Row>
       </Card.Header>
       <Card.Body>
-        <Button
-          style={{ width: "100%" }}
-          variant="outline-success"
-          onClick={() => setShowAddBill(true)}
-        >
-          Ajouter une facture
-        </Button>
+        <Row>
+          <Col sm="1">
+            <strong>Filtrer :</strong>
+          </Col>
+          <Col sm="2">
+            <Form.Check label="Cash" type="radio" name="filterPayment" />
+          </Col>
+          <Col sm="2">
+            <Form.Check
+              label="Mobile money"
+              type="radio"
+              name="filterPayment"
+            />
+          </Col>
+          <Col sm="2">
+            <Form.Check
+              label="Carte de crédit"
+              type="radio"
+              name="filterPayment"
+            />
+          </Col>
+          <Col sm="2">
+            <Form.Check label="Virement" type="radio" name="filterPayment" />
+          </Col>
+        </Row>
       </Card.Body>
       <Row>
         <Col sm="4">
