@@ -32,16 +32,18 @@ export default function Layout(props) {
           <Switch>
             <Route path="/classes" component={Classe} />
             <Route path="/students" component={Student} />
-            <Route path="/presence" component={Presence} />
+            {/*<Route path="/presence" component={Presence} />*/}
+            {/*
             <Route
               path="/activity/swimmingpool"
               render={() => <div>piscine</div>}
             />
+*/}
             <Route path="/activity/karate" render={() => <div>karaté</div>} />
             <Route path="/employees" render={() => <Employees />} />
             <Route path="/birthdays" component={Birthday} />
             <Route path="/statistics" component={Statistics} />
-            <Route path="/schoolreport" component={Transcripts} />
+            {/*<Route path="/schoolreport" component={Transcripts} />*/}
             <Route path="/payments" component={PaymentBook} />
           </Switch>
         </Router>

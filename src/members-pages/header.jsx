@@ -25,9 +25,10 @@ export default function Header(props) {
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
-          <Nav.Link href="/presence">Présence</Nav.Link>
+          {/*<Nav.Link href="/presence">Présence</Nav.Link>*/}
           <Nav.Link href="/classes">Classes</Nav.Link>
           <Nav.Link href="/students">Eleves</Nav.Link>
+          {/*
           <NavDropdown title="Activités Parascolaires" id="basic-nav-dropdown">
             <NavDropdown.Item href="/activity/swimmingpool" disabled>
               Piscine
@@ -42,10 +43,11 @@ export default function Header(props) {
               Musique
             </NavDropdown.Item>
           </NavDropdown>
+*/}
           <Nav.Link href="/employees">Employés</Nav.Link>
           <Nav.Link href="/birthdays">Anniversaires</Nav.Link>
           <Nav.Link href="/statistics">Statistiques</Nav.Link>
-          <Nav.Link href="/schoolreport">Livret scolaire</Nav.Link>
+          {/*<Nav.Link href="/schoolreport">Livret scolaire</Nav.Link>*/}
           <Nav.Link href="/payments">Factures</Nav.Link>
         </Nav>
         <div inline={true}>
