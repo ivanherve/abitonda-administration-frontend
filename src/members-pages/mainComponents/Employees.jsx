@@ -1,7 +1,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AddEmployee from "../modals/addEmployee";
 import EditEmployee from "../modals/editEmployee";
 import {
@@ -14,6 +14,7 @@ import {
   Table,
 } from "react-bootstrap";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
+import { ENDPOINT, getAuthRequest } from "../../links/links";
 
 library.add(faPlus, faEdit);
 
@@ -27,10 +28,11 @@ const numbFormat = (number) => {
 };
 
 export default function Employees(props) {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
   const emp = [
     {
       EmployeeId: 1,
-      Name: "Hategekimana",
+      Lastname: "Hategekimana",
       Firstname: "Protais",
       Account: "0130-2043600",
       Bank: "COGEBANK",
@@ -41,7 +43,7 @@ export default function Employees(props) {
     },
     {
       EmployeeId: 2,
-      Name: "Irakoze",
+      Lastname: "Irakoze",
       Firstname: "Belyse",
       Account: "00048-06790820-06",
       Bank: "BK",
@@ -59,7 +61,7 @@ export default function Employees(props) {
     },
     {
       EmployeeId: 3,
-      Name: "Bahati",
+      Lastname: "Bahati",
       Firstname: "Sophia",
       Account: "00040-65000020-29",
       Bank: "BK",
@@ -70,7 +72,7 @@ export default function Employees(props) {
     },
     {
       EmployeeId: 4,
-      Name: "Kayumba",
+      Lastname: "Kayumba",
       Firstname: "Leaty",
       Account: "00002-01390241612-83",
       Bank: "COGEBANK",
@@ -81,9 +83,25 @@ export default function Employees(props) {
     },
   ];
 
+  const [employees, setEmployees] = useState([]);
   const [employee, setEmployee] = useState(emp[0]);
   const [showAddEmployee, setShowAddEmployee] = useState(false);
   const [showEditEmployee, setShowEditEmployee] = useState(false);
+
+  const getEmployees = () => {
+    fetch(ENDPOINT("employees"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) {
+          setEmployees(r.response);
+          setEmployee(r.response[0]);
+        }
+      });
+  };
+
+  useEffect(() => {
+    getEmployees();
+  }, []);
 
   return (
     <div>
@@ -103,13 +121,13 @@ export default function Employees(props) {
       <Row>
         <Col xs="2">
           <ListGroup>
-            {emp.map((e) => (
+            {employees.map((e) => (
               <ListGroup.Item
                 action
-                key={emp.indexOf(e)}
+                key={employees.indexOf(e)}
                 onClick={() => setEmployee(e)}
               >
-                <strong>{e.Name.toUpperCase()}</strong> {e.Firstname}
+                <strong>{e.Lastname.toUpperCase()}</strong> {e.Firstname}
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -121,7 +139,7 @@ export default function Employees(props) {
                 <Col sm="11">
                   <Card.Title>{`${
                     employee.Firstname
-                  } ${employee.Name.toUpperCase()}`}</Card.Title>
+                  } ${employee.Lastname.toUpperCase()}`}</Card.Title>
                 </Col>
                 <Col sm="1">
                   <Button
@@ -140,7 +158,9 @@ export default function Employees(props) {
                     <th style={{ width: "50px" }}></th>
                     <th>
                       <h3>
-                        {`${employee.Firstname} ${employee.Name.toUpperCase()}`}
+                        {`${
+                          employee.Firstname
+                        } ${employee.Lastname.toUpperCase()}`}
                       </h3>
                     </th>
                   </tr>
@@ -149,7 +169,7 @@ export default function Employees(props) {
                   {Object.keys(employee).map((e) => (
                     <tr key={e}>
                       <td>
-                        <strong>{e}</strong>
+                        <strong>{e !== "EmployeeId" && e}</strong>
                       </td>
                       {e === "Position" ? (
                         <td>
@@ -159,7 +179,10 @@ export default function Employees(props) {
                             <Badge
                               pill
                               variant="secondary"
-                              style={{ marginRight: "10px", fontSize: "0.9em" }}
+                              style={{
+                                marginRight: "10px",
+                                fontSize: "0.9em",
+                              }}
                             >
                               {p}
                             </Badge>
@@ -173,7 +196,10 @@ export default function Employees(props) {
                             <Badge
                               pill
                               variant="info"
-                              style={{ marginRight: "10px", fontSize: "0.9em" }}
+                              style={{
+                                marginRight: "10px",
+                                fontSize: "0.9em",
+                              }}
                             >
                               {p}
                             </Badge>
@@ -181,11 +207,10 @@ export default function Employees(props) {
                         </td>
                       ) : (
                         <td>
-                          {
+                          {e !== "EmployeeId" &&
                             Object.values(employee)[
                               Object.keys(employee).indexOf(e)
-                            ]
-                          }
+                            ]}
                         </td>
                       )}
                     </tr>
