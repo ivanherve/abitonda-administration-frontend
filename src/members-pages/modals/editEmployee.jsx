@@ -1,7 +1,7 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Form,
   Modal,
@@ -13,11 +13,13 @@ import {
   Badge,
 } from "react-bootstrap";
 import swal from "sweetalert";
+import { ENDPOINT, getAuthRequest } from "../../links/links";
 import { bank, jobs } from "../modals/addEmployee";
 
 library.add(faTimes);
 
 export default function EditEmployee(props) {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
   let employee = props.employee;
   const [Lastname, setLastname] = useState("");
   const [Firstname, setFirstname] = useState("");
@@ -29,6 +31,29 @@ export default function EditEmployee(props) {
   const [doc, setDoc] = useState("");
   const [over, setOver] = useState(false);
   const [over2, setOver2] = useState(false);
+  const [jobs, setJobs] = useState([{ JobId: 0, Name: "" }]);
+  const [banks, setBanks] = useState([{ BankId: 0, Name: "" }]);
+
+  let getJobs = () => {
+    fetch(ENDPOINT("jobs"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setJobs([...jobs, ...r.response]);
+      });
+  };
+
+  let getBanks = () => {
+    fetch(ENDPOINT("banks"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status) setBanks([...banks, ...r.response]);
+      });
+  };
+
+  useEffect(() => {
+    getJobs();
+    getBanks();
+  }, []);
 
   const editEmployee = () => {
     console.log({
@@ -66,9 +91,9 @@ export default function EditEmployee(props) {
           <FrmGroupSelect
             controlId="formBank"
             label="Banque"
-            defaultValue={bank[bank.indexOf(employee.Bank)]}
+            defaultValue={banks[banks.indexOf(employee.Bank)]}
             change={(e) => setBankSelected(e.target.value)}
-            data={bank}
+            data={banks}
           />
           <FrmGroupText
             controlId="formAccount"
@@ -104,7 +129,7 @@ export default function EditEmployee(props) {
                 }}
               >
                 {jobs.map((d) => (
-                  <option key={d.BankId}>{d.Name}</option>
+                  <option key={jobs.indexOf(d)}>{d.Name}</option>
                 ))}
               </Form.Control>
             </Col>
@@ -256,7 +281,7 @@ function FrmGroupSelect(props) {
       <Col sm="10">
         <Form.Control as="select" onChange={props.change}>
           {props.data.map((d) => (
-            <option key={d.BankId}>{d.Name}</option>
+            <option key={props.data.indexOf(d)}>{d.Name}</option>
           ))}
         </Form.Control>
       </Col>
