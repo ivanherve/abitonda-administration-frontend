@@ -16,6 +16,8 @@ export default function SchoolPresence(props) {
   const [today, setToday] = useState(new Date());
   const [students, setStudents] = useState([]);
   const [showAddStudent, setShowAddStudent] = useState(false);
+  const [presentDate, setPresentDate] = useState(moment().format("LLLL"));
+  const [presentList, setPresentList] = useState([]);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
@@ -36,6 +38,37 @@ export default function SchoolPresence(props) {
     let mainDate = today;
     mainDate.setDate(mainDate.getDate() + 1);
     setToday(mainDate);
+  };
+  const isPresent = (studentId, present) => {
+    if (present) {
+      if (presentList.length < 1)
+        setPresentList([{ studentId, present, date: moment().format("LLLL") }]);
+      else {
+        presentList.map((p) => {
+          if (
+            presentList.indexOf({
+              studentId,
+              present,
+              date: moment().format("LLLL"),
+            }) === -1
+          )
+            setPresentList([
+              ...presentList,
+              { studentId, present, date: moment().format("LLLL") },
+            ]);
+        });
+      }
+    } else {
+      var arr = [...presentList];
+      var idx = 0;
+      arr.map((p) => {
+        if (p.studentId === studentId && p.present) idx = arr.indexOf(p);
+      });
+      if (idx !== -1) {
+        arr.splice(idx, 1);
+        setPresentList(arr);
+      }
+    }
   };
 
   return (
@@ -77,10 +110,13 @@ export default function SchoolPresence(props) {
               students.map((s) => (
                 <tr key={students.indexOf(s)}>
                   <td>
-                    <strong>{s.Lastname}</strong> <i>{s.Firstname}</i>
+                    <strong>{s.Firstname}</strong> <i>{s.Lastname}</i>
                   </td>
                   <td>
-                    <input type="checkbox" />
+                    <input
+                      type="checkbox"
+                      onChange={(e) => isPresent(s.StudentId, e.target.checked)}
+                    />
                   </td>
                 </tr>
               ))
