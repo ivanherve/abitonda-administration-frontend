@@ -62,7 +62,7 @@ function PastBday(props) {
               <strong>{b.Firstname}</strong> {b.Lastname}
             </td>
             <td>{moment(b.BirthDay).format("Do MMMM")}</td>
-            <td>{b.age} ans</td>
+            <td>{b.Age} ans</td>
           </tr>
         ))}
       </tbody>
@@ -94,7 +94,7 @@ function ComingBday(props) {
               <strong>{b.Firstname}</strong> {b.Lastname}
             </td>
             <td>{moment(b.BirthDay).format("Do MMMM")}</td>
-            <td>{b.age} ans</td>
+            <td>{b.Age} ans</td>
           </tr>
         ))}
       </tbody>
