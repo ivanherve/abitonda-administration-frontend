@@ -28,7 +28,8 @@
     "react-scripts": "4.0.0",
     "sweetalert": "^2.1.2",
     "web-vitals": "^0.2.4",
-    "xlsx": "^0.16.9"
+    "xlsx": "^0.16.9",
+    "yarn": "^1.22.10"
   },
   "scripts": {
     "start": "react-scripts start",
