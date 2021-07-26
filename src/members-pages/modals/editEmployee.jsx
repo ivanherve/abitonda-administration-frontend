@@ -79,7 +79,7 @@ export default function EditEmployee(props) {
           <FrmGroupText
             controlId="formLastname"
             label="Nom de famille"
-            placeholder={employee.Name}
+            placeholder={employee.Lastname}
             change={(e) => setLastname(e.target.value)}
           />
           <FrmGroupText
@@ -98,7 +98,7 @@ export default function EditEmployee(props) {
           <FrmGroupText
             controlId="formAccount"
             label="Compte Bancaire"
-            placeholder={employee.Account}
+            placeholder={employee.BankAccount}
             change={(e) => setBankAccount(e.target.value)}
           />
           <FrmGroupText
