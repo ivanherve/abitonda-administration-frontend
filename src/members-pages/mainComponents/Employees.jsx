@@ -127,7 +127,7 @@ export default function Employees(props) {
                 key={employees.indexOf(e)}
                 onClick={() => setEmployee(e)}
               >
-                <strong>{e.Lastname.toUpperCase()}</strong> {e.Firstname}
+                <strong>{e.Firstname.toUpperCase()}</strong> {e.Lastname}
               </ListGroup.Item>
             ))}
           </ListGroup>
