@@ -1,12 +1,14 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
+import swal from "sweetalert";
 import {
   ENDPOINT,
   getAuthRequest,
   Loading,
+  postAuthRequestFormData,
   usePrevious,
 } from "../../links/links";
 import AddParent from "../modals/addParent";
@@ -14,7 +16,7 @@ import AddStudent from "../modals/addStudent";
 
 const { Row, Col, Alert, Button } = require("react-bootstrap");
 
-library.add(faPlus, faEdit);
+library.add(faPlus, faEdit, faTimes);
 
 function formatNumb(numb) {
   var res;
@@ -36,6 +38,33 @@ export default function ContactParent(props) {
   const [studentId, setStudentId] = useState(0);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+
+  const removeParent = (studentId, parentId) => {
+    let data = new FormData();
+    data.append("studentId", studentId);
+    data.append("parentId", parentId);
+    swal({
+      title: "Êtes-vous sûr?",
+      text: "",
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        fetch(ENDPOINT("removelinkparent"), postAuthRequestFormData(data, token))
+          .then((r) => r.json())
+          .then((r) => {
+            if (r.response)
+              swal("Le contact a bien été retiré", {
+                icon: "success",
+              }).then(() => window.location.reload());
+          });
+      }
+      /*else {
+        swal("Your imaginary file is safe!");
+      }*/
+    });
+  };
 
   useEffect(() => {
     fetch(
@@ -99,9 +128,20 @@ export default function ContactParent(props) {
                 </ul>
               </Col>
               <Col xs="2">
-                <Button variant="light" style={{ width: "100%" }}>
-                  <FontAwesomeIcon icon={["far", "edit"]} />
-                </Button>
+                <Row>
+                  <Button variant="light" style={{ width: "100%" }}>
+                    <FontAwesomeIcon icon={["far", "edit"]} />
+                  </Button>
+                </Row>
+                <Row>
+                  <Button
+                    variant="light"
+                    style={{ width: "100%", marginTop: "10px" }}
+                    onClick={() => removeParent(props.studentId, p.ParentId)}
+                  >
+                    <FontAwesomeIcon icon={["fas", "times"]} />
+                  </Button>
+                </Row>
               </Col>
             </Row>
           </div>
