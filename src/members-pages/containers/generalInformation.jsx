@@ -86,7 +86,7 @@ export default function GeneralInformation(props) {
     fetch(ENDPOINT("neighborhoods"), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status) setNeighborhoods(r.response);
+        if (r.status) setNeighborhoods([{ SectorId: 0, Neighborhood: "" }, ...r.response]);
       });
   };
 
