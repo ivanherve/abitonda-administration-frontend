@@ -12,7 +12,7 @@ import {
 } from "../../links/links";
 
 export default function AddStudent(props) {
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses] = useState([{ ClasseId: 0, Name: "" }]);
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
   const [birthdate, setBirthdate] = useState("");
@@ -21,8 +21,22 @@ export default function AddStudent(props) {
   const [classe, setClasse] = useState(1);
   const [picture, setPicture] = useState("");
   const [file, setFile] = useState(null);
+  const [neighborhoods, setNeighborhoods] = useState([
+    { SectorId: 0, Neighborhood: "District - Sector" },
+  ]);
+  const [neighborhoodSelected, setNeighborhoodSelected] = useState("");
+  const [address, setAddress] = useState("");
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+
+  const getNeighborhoods = () => {
+    fetch(ENDPOINT("neighborhoods"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((r) => {
+        if (r.status)
+          setNeighborhoods([{ SectorId: 0, Neighborhood: "" }, ...r.response]);
+      });
+  };
 
   const uploadFile = (file) => {
     console.log(file);
@@ -48,6 +62,7 @@ export default function AddStudent(props) {
       Transport: transport,
       Classe: classe,
       Picture: picture,
+      neighborhoodSelected,
     });
 
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
@@ -66,10 +81,11 @@ export default function AddStudent(props) {
   };
 
   useEffect(() => {
+    getNeighborhoods();
     fetch(ENDPOINT("classes"), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status) setClasses(r.response);
+        if (r.status) setClasses([{ ClasseId: 0, Name: "" }, ...r.response]);
         //console.log(r)
       });
     //console.log([prevInfo.classes, classes])
@@ -120,6 +136,50 @@ export default function AddStudent(props) {
                 </Col>
               </Form.Group>
 
+              <Form.Group as={Row} controlId="formPlaintextClasse">
+                <Form.Label column sm="2">
+                  Classe
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    as="select"
+                    onChange={(e) => setClasse(e.target.value)}
+                  >
+                    {classes.map((c) => (
+                      <option
+                        key={classes.indexOf(c)}
+                        onClick={() => console.log(c)}
+                      >
+                        {c.Name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} controlId="formPlaintextAddress">
+                <Form.Label column sm="2">
+                  Adresse*
+                </Form.Label>
+                <Col sm="5">
+                  <Form.Control
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                    }}
+                  />
+                </Col>
+                <Col sm="5">
+                  <Form.Control
+                    as="select"
+                    onChange={(e) => setNeighborhoodSelected(e.target.value)}
+                  >
+                    {neighborhoods.map((n) => (
+                      <option key={n.SectorId}>{n.Neighborhood}</option>
+                    ))}
+                  </Form.Control>
+                </Col>
+              </Form.Group>
+
               <Form.Group as={Row} controlId="formPlaintextBirthdate">
                 <Form.Label column sm="2">
                   Cantine
@@ -143,27 +203,6 @@ export default function AddStudent(props) {
                     id="checkbox-transport"
                     onChange={(e) => setTransport(e.target.checked)}
                   />
-                </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} controlId="formPlaintextClasse">
-                <Form.Label column sm="2">
-                  Classe
-                </Form.Label>
-                <Col sm="10">
-                  <Form.Control
-                    as="select"
-                    onChange={(e) => setClasse(e.target.value)}
-                  >
-                    {classes.map((c) => (
-                      <option
-                        key={classes.indexOf(c)}
-                        onClick={() => console.log(c)}
-                      >
-                        {c.Name}
-                      </option>
-                    ))}
-                  </Form.Control>
                 </Col>
               </Form.Group>
 
