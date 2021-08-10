@@ -143,6 +143,7 @@ export default function Student(props) {
               students.map((s) => (
                 <ListGroup.Item
                   action
+                  variant={s.Registered ? 'success' : 'danger'}
                   key={students.indexOf(s)}
                   onClick={() => {
                     setOneStudent(s);
@@ -151,7 +152,7 @@ export default function Student(props) {
                   }}
                 >
                   <div>
-                    <strong>{s.Lastname}</strong> {s.Firstname}
+                    <strong>{s.Firstname}</strong> {s.Lastname}
                   </div>
                 </ListGroup.Item>
               ))
@@ -176,12 +177,14 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-0">Contact Parents</Nav.Link>
                 </Nav.Item>
+{/*
                 <Nav.Item>
                   <Nav.Link eventKey="link-3">Présences</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="link-2">Paiement</Nav.Link>
                 </Nav.Item>
+*/}
               </Nav>
             </Card.Header>
             <Card.Body>
@@ -240,11 +243,13 @@ function Links(props) {
     );
   } else if (props.link === "link-1") {
     return <GeneralInformation student={props.student} />;
-  } else if (props.link === "link-2") {
+  } 
+  /*else if (props.link === "link-2") {
     return <Payment />;
   } else if (props.link === "link-3") {
     return <StudentPresence />;
-  } else {
+  } */
+  else {
     return <div>nothin</div>;
   }
 }
