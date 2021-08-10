@@ -13,7 +13,12 @@ import {
   Badge,
 } from "react-bootstrap";
 import swal from "sweetalert";
-import { ENDPOINT, getAuthRequest } from "../../links/links";
+import {
+  ENDPOINT,
+  getAuthRequest,
+  postAuthRequest,
+  postAuthRequestFormData,
+} from "../../links/links";
 import { bank, jobs } from "../modals/addEmployee";
 
 library.add(faTimes);
@@ -28,6 +33,8 @@ export default function EditEmployee(props) {
   const [nbRSSB, setNbRSSB] = useState("");
   const [positions, setPositions] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [email, setEmail] = useState("");
+  const [NbDays, setNbDays] = useState("");
   const [doc, setDoc] = useState("");
   const [over, setOver] = useState(false);
   const [over2, setOver2] = useState(false);
@@ -56,15 +63,25 @@ export default function EditEmployee(props) {
   }, []);
 
   const editEmployee = () => {
-    console.log({
+    let data = {
+      EmployeeId: employee.EmployeeId,
       Lastname,
       Firstname,
       bankSelected,
       bankAccount,
       nbRSSB,
+      NbDays,
       positions,
       documents,
-    });
+      email,
+      positions,
+      documents
+    };
+    let formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+    fetch(ENDPOINT("editemployee"), postAuthRequestFormData(formData, token))
+      .then((r) => r.json())
+      .then((r) => console.log(r.response));
   };
   return (
     <Modal show={props.show} onHide={props.hide} centered size="xl">
@@ -106,6 +123,18 @@ export default function EditEmployee(props) {
             label="N° RSSB"
             placeholder={employee.NbRSSB}
             change={(e) => setNbRSSB(e.target.value)}
+          />          
+          <FrmGroupText
+            controlId="formNbDays"
+            label="Nb de Jours"
+            placeholder={employee.NbDays}
+            change={(e) => setNbDays(e.target.value)}
+          />
+          <FrmGroupText
+            controlId="formEmail"
+            label="E-Mail"
+            placeholder={employee.Email}
+            change={(e) => setEmail(e.target.value)}
           />
           <hr />
           <Form.Group
