@@ -16,10 +16,10 @@ const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
 
 library.add(faFileWord, faFileExcel, faDownload);
 
-export default function DownloadDocuments(props) {
-  const [sorasDataSet, setSorasDataSet] = useState([]);
-  const [canteenDataSet, setCanteenDataSet] = useState([]);
-  const [transportDataSet, setTransportDataSet] = useState([]);
+export default function DownloadDocsPerClasse(props) {
+  const [bdayDataSet, setBdayDataSet] = useState([]);
+  const [presenceDataSet, setPresenceDataSet] = useState([]);
+  const [contactList, setContactList] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -50,66 +50,6 @@ export default function DownloadDocuments(props) {
     },
   };
 
-  const exportSoras = () => {
-    fetch(ENDPOINT("soras"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setSorasDataSet([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "DATE DE NAISSANCE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 50 },
-                ...HEADER_CELLS,
-              },
-            ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: moment(r.Birthdate).format("DD/MM/YYYY"),
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-            ]),
-          },
-        ]);
-      });
-  };
-
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
@@ -130,35 +70,30 @@ export default function DownloadDocuments(props) {
     });
   }
 
-  const exportCanteen = () => {
-    fetch(ENDPOINT("soras"), getAuthRequest(token))
+  const getBirthdayList = () => {
+    let header = [
+      { title: "No", wpx: 40 },
+      { title: "PRÉNOMS", wpx: 150 },
+      { title: "NOMS", wpx: 150 },
+      { title: "DATE DE NAISSANCE", wpx: 125 },
+    ];
+    let columnsHeader = [];
+    header.forEach((h) => {
+      columnsHeader.push({
+        title: h.title,
+        width: { wpx: h.wpx },
+        ...HEADER_CELLS,
+      });
+    });
+    fetch(
+      ENDPOINT("birthdaylistperclasse?cI=" + props.classe),
+      getAuthRequest(token)
+    )
       .then((r) => r.json())
       .then((res) => {
-        setCanteenDataSet([
+        setBdayDataSet([
           {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "DATE DE NAISSANCE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
+            columns: columnsHeader,
             data: res.response.map((r) => [
               {
                 value: res.response.indexOf(r) + 1,
@@ -176,42 +111,36 @@ export default function DownloadDocuments(props) {
                 value: moment(r.Birthdate).format("DD/MM/YYYY"),
                 ...BODY_CELLS,
               },
-              ...isPresent,
             ]),
           },
         ]);
       });
   };
 
-  const exportTransport = () => {
-    fetch(ENDPOINT("transport"), getAuthRequest(token))
+  const getPresenceList = () => {
+    let header = [
+      { title: "No", wpx: 40 },
+      { title: "PRÉNOMS", wpx: 150 },
+      { title: "NOMS", wpx: 150 },
+      { title: "DATE DE NAISSANCE", wpx: 125 },
+    ];
+    let columnsHeader = [];
+    header.forEach((h) => {
+      columnsHeader.push({
+        title: h.title,
+        width: { wpx: h.wpx },
+        ...HEADER_CELLS,
+      });
+    });
+    fetch(
+      ENDPOINT("presencelistperclasse?classe=" + props.classe),
+      getAuthRequest(token)
+    )
       .then((r) => r.json())
       .then((res) => {
-        setTransportDataSet([
+        setPresenceDataSet([
           {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "DATE DE NAISSANCE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
+            columns: [...columnsHeader, ...days],
             data: res.response.map((r) => [
               {
                 value: res.response.indexOf(r) + 1,
@@ -237,10 +166,9 @@ export default function DownloadDocuments(props) {
   };
 
   useEffect(() => {
-    exportTransport();
-    exportCanteen();
-    exportSoras();
-  }, []);
+    getBirthdayList();
+    getPresenceList();
+  }, [props.classe]);
 
   return (
     <Modal centered show={props.show} onHide={props.hide}>
@@ -251,10 +179,10 @@ export default function DownloadDocuments(props) {
         <ListGroup variant="flush">
           <ListGroup.Item>
             <Row>
-              <Col xs="9">Liste SORAS</Col>
+              <Col xs="9">Liste de Présence</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste de SORAS"
+                  filename="Liste de Présence"
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
@@ -262,8 +190,8 @@ export default function DownloadDocuments(props) {
                   }
                 >
                   <ExcelSheet
-                    dataSet={sorasDataSet}
-                    name="Liste de SORAS 2021"
+                    dataSet={presenceDataSet}
+                    name={"Liste de Présence de " + props.classe}
                   />
                 </ExcelFile>
               </Col>
@@ -271,10 +199,10 @@ export default function DownloadDocuments(props) {
           </ListGroup.Item>
           <ListGroup.Item>
             <Row>
-              <Col xs="9">Liste de Cantine</Col>
+              <Col xs="9">Liste des anniversaires</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste de Cantine"
+                  filename="Liste d'anniversaires"
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
@@ -282,8 +210,8 @@ export default function DownloadDocuments(props) {
                   }
                 >
                   <ExcelSheet
-                    dataSet={canteenDataSet}
-                    name="Liste de Cantine 2021"
+                    dataSet={bdayDataSet}
+                    name={"Liste d'anniversaires de " + props.classe}
                   />
                 </ExcelFile>
               </Col>
@@ -291,10 +219,10 @@ export default function DownloadDocuments(props) {
           </ListGroup.Item>
           <ListGroup.Item>
             <Row>
-              <Col xs="9">Liste de Transport</Col>
+              <Col xs="9">Liste des contacts</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste de Transport"
+                  filename="Liste de Contact"
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
@@ -302,8 +230,8 @@ export default function DownloadDocuments(props) {
                   }
                 >
                   <ExcelSheet
-                    dataSet={transportDataSet}
-                    name="Liste de Transport 2021"
+                    dataSet={contactList}
+                    name={"Liste de Contact de " + props.classe}
                   />
                 </ExcelFile>
               </Col>

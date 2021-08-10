@@ -1,9 +1,23 @@
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { Button, Card, Col, ListGroup, Nav, Row, Table } from "react-bootstrap";
+import {
+  Button,
+  Card,
+  Col,
+  ListGroup,
+  Nav,
+  OverlayTrigger,
+  Row,
+  Table,
+  Tooltip,
+} from "react-bootstrap";
 import swal from "sweetalert";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
+import DownloadDocsPerClasse from "../modals/downloadDocsPerClasse";
 
-//const classes = ["TPS", "PS", "MS", "GS", "CP", "CE1"];
+library.add(faDownload);
 
 export default function Classe(props) {
   const [link, setLink] = useState("link-0");
@@ -139,7 +153,7 @@ export default function Classe(props) {
 function Links(props) {
   if (props.link === "link-0") {
     return (
-      <Presence students={props.students} loading={props.presenceLoading} />
+      <Presence students={props.students} loading={props.presenceLoading} classe={props.classe} />
     );
   } else if (props.link === "link-1") {
     return <Informations classe={props.classe} />;
@@ -150,18 +164,34 @@ function Links(props) {
 
 function Presence(props) {
   const students = props.students;
+  const classe = props.classe;
+  const [showDownloadDocsPerClasse, setShowDownloadDocsPerClasse] =
+    useState(false);
   if (props.loading) {
     return <Loading />;
   } else
     return (
       <div>
         <Card.Body>
-          <h6>
-            {
-              /*Tout séléctionner <input type="checkbox" />*/
-              students.length + " élèves"
-            }
-          </h6>
+          <Row>
+            <Col xs="11">
+              <h6>{students.length + " élèves"}</h6>
+            </Col>
+            <Col>
+              <OverlayTrigger
+                placement="auto"
+                overlay={<Tooltip>Télécharger documents</Tooltip>}
+              >
+                <Button
+                  variant="light"
+                  style={{ width: "100%" }}
+                  onClick={() => setShowDownloadDocsPerClasse(true)}
+                >
+                  <FontAwesomeIcon icon={["fas", "download"]} />
+                </Button>
+              </OverlayTrigger>
+            </Col>
+          </Row>
         </Card.Body>
         <Table striped bordered hover size="lg" style={{ marginBottom: "0" }}>
           <tbody>
@@ -189,6 +219,11 @@ function Presence(props) {
         <Card.Footer>
           <Button disabled>Enregistrer</Button>
         </Card.Footer>
+        <DownloadDocsPerClasse
+          show={showDownloadDocsPerClasse}
+          hide={() => setShowDownloadDocsPerClasse(false)}
+          classe={classe}
+        />
       </div>
     );
 }
