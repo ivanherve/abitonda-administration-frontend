@@ -44,6 +44,7 @@ export default function GeneralInformation(props) {
   const [neighborhoodSelected, setNeighborhoodSelected] = useState("");
   const [address, setAddress] = useState("");
   const [allClasses, setAllClasses] = useState([]);
+  const [newStudent, setNewStudent] = useState("");
 
   setTimeout(() => {
     setLoading(false);
@@ -68,6 +69,7 @@ export default function GeneralInformation(props) {
     data.append("Picture", newPic);
     data.append("neighborhood", neighborhoodSelected);
     data.append("address", address);
+    data.append("newStudent", newStudent);
     fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
@@ -287,6 +289,20 @@ export default function GeneralInformation(props) {
                   disabled={!toEdit}
                   defaultChecked={student.Registered}
                   onChange={(e) => setRegistered(e.target.checked)}
+                />
+              </Col>
+            </Form.Group>
+            
+            <Form.Group as={Row} controlId="formPlaintextNewStudent">
+              <Form.Label column sm="2">
+                Nouvel élève
+              </Form.Label>
+              <Col sm="1">
+                <Form.Check
+                  type="checkbox"
+                  disabled={!toEdit}
+                  defaultChecked={student.NewStudent}
+                  onChange={(e) => setNewStudent(e.target.checked)}
                 />
               </Col>
             </Form.Group>
