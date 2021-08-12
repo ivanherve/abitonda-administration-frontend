@@ -50,6 +50,20 @@ export default function DownloadDocuments(props) {
     },
   };
 
+  const BODY_CELLS_NEW_STUDENTS = {
+    style: {
+      border: {
+        top: { style: BORDER_STYLE, color: COLOR_SPEC },
+        bottom: { style: BORDER_STYLE, color: COLOR_SPEC },
+        left: { style: BORDER_STYLE, color: COLOR_SPEC },
+        right: { style: BORDER_STYLE, color: COLOR_SPEC },
+      },
+      fill: {
+        fgColor: { rgb: "fff700" },
+      },
+    },
+  };
+
   const exportSoras = () => {
     fetch(ENDPOINT("soras"), getAuthRequest(token))
       .then((r) => r.json())
@@ -83,28 +97,54 @@ export default function DownloadDocuments(props) {
                 ...HEADER_CELLS,
               },
             ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: moment(r.Birthdate).format("DD/MM/YYYY"),
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-            ]),
+            data: res.response.map((r) => {
+              if (r.NewStudent)
+                return [
+                  {
+                    value: res.response.indexOf(r) + 1,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Firstname,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Lastname,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Classe,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                ];
+              else
+                return [
+                  {
+                    value: res.response.indexOf(r) + 1,
+                    ...BODY_CELLS,
+                  },
+                  {
+                    value: r.Firstname,
+                    ...BODY_CELLS,
+                  },
+                  {
+                    value: r.Lastname,
+                    ...BODY_CELLS,
+                  },
+                  {
+                    value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                    ...BODY_CELLS,
+                  },
+                  {
+                    value: r.Classe,
+                    ...BODY_CELLS,
+                  },
+                ];
+            }),
           },
         ]);
       });
