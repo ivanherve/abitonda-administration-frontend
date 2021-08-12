@@ -58,6 +58,9 @@ export default function EditEmployee(props) {
   };
 
   useEffect(() => {
+    console.log(employee);
+    if (positions.length < 1) setPositions(employee.Position);
+    if (documents.length < 1) setDocuments(employee.Doc);
     getJobs();
     getBanks();
   }, []);
@@ -75,13 +78,18 @@ export default function EditEmployee(props) {
       documents,
       email,
       positions,
-      documents
+      documents,
     };
     let formData = new FormData();
     formData.append("data", JSON.stringify(data));
     fetch(ENDPOINT("editemployee"), postAuthRequestFormData(formData, token))
       .then((r) => r.json())
-      .then((r) => console.log(r.response));
+      .then((r) => {
+        if (r.status)
+          swal("Parfait!", r.response, "success").then(() =>
+            window.location.reload()
+          );
+      });
   };
   return (
     <Modal show={props.show} onHide={props.hide} centered size="xl">
@@ -123,7 +131,7 @@ export default function EditEmployee(props) {
             label="N° RSSB"
             placeholder={employee.NbRSSB}
             change={(e) => setNbRSSB(e.target.value)}
-          />          
+          />
           <FrmGroupText
             controlId="formNbDays"
             label="Nb de Jours"
@@ -288,7 +296,7 @@ export default function EditEmployee(props) {
   );
 }
 
-function FrmGroupText(props) {
+export function FrmGroupText(props) {
   return (
     <Form.Group as={Row} controlId={props.controlId}>
       <Form.Label column sm="2">
@@ -301,7 +309,7 @@ function FrmGroupText(props) {
   );
 }
 
-function FrmGroupSelect(props) {
+export function FrmGroupSelect(props) {
   return (
     <Form.Group as={Row} controlId={props.controlId}>
       <Form.Label column sm="2">
