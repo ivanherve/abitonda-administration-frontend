@@ -13,6 +13,7 @@ import {
 } from "../../links/links";
 import AddParent from "../modals/addParent";
 import AddStudent from "../modals/addStudent";
+import EditParent from "../modals/editParent";
 
 const { Row, Col, Alert, Button } = require("react-bootstrap");
 
@@ -36,6 +37,7 @@ export default function ContactParent(props) {
   const [showAddParent, setShowAddParent] = useState(false);
   const [parents, setParents] = useState([]);
   const [studentId, setStudentId] = useState(0);
+  const [showEditParent, setShowEditParent] = useState(false);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
@@ -51,18 +53,18 @@ export default function ContactParent(props) {
       dangerMode: true,
     }).then((willDelete) => {
       if (willDelete) {
-        fetch(ENDPOINT("removelinkparent"), postAuthRequestFormData(data, token))
+        fetch(
+          ENDPOINT("removelinkparent"),
+          postAuthRequestFormData(data, token)
+        )
           .then((r) => r.json())
           .then((r) => {
-            if (r.response)
+            if (r.status)
               swal("Le contact a bien été retiré", {
                 icon: "success",
               }).then(() => window.location.reload());
           });
       }
-      /*else {
-        swal("Your imaginary file is safe!");
-      }*/
     });
   };
 
@@ -129,7 +131,11 @@ export default function ContactParent(props) {
               </Col>
               <Col xs="2">
                 <Row>
-                  <Button variant="light" style={{ width: "100%" }}>
+                  <Button
+                    variant="light"
+                    style={{ width: "100%" }}
+                    onClick={() => setShowEditParent(true)}
+                  >
                     <FontAwesomeIcon icon={["far", "edit"]} />
                   </Button>
                 </Row>
@@ -144,6 +150,11 @@ export default function ContactParent(props) {
                 </Row>
               </Col>
             </Row>
+            <EditParent
+              show={showEditParent}
+              hide={() => setShowEditParent(false)}
+              parent={p}
+            />
           </div>
         ))
       )}
