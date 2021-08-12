@@ -1,5 +1,5 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
-import { faDownload } from "@fortawesome/free-solid-svg-icons";
+import { faDownload, faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import {
@@ -14,10 +14,16 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import swal from "sweetalert";
-import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
+import {
+  ENDPOINT,
+  getAuthRequest,
+  Loading,
+  postAuthRequestFormData,
+} from "../../links/links";
+import AddTeacher from "../modals/addTeacher";
 import DownloadDocsPerClasse from "../modals/downloadDocsPerClasse";
 
-library.add(faDownload);
+library.add(faDownload, faPlus, faMinus);
 
 export default function Classe(props) {
   const [link, setLink] = useState("link-0");
@@ -153,7 +159,11 @@ export default function Classe(props) {
 function Links(props) {
   if (props.link === "link-0") {
     return (
-      <Presence students={props.students} loading={props.presenceLoading} classe={props.classe} />
+      <Presence
+        students={props.students}
+        loading={props.presenceLoading}
+        classe={props.classe}
+      />
     );
   } else if (props.link === "link-1") {
     return <Informations classe={props.classe} />;
@@ -201,9 +211,11 @@ function Presence(props) {
                   <td>
                     <strong>{s.Lastname}</strong> <i>{s.Firstname}</i>
                   </td>
+                  {/*
                   <td>
                     <input type="checkbox" disabled />
                   </td>
+*/}
                 </tr>
               ))
             ) : (
@@ -216,9 +228,11 @@ function Presence(props) {
             )}
           </tbody>
         </Table>
+        {/*
         <Card.Footer>
           <Button disabled>Enregistrer</Button>
         </Card.Footer>
+        */}
         <DownloadDocsPerClasse
           show={showDownloadDocsPerClasse}
           hide={() => setShowDownloadDocsPerClasse(false)}
@@ -230,40 +244,102 @@ function Presence(props) {
 
 function Informations(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
-  const [classeInfo, setClasseInfo] = useState([]);
+  const [classeInfo, setClasseInfo] = useState([{EmployeeId: 0, ClasseId: 0, Classe: "", assistants: [""]}]);
+  const [showAddTeacher, setShowAddTeacher] = useState(false);
   useEffect(() => {
     fetch(ENDPOINT("classes?classe=" + props.classe), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
         if (r.status) setClasseInfo(r.response[0]);
+        console.log(r);
       });
   }, [props.classe]);
 
+  const removeTeacher = () => {
+    let data = new FormData();
+    data.append("employeeId", classeInfo.EmployeeId);
+    data.append("classeId", classeInfo.ClasseId);
+    swal({
+      title: "Retirer un enseignant",
+      text: `Êtes-vous sûr de vouloir retirer ${classeInfo.Teacher} de la classe de ${props.classe}`,
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        fetch(ENDPOINT("removeteacher"), postAuthRequestFormData(data, token))
+          .then((r) => r.json())
+          .then((r) => {
+            if (r.status)
+              swal(r.response, {
+                icon: "success",
+              }).then(() => window.location.reload());
+          });
+      }
+    });
+  };
+
   return (
     <Card.Body>
-      <h2>{props.classe}</h2>
       <div>
-        <h3>
-          <u>Enseignant(e)</u>
-        </h3>
-        {classeInfo.Teacher || "Il n'y a pas d'enseignant"}
+        <Row>
+          <Col xs="11">
+            <h3>
+              <u>Enseignant(e)</u>
+            </h3>
+            {classeInfo.Teacher || "Il n'y a pas d'enseignant"}
+          </Col>
+          <Col>
+            {classeInfo.Teacher ? (
+              <Button variant="light" onClick={() => removeTeacher()}>
+                <FontAwesomeIcon icon={["fas", "minus"]} />
+              </Button>
+            ) : (
+              <Button variant="light" onClick={() => setShowAddTeacher(true)}>
+                <FontAwesomeIcon icon={["fas", "plus"]} />
+              </Button>
+            )}
+          </Col>
+        </Row>
         <br />
-        <h5>
-          <u>
-            <i>Assistant(e)</i>
-          </u>
-        </h5>
-        <ul>
-          {classeInfo.length < 1 ? (
-            <div>Chargement ...</div>
-          ) : classeInfo.assistants.length < 1 ? (
-            <div>Pas d'assistant</div>
-          ) : (
-            classeInfo.assistants.map((a) => (
-              <li key={classeInfo.assistants.indexOf(a)}>{a.Assistants}</li>
-            ))
+        <hr />
+        <Row>
+          <Col xs="10">
+            <h5>
+              <u>
+                <i>Assistant(e)</i>
+              </u>
+            </h5>
+            <ul>
+              {classeInfo.length < 1 ? (
+                <div>Chargement ...</div>
+              ) : classeInfo.assistants.length < 1 ? (
+                <div>Pas d'assistant</div>
+              ) : (
+                classeInfo.assistants.map((a) => (
+                  <li key={classeInfo.assistants.indexOf(a)}>{a.Assistants}</li>
+                ))
+              )}
+            </ul>
+          </Col>
+          {classeInfo.length > 0 || classeInfo.assistants.length > 0 || (
+            <Col xs="1">
+              <Button variant="light">
+                <FontAwesomeIcon icon={["fas", "minus"]} />
+              </Button>
+            </Col>
           )}
-        </ul>
+          <Col xs="1">
+            <Button variant="light">
+              <FontAwesomeIcon icon={["fas", "plus"]} />
+            </Button>
+          </Col>
+        </Row>
+        <AddTeacher
+          hide={() => setShowAddTeacher(false)}
+          show={showAddTeacher}
+          classe={classeInfo}
+        />
       </div>
     </Card.Body>
   );
