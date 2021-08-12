@@ -20,6 +20,7 @@ import {
   Loading,
   postAuthRequestFormData,
 } from "../../links/links";
+import AddAssistant from "../modals/addAssistant";
 import AddTeacher from "../modals/addTeacher";
 import DownloadDocsPerClasse from "../modals/downloadDocsPerClasse";
 
@@ -244,14 +245,17 @@ function Presence(props) {
 
 function Informations(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
-  const [classeInfo, setClasseInfo] = useState([{EmployeeId: 0, ClasseId: 0, Classe: "", assistants: [""]}]);
+  const [classeInfo, setClasseInfo] = useState({
+    assistants: [{ Assistants: "personne" }],
+  });
   const [showAddTeacher, setShowAddTeacher] = useState(false);
+  const [showAddAssistant, setShowAddAssistant] = useState(false);
   useEffect(() => {
     fetch(ENDPOINT("classes?classe=" + props.classe), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status) setClasseInfo(r.response[0]);
-        console.log(r);
+        if (r.status) setClasseInfo(r.response);
+        //console.log(r.response);
       });
   }, [props.classe]);
 
@@ -311,10 +315,8 @@ function Informations(props) {
               </u>
             </h5>
             <ul>
-              {classeInfo.length < 1 ? (
-                <div>Chargement ...</div>
-              ) : classeInfo.assistants.length < 1 ? (
-                <div>Pas d'assistant</div>
+              {classeInfo.assistants.length < 1 ? (
+                <div>Il n'y a pas d'assistant</div>
               ) : (
                 classeInfo.assistants.map((a) => (
                   <li key={classeInfo.assistants.indexOf(a)}>{a.Assistants}</li>
@@ -322,25 +324,47 @@ function Informations(props) {
               )}
             </ul>
           </Col>
-          {classeInfo.length > 0 || classeInfo.assistants.length > 0 || (
+          {classeInfo.assistants.length < 1 && (
+            <Col xs="2">
+              <Button
+                variant="light"
+                style={{ width: "100%" }}
+                onClick={() => setShowAddAssistant(true)}
+              >
+                <FontAwesomeIcon icon={["fas", "plus"]} />
+              </Button>
+            </Col>
+          )}
+          {classeInfo.assistants.length < 1 || (
             <Col xs="1">
-              <Button variant="light">
+              <Button
+                variant="light"
+                style={{ width: "100%" }}
+                onClick={() => setShowAddAssistant(true)}
+              >
+                <FontAwesomeIcon icon={["fas", "plus"]} />
+              </Button>
+            </Col>
+          )}
+          {classeInfo.assistants.length < 1 || (
+            <Col xs="1">
+              <Button variant="light" style={{ width: "100%" }}>
                 <FontAwesomeIcon icon={["fas", "minus"]} />
               </Button>
             </Col>
           )}
-          <Col xs="1">
-            <Button variant="light">
-              <FontAwesomeIcon icon={["fas", "plus"]} />
-            </Button>
-          </Col>
         </Row>
-        <AddTeacher
-          hide={() => setShowAddTeacher(false)}
-          show={showAddTeacher}
-          classe={classeInfo}
-        />
       </div>
+      <AddTeacher
+        hide={() => setShowAddTeacher(false)}
+        show={showAddTeacher}
+        classe={classeInfo}
+      />
+      <AddAssistant
+        hide={() => setShowAddAssistant(false)}
+        show={showAddAssistant}
+        classe={classeInfo}
+      />
     </Card.Body>
   );
 }
