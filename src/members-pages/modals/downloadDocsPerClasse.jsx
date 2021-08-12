@@ -7,7 +7,10 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
 import { Button, Col, ListGroup, Modal, Row } from "react-bootstrap";
-import { ENDPOINT, getAuthRequest } from "../../links/links";
+import {
+  ENDPOINT,
+  getAuthRequest,
+} from "../../links/links";
 import ReactExport from "react-data-export";
 import { useEffect, useState } from "react";
 
@@ -19,7 +22,7 @@ library.add(faFileWord, faFileExcel, faDownload);
 export default function DownloadDocsPerClasse(props) {
   const [bdayDataSet, setBdayDataSet] = useState([]);
   const [presenceDataSet, setPresenceDataSet] = useState([]);
-  const [contactList, setContactList] = useState([]);
+  const [contactListDataSet, setContactListDataSet] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -165,9 +168,69 @@ export default function DownloadDocsPerClasse(props) {
       });
   };
 
+  const getContactList = () => {
+    let header = [
+      { title: "No", wpx: 40 },
+      { title: "PRÉNOMS", wpx: 150 },
+      { title: "NOMS", wpx: 150 },      
+      { title: "CLASSE", wpx: 100 },
+      { title: "PARENT", wpx: 200 },
+      { title: "NUMÉRO", wpx: 150 },
+    ];
+    let columnsHeader = [];
+    header.map((h) => {
+      columnsHeader.push({
+        title: h.title,
+        width: { wpx: h.wpx },
+        ...HEADER_CELLS,
+      });
+    });
+    fetch(
+      ENDPOINT("getlistcontactperclasse?classe=" + props.classe),
+      getAuthRequest(token)
+    )
+      .then((r) => r.json())
+      .then((res) => {
+        setContactListDataSet([
+          {
+            columns: columnsHeader,
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Parent,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.PhoneNumb,
+                ...BODY_CELLS,
+              },
+              
+            ]),
+          },
+        ]);
+      });
+  };
+
   useEffect(() => {
     getBirthdayList();
     getPresenceList();
+    getContactList();
   }, [props.classe]);
 
   return (
@@ -229,10 +292,7 @@ export default function DownloadDocsPerClasse(props) {
                     </Button>
                   }
                 >
-                  <ExcelSheet
-                    dataSet={contactList}
-                    name={"Liste de Contact de " + props.classe}
-                  />
+                  <ExcelSheet dataSet={contactListDataSet} name={"Liste de Contact"} />
                 </ExcelFile>
               </Col>
             </Row>
