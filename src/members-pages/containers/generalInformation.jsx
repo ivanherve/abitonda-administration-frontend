@@ -19,6 +19,7 @@ import pic from "../../img/ppx.jpg";
 import {
   ENDPOINT,
   getAuthRequest,
+  Loading,
   postAuthRequestFormData,
 } from "../../links/links";
 
@@ -28,6 +29,7 @@ export default function GeneralInformation(props) {
   const [toEdit, setToEdit] = useState(false);
   const [showBirthDayAlert, setShowBirthDayAlert] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [loading2, setLoading2] = useState(false);
   const [newPic, setNewPic] = useState(pic);
 
   const [lastname, setLastname] = useState("");
@@ -50,6 +52,10 @@ export default function GeneralInformation(props) {
     setLoading(false);
     //console.log(student);
   }, 5000);
+
+  setTimeout(() => {
+    setLoading2(false);
+  }, 500);
 
   const student = props.student;
 
@@ -110,11 +116,16 @@ export default function GeneralInformation(props) {
     if (student.Transport) setTransport(student.Transport);
     getNeighborhoods();
     getClasses();
+    setLoading2(true);
   }, [student, newPic]);
 
   return loading ? (
     <div>Chargement ...</div>
   ) : (
+    loading2
+    ?
+    <Loading />
+    :
     <div>
       <Row>
         <Col xs="3">
