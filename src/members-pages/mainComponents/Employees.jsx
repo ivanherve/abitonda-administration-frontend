@@ -29,57 +29,18 @@ const numbFormat = (number) => {
 
 export default function Employees(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+  const [loading, setLoading] = useState(false);
   const emp = [
     {
-      EmployeeId: 1,
-      Lastname: "Hategekimana",
-      Firstname: "Protais",
-      Account: "0130-2043600",
-      Bank: "COGEBANK",
-      Position: ["Chauffeur/Coursier"],
-      NbDays: 22,
-      NbRSSB: "3101046700000S",
-      Doc: ["Certificat Formation", "Diplôme Secondaire"],
-    },
-    {
-      EmployeeId: 2,
-      Lastname: "Irakoze",
-      Firstname: "Belyse",
-      Account: "00048-06790820-06",
-      Bank: "BK",
-      Position: ["Enseignante", "Responsable Maternelle"],
-      NbDays: 22,
+      EmployeeId: 0,
+      Lastname: "",
+      Firstname: "",
+      Account: "",
+      Bank: "",
+      Position: [],
+      NbDays: 0,
       NbRSSB: "",
-      Doc: [
-        "Certificat Formation",
-        "Diplôme Secondaire",
-        "Attestion de Service PTS",
-        "Attestion de Service Les poussins",
-        "Attestion de Service EBK",
-        "Attestion de Service EFASE",
-      ],
-    },
-    {
-      EmployeeId: 3,
-      Lastname: "Bahati",
-      Firstname: "Sophia",
-      Account: "00040-65000020-29",
-      Bank: "BK",
-      Position: ["Assistante Crèche", "Job 2"],
-      NbDays: 22,
-      NbRSSB: "3101046700000S",
-      Doc: ["Diplôme secondaire", "Bachelor en pédagogie (Univ. Bukavu)"],
-    },
-    {
-      EmployeeId: 4,
-      Lastname: "Kayumba",
-      Firstname: "Leaty",
-      Account: "00002-01390241612-83",
-      Bank: "COGEBANK",
-      Position: ["Responsable Adm et Fin"],
-      NbDays: 22,
-      NbRSSB: "10216978",
-      Doc: [""],
+      Doc: [],
     },
   ];
 
