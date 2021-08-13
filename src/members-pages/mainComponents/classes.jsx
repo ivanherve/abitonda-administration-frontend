@@ -283,6 +283,34 @@ function Informations(props) {
     });
   };
 
+  const removeAssistant = (empId) => {
+    let link = ENDPOINT("removeassistant");
+    let data = new FormData();
+    data.append("employeeId", empId);
+    data.append("classeId", classeInfo.ClasseId);
+    swal({
+      title: "Retirer un assistant",
+      text: `Êtes-vous sûr de vouloir cet assistant de la classe`,
+      icon: "warning",
+      buttons: true,
+      dangerMode: true,
+    }).then((willDelete) => {
+      if (willDelete) {
+        console.log(classeInfo.assistants);
+        /**/
+        fetch(link, postAuthRequestFormData(data, token))
+          .then((r) => r.json())
+          .then((r) => {
+            if (r.status)
+              swal(r.response, {
+                icon: "success",
+              }).then(() => window.location.reload());
+          })
+          .catch((e) => console.log(e));
+      }
+    });
+  };
+
   return (
     <Card.Body>
       <div>
@@ -314,45 +342,37 @@ function Informations(props) {
                 <i>Assistant(e)</i>
               </u>
             </h5>
-            <ul>
+            <ListGroup variant="flush">
               {classeInfo.assistants.length < 1 ? (
                 <div>Il n'y a pas d'assistant</div>
               ) : (
                 classeInfo.assistants.map((a) => (
-                  <li key={classeInfo.assistants.indexOf(a)}>{a.Assistants}</li>
+                  <ListGroup.Item key={classeInfo.assistants.indexOf(a)}>
+                    <Row>
+                      <Col xs="10">{a.Assistants}</Col>
+                      <Col>
+                        <Button
+                          variant="light"
+                          onClick={() => removeAssistant(a.EmployeeId)}
+                        >
+                          <FontAwesomeIcon icon={["fas", "minus"]} />
+                        </Button>
+                      </Col>
+                    </Row>
+                  </ListGroup.Item>
                 ))
               )}
-            </ul>
+            </ListGroup>
           </Col>
-          {classeInfo.assistants.length < 1 && (
-            <Col xs="2">
-              <Button
-                variant="light"
-                style={{ width: "100%" }}
-                onClick={() => setShowAddAssistant(true)}
-              >
-                <FontAwesomeIcon icon={["fas", "plus"]} />
-              </Button>
-            </Col>
-          )}
-          {classeInfo.assistants.length < 1 || (
-            <Col xs="1">
-              <Button
-                variant="light"
-                style={{ width: "100%" }}
-                onClick={() => setShowAddAssistant(true)}
-              >
-                <FontAwesomeIcon icon={["fas", "plus"]} />
-              </Button>
-            </Col>
-          )}
-          {classeInfo.assistants.length < 1 || (
-            <Col xs="1">
-              <Button variant="light" style={{ width: "100%" }}>
-                <FontAwesomeIcon icon={["fas", "minus"]} />
-              </Button>
-            </Col>
-          )}
+          <Col xs="2">
+            <Button
+              variant="light"
+              style={{ width: "100%" }}
+              onClick={() => setShowAddAssistant(true)}
+            >
+              <FontAwesomeIcon icon={["fas", "plus"]} />
+            </Button>
+          </Col>
         </Row>
       </div>
       <AddTeacher
