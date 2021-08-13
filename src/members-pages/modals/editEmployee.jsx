@@ -31,8 +31,8 @@ export default function EditEmployee(props) {
   const [bankSelected, setBankSelected] = useState("");
   const [bankAccount, setBankAccount] = useState("");
   const [nbRSSB, setNbRSSB] = useState("");
-  const [positions, setPositions] = useState([]);
-  const [documents, setDocuments] = useState([]);
+  const [positions, setPositions] = useState([""]);
+  const [documents, setDocuments] = useState([""]);
   const [email, setEmail] = useState("");
   const [NbDays, setNbDays] = useState("");
   const [doc, setDoc] = useState("");
@@ -59,11 +59,13 @@ export default function EditEmployee(props) {
 
   useEffect(() => {
     console.log(employee);
-    if (positions.length < 1) setPositions(employee.Position);
-    if (documents.length < 1) setDocuments(employee.Doc);
+    if (employee.Position.length > 0) setPositions(employee.Position)
+    else setPositions([]);
+    if (employee.Doc.length > 0) setDocuments(employee.Doc);
+    else setDocuments([]);
     getJobs();
     getBanks();
-  }, []);
+  }, [employee]);
 
   const editEmployee = () => {
     let data = {
