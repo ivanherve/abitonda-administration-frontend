@@ -38,13 +38,14 @@ export default function Layout(props) {
               path="/activity/swimmingpool"
               render={() => <div>piscine</div>}
             />
-*/}
-            <Route path="/activity/karate" render={() => <div>karaté</div>} />
+
+            <Route path="/activity/karate" render={() => <div>karaté</div>} />*/}
             <Route path="/employees" render={() => <Employees />} />
             <Route path="/birthdays" component={Birthday} />
             <Route path="/statistics" component={Statistics} />
             {/*<Route path="/schoolreport" component={Transcripts} />*/}
             <Route path="/payments" component={PaymentBook} />
+            <Redirect to="/classes" />
           </Switch>
         </Router>
       </Container>
