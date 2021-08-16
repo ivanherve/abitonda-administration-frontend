@@ -94,7 +94,8 @@ export default function GeneralInformation(props) {
     fetch(ENDPOINT("neighborhoods"), getAuthRequest(token))
       .then((r) => r.json())
       .then((r) => {
-        if (r.status) setNeighborhoods([{ SectorId: 0, Neighborhood: "" }, ...r.response]);
+        if (r.status)
+          setNeighborhoods([{ SectorId: 0, Neighborhood: "" }, ...r.response]);
       });
   };
 
@@ -108,24 +109,25 @@ export default function GeneralInformation(props) {
   };
 
   useEffect(() => {
-    if (student.Picture) setNewPic(student.Picture);
-    else setNewPic(pic);
-    console.log(student.Picture === newPic);
     if (student.Registered) setRegistered(student.Registered);
     if (student.Canteen) setCanteen(student.Canteen);
     if (student.Transport) setTransport(student.Transport);
     getNeighborhoods();
     getClasses();
     setLoading2(true);
-  }, [student, newPic]);
+  }, [student]);
+
+  useEffect(() => {
+    console.log(student.Picture === newPic);
+    if (student.Picture) setNewPic(student.Picture);
+    //else setNewPic(pic);
+  }, [student]);
 
   return loading ? (
     <div>Chargement ...</div>
-  ) : (
-    loading2
-    ?
+  ) : loading2 ? (
     <Loading />
-    :
+  ) : (
     <div>
       <Row>
         <Col xs="3">
@@ -175,25 +177,25 @@ export default function GeneralInformation(props) {
               )}
             </Col>
             <Col>
-              {!toEdit && (
+              {/*!toEdit && (
                 <OverlayTrigger
                   placement="auto"
-                  overlay={<Tooltip>Supprimer</Tooltip>}
+                  overlay={<Tooltip>Désinscrire</Tooltip>}
                 >
                   <Button style={{ width: "100%" }} variant="light">
                     <FontAwesomeIcon icon={["fas", "times"]} />
                   </Button>
                 </OverlayTrigger>
-              )}
+              )*/}
             </Col>
           </Row>
           <br />
-          {!toEdit && (
+          {/*!toEdit && (
             <Button variant="light" style={{ width: "100%" }}>
               Fiche d'inscription{" "}
               <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
             </Button>
-          )}
+          )*/}
         </Col>
         <Col>
           <Form>
@@ -289,6 +291,7 @@ export default function GeneralInformation(props) {
                 )}
               </Col>
             </Form.Group>
+            
             <hr />
             <Form.Group as={Row} controlId="formPlaintextRegistering">
               <Form.Label column sm="2">
@@ -303,7 +306,7 @@ export default function GeneralInformation(props) {
                 />
               </Col>
             </Form.Group>
-            
+
             <Form.Group as={Row} controlId="formPlaintextNewStudent">
               <Form.Label column sm="2">
                 Nouvel élève
@@ -344,6 +347,7 @@ export default function GeneralInformation(props) {
               </Col>
             </Form.Group>
             <hr />
+{/*
             <Form.Group as={Row} controlId="formPlaintextExtraActivities">
               <Form.Label column sm="4">
                 Activités Parascolaires
@@ -380,6 +384,7 @@ export default function GeneralInformation(props) {
                 />
               </Col>
             </Form.Group>
+*/}
             <Form.Group as={Row} controlId="formPlaintextAllergies">
               <Form.Label column sm="4">
                 Allergies

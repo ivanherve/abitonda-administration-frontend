@@ -3,23 +3,21 @@ import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import {
+  Alert,
+  Badge,
+  Button,
+  Col,
   Form,
+  ListGroup,
   Modal,
   Row,
-  Col,
-  Alert,
-  ListGroup,
-  Button,
-  Badge,
 } from "react-bootstrap";
 import swal from "sweetalert";
 import {
   ENDPOINT,
   getAuthRequest,
-  postAuthRequest,
   postAuthRequestFormData,
 } from "../../links/links";
-import { bank, jobs } from "../modals/addEmployee";
 
 library.add(faTimes);
 
@@ -32,6 +30,7 @@ export default function EditEmployee(props) {
   const [bankAccount, setBankAccount] = useState("");
   const [nbRSSB, setNbRSSB] = useState("");
   const [positions, setPositions] = useState([""]);
+  const [positionsToRemove, setPositionsToRemove] = useState([]);
   const [documents, setDocuments] = useState([""]);
   const [email, setEmail] = useState("");
   const [NbDays, setNbDays] = useState("");
@@ -59,7 +58,7 @@ export default function EditEmployee(props) {
 
   useEffect(() => {
     console.log(employee);
-    if (employee.Position.length > 0) setPositions(employee.Position)
+    if (employee.Position.length > 0) setPositions(employee.Position);
     else setPositions([]);
     if (employee.Doc.length > 0) setDocuments(employee.Doc);
     else setDocuments([]);
@@ -79,8 +78,7 @@ export default function EditEmployee(props) {
       positions,
       documents,
       email,
-      positions,
-      documents,
+      positionsToRemove,
     };
     let formData = new FormData();
     formData.append("data", JSON.stringify(data));
@@ -88,11 +86,24 @@ export default function EditEmployee(props) {
       .then((r) => r.json())
       .then((r) => {
         if (r.status)
-          swal("Parfait!", r.response, "success").then(() =>
+          swal("Parfait!", "Employée mis à jour", "success").then(() =>
             window.location.reload()
           );
       });
   };
+
+  const addPosition = (e) => {
+    if (positions.length < 1) setPositions([e.target.value]);
+    else if (positions.indexOf(e.target.value) === -1)
+      setPositions([...positions, e.target.value]);
+    else swal("Déjà ajouté", "", "warning");
+    if (positionsToRemove.indexOf(e.target.value) !== -1) {
+      let arr = [...positionsToRemove];
+      arr.splice(positionsToRemove.indexOf(e.target.value), 1);
+      setPositionsToRemove(arr);
+    }
+  };
+
   return (
     <Modal show={props.show} onHide={props.hide} centered size="xl">
       <Modal.Header>
@@ -159,13 +170,7 @@ export default function EditEmployee(props) {
               <Form.Control
                 as="select"
                 multiple
-                onChange={(e) => {
-                  positions.length < 1
-                    ? setPositions([e.target.value])
-                    : positions.indexOf(e.target.value) === -1
-                    ? setPositions([...positions, e.target.value])
-                    : swal("Déjà ajouté", "", "warning");
-                }}
+                onChange={(e) => addPosition(e)}
               >
                 {jobs.map((d) => (
                   <option key={jobs.indexOf(d)}>{d.Name}</option>
@@ -185,6 +190,7 @@ export default function EditEmployee(props) {
                             let arr = [...positions];
                             arr.splice(positions.indexOf(p), 1);
                             setPositions(arr);
+                            setPositionsToRemove([...positionsToRemove, p]);
                           }}
                         >
                           <FontAwesomeIcon icon={["fas", "times"]} />

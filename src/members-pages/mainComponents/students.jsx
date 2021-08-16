@@ -2,7 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowCircleDown,
   faArrowCircleUp,
-  faPlus,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -16,15 +16,13 @@ import {
   OverlayTrigger,
   Pagination,
   Row,
-  Tooltip,
+  Tooltip
 } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import ContactParent from "../containers/contactParent";
-import DownloadDocuments from "../modals/downloadDocuments";
 import GeneralInformation from "../containers/generalInformation";
-import Payment from "../containers/studentPayment";
-import StudentPresence from "../containers/studentPresence";
 import AddStudent from "../modals/addStudent";
+import DownloadDocuments from "../modals/downloadDocuments";
 
 library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
 
