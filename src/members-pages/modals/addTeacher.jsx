@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, Button, ListGroup, Modal } from "react-bootstrap";
 import swal from "sweetalert";
 import {

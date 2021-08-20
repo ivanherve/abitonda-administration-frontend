@@ -1,12 +1,12 @@
-import { Button, Col, Row, Table } from "react-bootstrap";
-import moment from "moment";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowAltCircleLeft,
   faArrowAltCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import moment from "moment";
 import { useEffect, useState } from "react";
+import { Button, Col, Row, Table } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 import AddStudent from "../modals/addStudent";
 

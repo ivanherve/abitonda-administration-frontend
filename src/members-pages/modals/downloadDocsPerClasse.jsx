@@ -6,13 +6,10 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { Button, Col, ListGroup, Modal, Row } from "react-bootstrap";
-import {
-  ENDPOINT,
-  getAuthRequest,
-} from "../../links/links";
-import ReactExport from "react-data-export";
 import { useEffect, useState } from "react";
+import { Button, Col, ListGroup, Modal, Row } from "react-bootstrap";
+import ReactExport from "react-data-export";
+import { ENDPOINT, getAuthRequest } from "../../links/links";
 
 const ExcelFile = ReactExport.ExcelFile;
 const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
@@ -172,7 +169,7 @@ export default function DownloadDocsPerClasse(props) {
     let header = [
       { title: "No", wpx: 40 },
       { title: "PRÉNOMS", wpx: 150 },
-      { title: "NOMS", wpx: 150 },      
+      { title: "NOMS", wpx: 150 },
       { title: "CLASSE", wpx: 100 },
       { title: "PARENT", wpx: 200 },
       { title: "NUMÉRO", wpx: 150 },
@@ -207,7 +204,7 @@ export default function DownloadDocsPerClasse(props) {
                 value: r.Lastname,
                 ...BODY_CELLS,
               },
-              
+
               {
                 value: r.Classe,
                 ...BODY_CELLS,
@@ -220,7 +217,6 @@ export default function DownloadDocsPerClasse(props) {
                 value: r.PhoneNumb,
                 ...BODY_CELLS,
               },
-              
             ]),
           },
         ]);
@@ -292,7 +288,10 @@ export default function DownloadDocsPerClasse(props) {
                     </Button>
                   }
                 >
-                  <ExcelSheet dataSet={contactListDataSet} name={"Liste de Contact"} />
+                  <ExcelSheet
+                    dataSet={contactListDataSet}
+                    name={"Liste de Contact"}
+                  />
                 </ExcelFile>
               </Col>
             </Row>

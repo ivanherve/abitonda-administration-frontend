@@ -3,11 +3,7 @@ import { useState } from "react";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
-import {
-  ENDPOINT,
-  getAuthRequest,
-  postAuthRequestFormData,
-} from "../../links/links";
+import { ENDPOINT, postAuthRequestFormData } from "../../links/links";
 
 export default function AddBill(props) {
   const [title, setTitle] = useState("");

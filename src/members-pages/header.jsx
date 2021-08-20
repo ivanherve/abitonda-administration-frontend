@@ -2,9 +2,8 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Button, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Button, Nav, Navbar } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
-import { ENDPOINT } from "../links/links";
 
 library.add(faSignOutAlt);
 

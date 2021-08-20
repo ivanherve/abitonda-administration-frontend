@@ -1,9 +1,8 @@
 import { library } from "@fortawesome/fontawesome-svg-core";
+import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import AddEmployee from "../modals/addEmployee";
-import EditEmployee from "../modals/editEmployee";
 import {
   Badge,
   Button,
@@ -13,8 +12,9 @@ import {
   Row,
   Table,
 } from "react-bootstrap";
-import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
+import AddEmployee from "../modals/addEmployee";
+import EditEmployee from "../modals/editEmployee";
 
 library.add(faPlus, faEdit);
 

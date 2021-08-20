@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, ListGroup, ProgressBar } from "react-bootstrap";
-import { Bar, Doughnut } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 export default function Statistics(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;

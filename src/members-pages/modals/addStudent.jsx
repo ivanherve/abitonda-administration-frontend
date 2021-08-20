@@ -7,8 +7,6 @@ import {
   getAuthRequest,
   postAuthRequest,
   postAuthRequestFormData,
-  postRequest,
-  usePrevious,
 } from "../../links/links";
 
 export default function AddStudent(props) {
@@ -19,7 +17,7 @@ export default function AddStudent(props) {
   const [canteen, setCanteen] = useState(0);
   const [transport, setTransport] = useState(0);
   const [classe, setClasse] = useState(1);
-  const [picture, setPicture] = useState("");
+  const [picture, setPicture] = useState(null);
   const [file, setFile] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState([
     { SectorId: 0, Neighborhood: "District - Sector" },

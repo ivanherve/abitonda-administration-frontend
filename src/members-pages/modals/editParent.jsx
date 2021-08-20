@@ -27,9 +27,10 @@ export default function EditParent(props) {
     fetch(ENDPOINT("editparent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
-          if(r.status) swal("Parfait!", "Parent mis à jour", "success").then(() =>
-          window.location.reload()
-        );
+        if (r.status)
+          swal("Parfait!", "Parent mis à jour", "success").then(() =>
+            window.location.reload()
+          );
       });
   };
 

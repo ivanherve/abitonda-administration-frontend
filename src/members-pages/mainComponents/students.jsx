@@ -2,7 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowCircleDown,
   faArrowCircleUp,
-  faPlus
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ import {
   OverlayTrigger,
   Pagination,
   Row,
-  Tooltip
+  Tooltip,
 } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import ContactParent from "../containers/contactParent";
@@ -141,7 +141,15 @@ export default function Student(props) {
               students.map((s) => (
                 <ListGroup.Item
                   action
-                  variant={s.Registered ? s.InternalRulesSigned && s.RegistrationFileFilled && s.Picture ? 'success' : 'warning' : 'danger'}
+                  variant={
+                    s.Registered
+                      ? s.InternalRulesSigned &&
+                        s.RegistrationFileFilled &&
+                        s.Picture
+                        ? "success"
+                        : "warning"
+                      : "danger"
+                  }
                   key={students.indexOf(s)}
                   onClick={() => {
                     setOneStudent(s);
@@ -175,7 +183,7 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-0">Contact Parents</Nav.Link>
                 </Nav.Item>
-{/*
+                {/*
                 <Nav.Item>
                   <Nav.Link eventKey="link-3">Présences</Nav.Link>
                 </Nav.Item>
@@ -241,13 +249,12 @@ function Links(props) {
     );
   } else if (props.link === "link-1") {
     return <GeneralInformation student={props.student} />;
-  } 
+  } else {
   /*else if (props.link === "link-2") {
     return <Payment />;
   } else if (props.link === "link-3") {
     return <StudentPresence />;
   } */
-  else {
     return <div>nothin</div>;
   }
 }

@@ -6,13 +6,9 @@ import { useEffect, useState } from "react";
 import swal from "sweetalert";
 import {
   ENDPOINT,
-  getAuthRequest,
-  Loading,
-  postAuthRequestFormData,
-  usePrevious,
+  getAuthRequest, postAuthRequestFormData
 } from "../../links/links";
 import AddParent from "../modals/addParent";
-import AddStudent from "../modals/addStudent";
 import EditParent from "../modals/editParent";
 
 const { Row, Col, Alert, Button } = require("react-bootstrap");

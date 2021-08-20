@@ -11,7 +11,7 @@ import {
   Image,
   OverlayTrigger,
   Row,
-  Tooltip,
+  Tooltip
 } from "react-bootstrap";
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
@@ -20,7 +20,7 @@ import {
   ENDPOINT,
   getAuthRequest,
   Loading,
-  postAuthRequestFormData,
+  postAuthRequestFormData
 } from "../../links/links";
 
 library.add(faEdit, faTimes, faArrowCircleDown);
@@ -76,7 +76,7 @@ export default function GeneralInformation(props) {
     data.append("birthdate", birthdate);
     data.append("classe", classe);
     data.append("allergies", allergies);
-    data.append("Picture", newPic);
+    if (newPic !== pic) data.append("Picture", newPic);
     data.append("neighborhood", neighborhoodSelected);
     data.append("address", address);
     data.append("newStudent", newStudent);
@@ -141,12 +141,13 @@ export default function GeneralInformation(props) {
     getNeighborhoods();
     getClasses();
     setLoading2(true);
+    console.log(student);
   }, [student]);
 
   useEffect(() => {
     console.log(student.Picture === newPic);
     if (student.Picture) setNewPic(student.Picture);
-    //else setNewPic(pic);
+    else setNewPic(pic);
   }, [student]);
 
   return loading ? (

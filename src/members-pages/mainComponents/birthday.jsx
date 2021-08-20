@@ -1,7 +1,7 @@
 import moment from "moment";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Card, Nav, Table } from "react-bootstrap";
-import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
+import { ENDPOINT, getAuthRequest } from "../../links/links";
 
 export default function Birthday(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;

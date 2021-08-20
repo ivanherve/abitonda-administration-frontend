@@ -1,14 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  Col,
-  Form,
-  Modal,
-  Nav,
-  Row,
-  Tab,
-} from "react-bootstrap";
+import { Button, Col, Form, Modal, Nav, Row, Tab } from "react-bootstrap";
 import swal from "sweetalert";
 import { ENDPOINT, getAuthRequest, postAuthRequest } from "../../links/links";
 

@@ -1,19 +1,18 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import {
+  Badge,
   Button,
   Col,
   Form,
   ListGroup,
   Modal,
   Row,
-  Badge,
 } from "react-bootstrap";
 import swal from "sweetalert";
 import {
   ENDPOINT,
   getAuthRequest,
-  postAuthRequest,
   postAuthRequestFormData,
 } from "../../links/links";
 
