@@ -141,7 +141,7 @@ export default function Student(props) {
               students.map((s) => (
                 <ListGroup.Item
                   action
-                  variant={s.Registered ? 'success' : 'danger'}
+                  variant={s.Registered ? s.InternalRulesSigned && s.RegistrationFileFilled && s.Picture ? 'success' : 'warning' : 'danger'}
                   key={students.indexOf(s)}
                   onClick={() => {
                     setOneStudent(s);
