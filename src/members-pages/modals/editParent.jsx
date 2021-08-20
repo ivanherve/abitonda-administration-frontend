@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import swal from "sweetalert";
 import { ENDPOINT, postAuthRequestFormData } from "../../links/links";
 import { FrmGroupText } from "./editEmployee";
 
 export default function EditParent(props) {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
-  const parent = props.parent;
+  const theParent = props.parent;
+  const [parent, setParent] = useState(theParent);
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
   const [phoneNumb, setPhoneNumb] = useState("");
@@ -25,9 +27,15 @@ export default function EditParent(props) {
     fetch(ENDPOINT("editparent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
-          console.log(r);
+          if(r.status) swal("Parfait!", "Parent mis à jour", "success").then(() =>
+          window.location.reload()
+        );
       });
   };
+
+  useEffect(() => {
+    setParent(props.parent);
+  }, [props.parent]);
 
   return (
     <Modal show={props.show} onHide={props.hide} size="lg" centered>
