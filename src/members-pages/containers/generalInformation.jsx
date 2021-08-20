@@ -47,6 +47,13 @@ export default function GeneralInformation(props) {
   const [address, setAddress] = useState("");
   const [allClasses, setAllClasses] = useState([]);
   const [newStudent, setNewStudent] = useState("");
+  const [rulesSigned, setRulesSigned] = useState(false);
+  const [registrationFileFilled, setRegistrationFileFilled] = useState(false);
+  const [vaccinsFile, setVaccinsFile] = useState(false);
+  const [piano, setPiano] = useState(false);
+  const [swimmingpool, setSwimmingpool] = useState(false);
+  const [guitar, setGuitar] = useState(false);
+  const [danse, setDanse] = useState(false);
 
   setTimeout(() => {
     setLoading(false);
@@ -69,13 +76,20 @@ export default function GeneralInformation(props) {
     data.append("birthdate", birthdate);
     data.append("classe", classe);
     data.append("allergies", allergies);
-    data.append("Canteen", canteen);
-    data.append("Transport", transport);
-    data.append("Registered", registered);
     data.append("Picture", newPic);
     data.append("neighborhood", neighborhoodSelected);
     data.append("address", address);
     data.append("newStudent", newStudent);
+    data.append("Canteen", canteen);
+    data.append("Transport", transport);
+    data.append("Registered", registered);
+    data.append("rulesSigned", rulesSigned);
+    data.append("registrationFileFilled", registrationFileFilled);
+    data.append("vaccinsFile", vaccinsFile);
+    data.append("piano", piano);
+    data.append("guitar", guitar);
+    data.append("swimmingpool", swimmingpool);
+    data.append("danse", danse);
     fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
@@ -108,10 +122,22 @@ export default function GeneralInformation(props) {
       });
   };
 
+  const COL_SIZE = 5;
+
   useEffect(() => {
     if (student.Registered) setRegistered(student.Registered);
     if (student.Canteen) setCanteen(student.Canteen);
     if (student.Transport) setTransport(student.Transport);
+    if (student.NewStudent) setNewStudent(student.NewStudent);
+    if (student.InternalRulesSigned)
+      setRulesSigned(student.InternalRulesSigned);
+    if (student.RegistrationFileFilled)
+      setRegistrationFileFilled(student.RegistrationFileFilled);
+    if (student.VaccinsFile) setVaccinsFile(student.VaccinsFile);
+    if (student.Piano) setPiano(student.Piano);
+    if (student.Piscine) setSwimmingpool(student.Piscine);
+    if (student.Guitar) setGuitar(student.Guitar);
+    if (student.Danse) setDanse(student.Danse);
     getNeighborhoods();
     getClasses();
     setLoading2(true);
@@ -291,65 +317,164 @@ export default function GeneralInformation(props) {
                 )}
               </Col>
             </Form.Group>
-            
-            <hr />
-            <Form.Group as={Row} controlId="formPlaintextRegistering">
-              <Form.Label column sm="2">
-                Inscription
-              </Form.Label>
-              <Col sm="1">
-                <Form.Check
-                  type="checkbox"
-                  disabled={!toEdit}
-                  defaultChecked={student.Registered}
-                  onChange={(e) => setRegistered(e.target.checked)}
-                />
-              </Col>
-            </Form.Group>
 
-            <Form.Group as={Row} controlId="formPlaintextNewStudent">
-              <Form.Label column sm="2">
-                Nouvel élève
-              </Form.Label>
-              <Col sm="1">
-                <Form.Check
-                  type="checkbox"
-                  disabled={!toEdit}
-                  defaultChecked={student.NewStudent}
-                  onChange={(e) => setNewStudent(e.target.checked)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextCantine">
-              <Form.Label column sm="2">
-                Cantine
-              </Form.Label>
-              <Col sm="1">
-                <Form.Check
-                  type="checkbox"
-                  disabled={!toEdit}
-                  defaultChecked={student.Canteen}
-                  onChange={(e) => setCanteen(e.target.checked)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextTransport">
-              <Form.Label column sm="2">
-                Transport
-              </Form.Label>
-              <Col sm="1">
-                <Form.Check
-                  type="checkbox"
-                  disabled={!toEdit}
-                  defaultChecked={student.Transport}
-                  onChange={(e) => setTransport(e.target.checked)}
-                />
-              </Col>
-            </Form.Group>
             <hr />
-{/*
+            <Row>
+              <Col>
+                <Form.Group as={Row} controlId="formPlaintextRegistering">
+                  <Form.Label column sm={COL_SIZE}>
+                    Inscription
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Registered}
+                      onChange={(e) => setRegistered(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextNewStudent">
+                  <Form.Label column sm={COL_SIZE}>
+                    Nouvel élève
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.NewStudent}
+                      onChange={(e) => setNewStudent(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextNewStudent">
+                  <Form.Label column sm={COL_SIZE}>
+                    ROI signé
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.InternalRulesSigned}
+                      onChange={(e) => setRulesSigned(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextNewStudent">
+                  <Form.Label column sm={COL_SIZE}>
+                    Fiche d'inscription
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.RegistrationFileFilled}
+                      onChange={(e) =>
+                        setRegistrationFileFilled(e.target.checked)
+                      }
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextNewStudent">
+                  <Form.Label column sm={COL_SIZE}>
+                    Carnet de vaccination
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.VaccinsFile}
+                      onChange={(e) => setVaccinsFile(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group as={Row} controlId="formPlaintextCantine">
+                  <Form.Label column sm={COL_SIZE}>
+                    Cantine
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Canteen}
+                      onChange={(e) => setCanteen(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextTransport">
+                  <Form.Label column sm={COL_SIZE}>
+                    Transport
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Transport}
+                      onChange={(e) => setTransport(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <hr />
+                <Form.Group as={Row} controlId="formPlaintextPiano">
+                  <Form.Label column sm={COL_SIZE}>
+                    Piano
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Piano}
+                      onChange={(e) => setPiano(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextPiscine">
+                  <Form.Label column sm={COL_SIZE}>
+                    Piscine
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Piscine}
+                      onChange={(e) => setSwimmingpool(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextGuitar">
+                  <Form.Label column sm={COL_SIZE}>
+                    Guitar
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Guitar}
+                      onChange={(e) => setGuitar(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} controlId="formPlaintextDanse">
+                  <Form.Label column sm={COL_SIZE}>
+                    Danse
+                  </Form.Label>
+                  <Col sm="1">
+                    <Form.Check
+                      type="checkbox"
+                      disabled={!toEdit}
+                      defaultChecked={student.Danse}
+                      onChange={(e) => setDanse(e.target.checked)}
+                    />
+                  </Col>
+                </Form.Group>
+              </Col>
+            </Row>
+            <hr />
+            {/*
             <Form.Group as={Row} controlId="formPlaintextExtraActivities">
-              <Form.Label column sm="4">
+              <Form.Label column sm={COL_SIZE}>
                 Activités Parascolaires
               </Form.Label>
               <Col sm="8">
@@ -364,7 +489,7 @@ export default function GeneralInformation(props) {
             </Form.Group>
             <hr />
             <Form.Group as={Row} controlId="formPlaintextGarde">
-              <Form.Label column sm="4">
+              <Form.Label column sm={COL_SIZE}>
                 Mode de garde *
               </Form.Label>
               <Col sm="8">
