@@ -38,6 +38,10 @@ export default function ContactParent(props) {
   const [parents, setParents] = useState([]);
   const [studentId, setStudentId] = useState(0);
   const [showEditParent, setShowEditParent] = useState(false);
+  const [selectedParent, setSelectedParent] = useState({
+    Firstname: "",
+    Lastname: "",
+  });
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
@@ -79,9 +83,15 @@ export default function ContactParent(props) {
           if (r.response.length < 1) setParents([]);
           setParents(r.response);
           setStudentId(props.studentId);
+          setSelectedParent(r.response[0] || selectedParent);
         }
       });
   }, [props.studentId]);
+
+  const editSelectedParent = (p) => {
+    setShowEditParent(true);
+    setSelectedParent(p);
+  };
 
   return (
     <div>
@@ -134,7 +144,7 @@ export default function ContactParent(props) {
                   <Button
                     variant="light"
                     style={{ width: "100%" }}
-                    onClick={() => setShowEditParent(true)}
+                    onClick={() => editSelectedParent(p)}
                   >
                     <FontAwesomeIcon icon={["far", "edit"]} />
                   </Button>
@@ -150,11 +160,6 @@ export default function ContactParent(props) {
                 </Row>
               </Col>
             </Row>
-            <EditParent
-              show={showEditParent}
-              hide={() => setShowEditParent(false)}
-              parent={p}
-            />
           </div>
         ))
       )}
@@ -162,6 +167,11 @@ export default function ContactParent(props) {
         show={showAddParent}
         hide={() => setShowAddParent(false)}
         studentId={studentId}
+      />
+      <EditParent
+        show={showEditParent}
+        hide={() => setShowEditParent(false)}
+        parent={selectedParent}
       />
     </div>
   );
