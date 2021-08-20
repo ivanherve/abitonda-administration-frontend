@@ -192,7 +192,7 @@ export default function AddParent(props) {
                     </Form.Group>
                     <Form.Group as={Row} controlId="addparentaddress">
                       <Form.Label column sm="2">
-                        Domicile*
+                        Domicile
                       </Form.Label>
                       <Col sm="10">
                         <Form.Control
