@@ -2,7 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowCircleDown,
   faArrowCircleUp,
-  faPlus,
+  faPlus
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ import {
   OverlayTrigger,
   Pagination,
   Row,
-  Tooltip,
+  Tooltip
 } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import ContactParent from "../containers/contactParent";
@@ -187,10 +187,11 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-3">Présences</Nav.Link>
                 </Nav.Item>
+
                 <Nav.Item>
                   <Nav.Link eventKey="link-2">Paiement</Nav.Link>
                 </Nav.Item>
-*/}
+*/}                
               </Nav>
             </Card.Header>
             <Card.Body>
@@ -249,12 +250,10 @@ function Links(props) {
     );
   } else if (props.link === "link-1") {
     return <GeneralInformation student={props.student} />;
-  } else {
-  /*else if (props.link === "link-2") {
+  } /*else if (props.link === "link-2") {
     return <Payment />;
   } else if (props.link === "link-3") {
     return <StudentPresence />;
   } */
-    return <div>nothin</div>;
-  }
+  else return <div>nothin</div>;
 }
