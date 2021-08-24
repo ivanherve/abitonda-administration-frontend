@@ -6,7 +6,7 @@ import {
   ENDPOINT,
   getAuthRequest,
   postAuthRequest,
-  postAuthRequestFormData,
+  postAuthRequestFormData
 } from "../../links/links";
 
 export default function AddStudent(props) {
@@ -16,6 +16,13 @@ export default function AddStudent(props) {
   const [birthdate, setBirthdate] = useState("");
   const [canteen, setCanteen] = useState(0);
   const [transport, setTransport] = useState(0);
+  const [rulesSigned, setRulesSigned] = useState(false);
+  const [registrationFileFilled, setRegistrationFileFilled] = useState(false);
+  const [vaccinsFile, setVaccinsFile] = useState(false);
+  const [piano, setPiano] = useState(false);
+  const [swimmingpool, setSwimmingpool] = useState(false);
+  const [guitar, setGuitar] = useState(false);
+  const [danse, setDanse] = useState(false);
   const [classe, setClasse] = useState(1);
   const [picture, setPicture] = useState(null);
   const [file, setFile] = useState(null);
@@ -61,6 +68,13 @@ export default function AddStudent(props) {
       Classe: classe,
       Picture: picture,
       neighborhoodSelected,
+      rulesSigned,
+      registrationFileFilled,
+      vaccinsFile,
+      piano,
+      guitar,
+      danse,
+      swimmingpool
     });
 
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
@@ -77,6 +91,9 @@ export default function AddStudent(props) {
           });
       });
   };
+
+  const LABEL_SIZE = 4;
+  const CHECKBOX_SIZE = 8;
 
   useEffect(() => {
     getNeighborhoods();
@@ -177,38 +194,153 @@ export default function AddStudent(props) {
                   </Form.Control>
                 </Col>
               </Form.Group>
-
-              <Form.Group as={Row} controlId="formPlaintextBirthdate">
-                <Form.Label column sm="2">
-                  Cantine
-                </Form.Label>
-                <Col sm="10">
-                  <Form.Check
-                    type="checkbox"
-                    id="checkbox-canteen"
-                    onChange={(e) => setCanteen(e.target.checked)}
-                  />
+              <Row>
+                <Col xs="4">
+                  <Form.Group as={Row} controlId="formPlaintextCanteen">
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Cantine
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-canteen"
+                        onChange={(e) => setCanteen(e.target.checked)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group as={Row} controlId="formPlaintextTransport">
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Transport
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) => setTransport(e.target.checked)}
+                      />
+                    </Col>
+                  </Form.Group>
                 </Col>
-              </Form.Group>
-
-              <Form.Group as={Row} controlId="formPlaintextBirthdate">
-                <Form.Label column sm="2">
-                  Transport
-                </Form.Label>
-                <Col sm="10">
-                  <Form.Check
-                    type="checkbox"
-                    id="checkbox-transport"
-                    onChange={(e) => setTransport(e.target.checked)}
-                  />
+                <Col>
+                  <Form.Group as={Row} controlId="formPlaintextRulesSigned">
+                    <Form.Label column sm={LABEL_SIZE}>
+                      ROI signé
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) => setRulesSigned(e.target.checked)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group as={Row} controlId="formPlaintextVaccin">
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Carnet de vaccination
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) => setVaccinsFile(e.target.checked)}
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formPlaintextRegistrationFile"
+                  >
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Fiche d'inscription
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) =>
+                          setRegistrationFileFilled(e.target.checked)
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
                 </Col>
-              </Form.Group>
-
+                <Col>
+                  <Form.Group
+                    as={Row}
+                    controlId="formPlaintextPiano"
+                  >
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Piano
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) =>
+                          setPiano(e.target.checked)
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formPlaintextSwimmingpool"
+                  >
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Piscine
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) =>
+                          setSwimmingpool(e.target.checked)
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formPlaintextGuitar"
+                  >
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Guitar
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) =>
+                          setGuitar(e.target.checked)
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
+                  <Form.Group
+                    as={Row}
+                    controlId="formPlaintextDanse"
+                  >
+                    <Form.Label column sm={LABEL_SIZE}>
+                      Danse
+                    </Form.Label>
+                    <Col sm={CHECKBOX_SIZE}>
+                      <Form.Check
+                        type="checkbox"
+                        id="checkbox-transport"
+                        onChange={(e) =>
+                          setDanse(e.target.checked)
+                        }
+                      />
+                    </Col>
+                  </Form.Group>
+                </Col>
+              </Row>
+              <hr />
               <Form.Group as={Row} controlId="formPlaintextPicture">
-                <Form.Label column sm="2">
+                <Form.Label column sm={LABEL_SIZE}>
                   Photo
                 </Form.Label>
-                <Col sm="10">
+                <Col sm={CHECKBOX_SIZE}>
                   <FileBase64 onDone={(e) => setPicture(e.base64)} />
                 </Col>
               </Form.Group>
