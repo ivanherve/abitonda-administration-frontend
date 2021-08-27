@@ -146,7 +146,15 @@ export default function GeneralInformation(props) {
 
   useEffect(() => {
     console.log(student.Picture === newPic);
-    if (student.Picture) setNewPic(student.Picture);
+    let data = new FormData();
+    data.append('studentId', student.StudentId);
+    if (student.Picture) {
+      fetch(ENDPOINT('studentspicture'), postAuthRequestFormData(data, token))
+      .then(r => r.json())
+      .then(r => {
+        if(r.status) setNewPic(r.response[0]['Picture']);
+      })
+    }
     else setNewPic(pic);
   }, [student]);
 
