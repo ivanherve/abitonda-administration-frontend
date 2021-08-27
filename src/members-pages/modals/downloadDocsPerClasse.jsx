@@ -241,7 +241,7 @@ export default function DownloadDocsPerClasse(props) {
               <Col xs="9">Liste de Présence</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste de Présence"
+                  filename={"Liste de Présence de " + props.classe}
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
@@ -261,7 +261,7 @@ export default function DownloadDocsPerClasse(props) {
               <Col xs="9">Liste des anniversaires</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste d'anniversaires"
+                  filename={"Liste d'anniversaires de " + props.classe}
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
@@ -281,7 +281,7 @@ export default function DownloadDocsPerClasse(props) {
               <Col xs="9">Liste des contacts</Col>
               <Col xs="3">
                 <ExcelFile
-                  filename="Liste de Contact"
+                  filename={"Liste de Contact de " + props.classe}
                   element={
                     <Button variant="light">
                       <FontAwesomeIcon icon={["fas", "download"]} />
