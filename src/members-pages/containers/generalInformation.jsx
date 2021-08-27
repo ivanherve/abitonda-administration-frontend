@@ -11,7 +11,7 @@ import {
   Image,
   OverlayTrigger,
   Row,
-  Tooltip
+  Tooltip,
 } from "react-bootstrap";
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
@@ -20,7 +20,7 @@ import {
   ENDPOINT,
   getAuthRequest,
   Loading,
-  postAuthRequestFormData
+  postAuthRequestFormData,
 } from "../../links/links";
 
 library.add(faEdit, faTimes, faArrowCircleDown);
@@ -30,6 +30,7 @@ export default function GeneralInformation(props) {
   const [showBirthDayAlert, setShowBirthDayAlert] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loading2, setLoading2] = useState(false);
+  const [loadingPicture, setLoadingPicture] = useState(false);
   const [newPic, setNewPic] = useState(pic);
 
   const [lastname, setLastname] = useState("");
@@ -62,6 +63,10 @@ export default function GeneralInformation(props) {
 
   setTimeout(() => {
     setLoading2(false);
+  }, 500);
+
+  setTimeout(() => {
+    setLoadingPicture(false);
   }, 500);
 
   const student = props.student;
@@ -147,15 +152,15 @@ export default function GeneralInformation(props) {
   useEffect(() => {
     console.log(student.Picture === newPic);
     let data = new FormData();
-    data.append('studentId', student.StudentId);
+    data.append("studentId", student.StudentId);
     if (student.Picture) {
-      fetch(ENDPOINT('studentspicture'), postAuthRequestFormData(data, token))
-      .then(r => r.json())
-      .then(r => {
-        if(r.status) setNewPic(r.response[0]['Picture']);
-      })
-    }
-    else setNewPic(pic);
+      setLoadingPicture(true);
+      fetch(ENDPOINT("studentspicture"), postAuthRequestFormData(data, token))
+        .then((r) => r.json())
+        .then((r) => {
+          if (r.status) setNewPic(r.response[0]["Picture"]);
+        });
+    } else setNewPic(pic);
   }, [student]);
 
   return loading ? (
@@ -166,7 +171,11 @@ export default function GeneralInformation(props) {
     <div>
       <Row>
         <Col xs="3">
-          <Image src={newPic} width="200" height="200" rounded />
+          {loadingPicture ? (
+            <Loading />
+          ) : (
+            <Image src={newPic} width="200" height="200" rounded />
+          )}
           <br />
           {toEdit && (
             <div style={{ width: "100%" }}>
