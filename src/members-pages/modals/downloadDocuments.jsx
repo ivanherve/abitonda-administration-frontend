@@ -125,28 +125,28 @@ export default function DownloadDocuments(props) {
                 ];
               else
               */
-                return [
-                  {
-                    value: res.response.indexOf(r) + 1,
-                    ...BODY_CELLS,
-                  },
-                  {
-                    value: r.Firstname,
-                    ...BODY_CELLS,
-                  },
-                  {
-                    value: r.Lastname,
-                    ...BODY_CELLS,
-                  },
-                  {
-                    value: moment(r.Birthdate).format("DD/MM/YYYY"),
-                    ...BODY_CELLS,
-                  },
-                  {
-                    value: r.Classe,
-                    ...BODY_CELLS,
-                  },
-                ];
+              return [
+                {
+                  value: res.response.indexOf(r) + 1,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Firstname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Lastname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Classe,
+                  ...BODY_CELLS,
+                },
+              ];
             }),
           },
         ]);
@@ -156,21 +156,29 @@ export default function DownloadDocuments(props) {
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
-  var daysInMonth = new Date(year, month, 0).getDate();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
   var days = [];
   var isPresent = [];
   for (let i = 0; i < daysInMonth; i++) {
-    days.push({
-      title: `${i + 1}`,
-      width: { wpx: 20 },
-      ...HEADER_CELLS,
-    });
+    var dat = new Date(year, month + 1, i - 1).getDay();
+    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
+    if (dat !== 6 && dat !== 0) {
+      days.push({
+        title: `${i + 1}`,
+        width: { wpx: 20 },
+        ...HEADER_CELLS,
+      });
+    }
   }
   for (let i = 0; i < daysInMonth; i++) {
-    isPresent.push({
-      value: "",
-      ...BODY_CELLS,
-    });
+    var dat = new Date(year, month + 1, i - 1).getDay();
+    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
+    if (dat !== 6 && dat !== 0) {
+      isPresent.push({
+        value: "",
+        ...BODY_CELLS,
+      });
+    }
   }
 
   const exportCanteen = () => {
@@ -250,17 +258,17 @@ export default function DownloadDocuments(props) {
               },
               {
                 title: "Quartier",
-                width: { wpx: 125 },
+                width: { wpx: 130 },
                 ...HEADER_CELLS,
               },
               {
                 title: "Rue",
-                width: { wpx: 125 },
+                width: { wpx: 130 },
                 ...HEADER_CELLS,
               },
               {
                 title: "Contact",
-                width: { wpx: 125 },
+                width: { wpx: 130 },
                 ...HEADER_CELLS,
               },
               {
@@ -270,9 +278,9 @@ export default function DownloadDocuments(props) {
               },
               {
                 title: "Paiement",
-                width: { wpx: 125 },
+                width: { wpx: 115 },
                 ...HEADER_CELLS,
-              },/**/
+              } /**/,
               ...days,
             ],
             data: res.response.map((r) => [
@@ -305,7 +313,7 @@ export default function DownloadDocuments(props) {
                 ...BODY_CELLS,
               },
               {
-                value: '',
+                value: "",
                 ...BODY_CELLS,
               },
               ...isPresent,
@@ -371,7 +379,7 @@ export default function DownloadDocuments(props) {
                 title: "NUMÉRO DE TÉLÉPHONE",
                 width: { wpx: 125 },
                 ...HEADER_CELLS,
-              }
+              },
             ],
             data: res.response.map((r) => [
               {
@@ -413,7 +421,7 @@ export default function DownloadDocuments(props) {
               {
                 value: r.PhoneNumb,
                 ...BODY_CELLS,
-              }
+              },
             ]),
           },
         ]);
