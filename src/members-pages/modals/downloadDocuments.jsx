@@ -20,6 +20,7 @@ export default function DownloadDocuments(props) {
   const [sorasDataSet, setSorasDataSet] = useState([]);
   const [canteenDataSet, setCanteenDataSet] = useState([]);
   const [transportDataSet, setTransportDataSet] = useState([]);
+  const [registrationIncomplete, setRegistrationIncomplete] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -98,6 +99,7 @@ export default function DownloadDocuments(props) {
               },
             ],
             data: res.response.map((r) => {
+              /*
               if (r.NewStudent)
                 return [
                   {
@@ -122,6 +124,7 @@ export default function DownloadDocuments(props) {
                   },
                 ];
               else
+              */
                 return [
                   {
                     value: res.response.indexOf(r) + 1,
@@ -246,10 +249,30 @@ export default function DownloadDocuments(props) {
                 ...HEADER_CELLS,
               },
               {
-                title: "DATE DE NAISSANCE",
+                title: "Quartier",
                 width: { wpx: 125 },
                 ...HEADER_CELLS,
               },
+              {
+                title: "Rue",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "Contact",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "Numéro",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "Paiement",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },/**/
               ...days,
             ],
             data: res.response.map((r) => [
@@ -266,10 +289,131 @@ export default function DownloadDocuments(props) {
                 ...BODY_CELLS,
               },
               {
-                value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                value: r.Neighborhood,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Address,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Contact,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.PhoneNumb,
+                ...BODY_CELLS,
+              },
+              {
+                value: '',
                 ...BODY_CELLS,
               },
               ...isPresent,
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportRegistrationIncomplete = () => {
+    fetch(ENDPOINT("studentsregistrationsincomplete"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setRegistrationIncomplete([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "ROI",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "FICHE D'INSCRIPTION",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CARNET DE VACCINATION",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PHOTO",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PARENT / TUTEUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NUMÉRO DE TÉLÉPHONE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              }
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.ROI,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Fiche,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Vaccin,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Photo,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Parent,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.PhoneNumb,
+                ...BODY_CELLS,
+              }
             ]),
           },
         ]);
@@ -280,6 +424,7 @@ export default function DownloadDocuments(props) {
     exportTransport();
     exportCanteen();
     exportSoras();
+    exportRegistrationIncomplete();
   }, []);
 
   return (
@@ -344,6 +489,26 @@ export default function DownloadDocuments(props) {
                   <ExcelSheet
                     dataSet={transportDataSet}
                     name="Liste de Transport 2021"
+                  />
+                </ExcelFile>
+              </Col>
+            </Row>
+          </ListGroup.Item>
+          <ListGroup.Item>
+            <Row>
+              <Col xs="9">Liste des dossiers d'inscription incomplète</Col>
+              <Col xs="3">
+                <ExcelFile
+                  filename="Liste des dossiers d'inscription incomplète"
+                  element={
+                    <Button variant="light">
+                      <FontAwesomeIcon icon={["fas", "download"]} />
+                    </Button>
+                  }
+                >
+                  <ExcelSheet
+                    dataSet={registrationIncomplete}
+                    name="Liste des dossiers d'inscription incomplète"
                   />
                 </ExcelFile>
               </Col>
