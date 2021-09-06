@@ -74,7 +74,8 @@ export default function AddStudent(props) {
       piano,
       guitar,
       danse,
-      swimmingpool
+      swimmingpool,
+      address
     });
 
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
