@@ -104,7 +104,9 @@ export default function Classe(props) {
                 key={classes.indexOf(c)}
                 onClick={() => setSelectedClasse(c.Name)}
               >
-                {c.Name}
+                <strong>{c.Name}</strong>
+                <br />
+                <div style={{fontStyle: 'italic', fontSize: '0.8em'}}>{c.nbStudents} {c.nbStudents > 1 ? `élèves` : `élève`}</div>
               </ListGroup.Item>
             ))}
           </ListGroup>
