@@ -21,6 +21,7 @@ export default function DownloadDocuments(props) {
   const [canteenDataSet, setCanteenDataSet] = useState([]);
   const [transportDataSet, setTransportDataSet] = useState([]);
   const [registrationIncomplete, setRegistrationIncomplete] = useState([]);
+  const [newStudents, setNewStudents] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -428,11 +429,63 @@ export default function DownloadDocuments(props) {
       });
   };
 
+  const exportNewStudents = () => {
+    fetch(ENDPOINT("newstudents"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setNewStudents([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
   useEffect(() => {
     exportTransport();
     exportCanteen();
     exportSoras();
     exportRegistrationIncomplete();
+    exportNewStudents();
   }, []);
 
   return (
@@ -517,6 +570,26 @@ export default function DownloadDocuments(props) {
                   <ExcelSheet
                     dataSet={registrationIncomplete}
                     name="Liste des dossiers d'inscription incomplète"
+                  />
+                </ExcelFile>
+              </Col>
+            </Row>
+          </ListGroup.Item>
+          <ListGroup.Item>
+            <Row>
+              <Col xs="9">Liste des nouveaux</Col>
+              <Col xs="3">
+                <ExcelFile
+                  filename="Liste des nouveaux"
+                  element={
+                    <Button variant="light">
+                      <FontAwesomeIcon icon={["fas", "download"]} />
+                    </Button>
+                  }
+                >
+                  <ExcelSheet
+                    dataSet={newStudents}
+                    name="Liste des nouveaux"
                   />
                 </ExcelFile>
               </Col>
