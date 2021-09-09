@@ -16,6 +16,7 @@ import {
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
 import pic from "../../img/ppx.jpg";
+import ShowStudentInfo from "../modals/showStudentInfo";
 import {
   ENDPOINT,
   getAuthRequest,
@@ -55,6 +56,8 @@ export default function GeneralInformation(props) {
   const [swimmingpool, setSwimmingpool] = useState(false);
   const [guitar, setGuitar] = useState(false);
   const [danse, setDanse] = useState(false);
+
+  const [showStudentFile, setShowStudentFile] = useState(false);
 
   setTimeout(() => {
     setLoading(false);
@@ -234,12 +237,16 @@ export default function GeneralInformation(props) {
             </Col>
           </Row>
           <br />
-          {/*!toEdit && (
-            <Button variant="light" style={{ width: "100%" }}>
-              Fiche d'inscription{" "}
+          {!toEdit && (
+            <Button
+              variant="light"
+              style={{ width: "100%" }}
+              onClick={() => setShowStudentFile(true)}
+            >
+              Fiche d'inscription
               <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
             </Button>
-          )*/}
+          )}
         </Col>
         <Col>
           <Form>
@@ -549,6 +556,27 @@ export default function GeneralInformation(props) {
           </Form>
         </Col>
       </Row>
+      <ShowStudentInfo
+        show={showStudentFile}
+        student={student}
+        hide={() => setShowStudentFile(false)}
+        picture={newPic}
+      />
     </div>
   );
 }
+
+/*
+// Create styles
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'row',
+    backgroundColor: '#E4E4E4'
+  },
+  section: {
+    margin: 10,
+    padding: 10,
+    flexGrow: 1
+  }
+});
+*/
