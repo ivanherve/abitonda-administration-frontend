@@ -94,6 +94,25 @@ export default function ShowStudentInfo(props) {
             </Table>
           </Col>
         </Row>
+        <hr />
+        <h5>PRISE DE CONNAISSANCE DU REGLEMENT D'ORDRE INTÉRIEUR</h5>
+        <br />
+        <p>
+          Je soussigné .........................................................
+          parent de l'élève ....................................................
+          inscrit en classe de ...........................
+          cetifie avoir pris connaissance du règlement d'ordre intérieur de
+          l'école Abitonda.
+        </p>
+        <br />
+        <p>
+          Signature :
+        </p>
+        <br />
+        <br />
+        <p>
+          Lu et approuvé
+        </p>
       </Modal.Body>
       <Modal.Footer>
         <Pdf
