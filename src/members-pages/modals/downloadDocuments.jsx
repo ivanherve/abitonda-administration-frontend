@@ -22,6 +22,8 @@ export default function DownloadDocuments(props) {
   const [transportDataSet, setTransportDataSet] = useState([]);
   const [registrationIncomplete, setRegistrationIncomplete] = useState([]);
   const [newStudents, setNewStudents] = useState([]);
+  const [schoolsite, setSchoolsite] = useState([]);
+  const [kindergardensite, setKindergardensite] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -65,6 +67,35 @@ export default function DownloadDocuments(props) {
       },
     },
   };
+
+
+  var dt = new Date();
+  var month = dt.getMonth();
+  var year = dt.getFullYear();
+  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var days = [];
+  var isPresent = [];
+  for (let i = 0; i < daysInMonth; i++) {
+    var dat = new Date(year, month + 1, i - 1).getDay();
+    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
+    if (dat !== 6 && dat !== 0) {
+      days.push({
+        title: `${i + 1}`,
+        width: { wpx: 20 },
+        ...HEADER_CELLS,
+      });
+    }
+  }
+  for (let i = 0; i < daysInMonth; i++) {
+    var dat = new Date(year, month + 1, i - 1).getDay();
+    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
+    if (dat !== 6 && dat !== 0) {
+      isPresent.push({
+        value: "",
+        ...BODY_CELLS,
+      });
+    }
+  }
 
   const exportSoras = () => {
     fetch(ENDPOINT("soras"), getAuthRequest(token))
@@ -154,39 +185,117 @@ export default function DownloadDocuments(props) {
       });
   };
 
-  var dt = new Date();
-  var month = dt.getMonth();
-  var year = dt.getFullYear();
-  var daysInMonth = new Date(year, month + 1, 0).getDate();
-  var days = [];
-  var isPresent = [];
-  for (let i = 0; i < daysInMonth; i++) {
-    var dat = new Date(year, month + 1, i - 1).getDay();
-    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
-    if (dat !== 6 && dat !== 0) {
-      days.push({
-        title: `${i + 1}`,
-        width: { wpx: 20 },
-        ...HEADER_CELLS,
-      });
-    }
-  }
-  for (let i = 0; i < daysInMonth; i++) {
-    var dat = new Date(year, month + 1, i - 1).getDay();
-    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
-    if (dat !== 6 && dat !== 0) {
-      isPresent.push({
-        value: "",
-        ...BODY_CELLS,
-      });
-    }
-  }
-
   const exportCanteen = () => {
     fetch(ENDPOINT("soras"), getAuthRequest(token))
       .then((r) => r.json())
       .then((res) => {
         setCanteenDataSet([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "DATE DE NAISSANCE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                ...BODY_CELLS,
+              },
+              ...isPresent,
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportSchoolsite = () => {
+    fetch(ENDPOINT("schoolsite"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setSchoolsite([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "DATE DE NAISSANCE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                ...BODY_CELLS,
+              },
+              ...isPresent,
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportKindergardensite = () => {
+    fetch(ENDPOINT("kindergardensite"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setKindergardensite([
           {
             columns: [
               {
@@ -486,6 +595,8 @@ export default function DownloadDocuments(props) {
     exportSoras();
     exportRegistrationIncomplete();
     exportNewStudents();
+    exportSchoolsite();
+    exportKindergardensite();
   }, []);
 
   return (
@@ -495,108 +606,65 @@ export default function DownloadDocuments(props) {
       </Modal.Header>
       <Modal.Body>
         <ListGroup variant="flush">
-          <ListGroup.Item>
-            <Row>
-              <Col xs="9">Liste SORAS</Col>
-              <Col xs="3">
-                <ExcelFile
-                  filename="Liste de SORAS"
-                  element={
-                    <Button variant="light">
-                      <FontAwesomeIcon icon={["fas", "download"]} />
-                    </Button>
-                  }
-                >
-                  <ExcelSheet
-                    dataSet={sorasDataSet}
-                    name="Liste de SORAS 2021"
-                  />
-                </ExcelFile>
-              </Col>
-            </Row>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <Row>
-              <Col xs="9">Liste de Cantine</Col>
-              <Col xs="3">
-                <ExcelFile
-                  filename="Liste de Cantine"
-                  element={
-                    <Button variant="light">
-                      <FontAwesomeIcon icon={["fas", "download"]} />
-                    </Button>
-                  }
-                >
-                  <ExcelSheet
-                    dataSet={canteenDataSet}
-                    name="Liste de Cantine 2021"
-                  />
-                </ExcelFile>
-              </Col>
-            </Row>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <Row>
-              <Col xs="9">Liste de Transport</Col>
-              <Col xs="3">
-                <ExcelFile
-                  filename="Liste de Transport"
-                  element={
-                    <Button variant="light">
-                      <FontAwesomeIcon icon={["fas", "download"]} />
-                    </Button>
-                  }
-                >
-                  <ExcelSheet
-                    dataSet={transportDataSet}
-                    name="Liste de Transport 2021"
-                  />
-                </ExcelFile>
-              </Col>
-            </Row>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <Row>
-              <Col xs="9">Liste des dossiers d'inscription incomplète</Col>
-              <Col xs="3">
-                <ExcelFile
-                  filename="Liste des dossiers d'inscription incomplète"
-                  element={
-                    <Button variant="light">
-                      <FontAwesomeIcon icon={["fas", "download"]} />
-                    </Button>
-                  }
-                >
-                  <ExcelSheet
-                    dataSet={registrationIncomplete}
-                    name="Liste des dossiers d'inscription incomplète"
-                  />
-                </ExcelFile>
-              </Col>
-            </Row>
-          </ListGroup.Item>
-          <ListGroup.Item>
-            <Row>
-              <Col xs="9">Liste des nouveaux</Col>
-              <Col xs="3">
-                <ExcelFile
-                  filename="Liste des nouveaux"
-                  element={
-                    <Button variant="light">
-                      <FontAwesomeIcon icon={["fas", "download"]} />
-                    </Button>
-                  }
-                >
-                  <ExcelSheet
-                    dataSet={newStudents}
-                    name="Liste des nouveaux"
-                  />
-                </ExcelFile>
-              </Col>
-            </Row>
-          </ListGroup.Item>
+          <ListsStudents title={`Liste SORAS`} data={sorasDataSet} />
+          <ListsStudents
+            title={`Liste de Présence`}
+            subtitle={`Cantine`}
+            data={canteenDataSet}
+          />
+          <ListsStudents
+            title={`Liste de Présence`}
+            subtitle={`SITE CRÈCHE`}
+            data={kindergardensite}
+          />
+          <ListsStudents
+            title={`Liste de Présence`}
+            subtitle="SITE ÉCOLE"
+            data={schoolsite}
+          />
+          <ListsStudents title={`Liste de Transport`} data={transportDataSet} />
+          <ListsStudents
+            title={`Liste des dossiers d'inscription incomplète`}
+            data={registrationIncomplete}
+          />
+          <ListsStudents title={`Liste des nouveaux`} data={newStudents} />
         </ListGroup>
       </Modal.Body>
     </Modal>
   );
 }
+
+const ListsStudents = (props) => {
+  return (
+    <ListGroup.Item>
+      <Row>
+        <Col xs="9">
+          {props.title} <i>{props.subtitle ? '- '+props.subtitle : ''}</i>
+        </Col>
+        <Col xs="3">
+          <ExcelFile
+            filename={
+              props.subtitle
+                ? props.title + " - " + props.subtitle
+                : props.title
+            }
+            element={
+              <Button variant="light">
+                <FontAwesomeIcon icon={["fas", "download"]} />
+              </Button>
+            }
+          >
+            <ExcelSheet
+              dataSet={props.data}
+              name={
+                props.subtitle
+                  ? props.title + " - " + props.subtitle
+                  : props.title
+              }
+            />
+          </ExcelFile>
+        </Col>
+      </Row>
+    </ListGroup.Item>
+  );
+};
