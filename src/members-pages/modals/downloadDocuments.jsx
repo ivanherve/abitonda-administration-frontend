@@ -262,7 +262,7 @@ export default function DownloadDocuments(props) {
               },
               {
                 title: "DATE DE NAISSANCE",
-                width: { wpx: 125 },
+                width: { wpx: 126 },
                 ...HEADER_CELLS,
               },
               ...days,
