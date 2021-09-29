@@ -7,7 +7,7 @@ import {
   Form,
   ListGroup,
   Row,
-  Table,
+  Table
 } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 import AddBill from "../modals/addBill";
@@ -16,14 +16,14 @@ import ShowBill from "../modals/showBill";
 const tab = [
   {
     InvoiceId: 1,
-    Title: "Bougie Gâteau d'anniversaire Dania",
-    Amount: 5000,
+    Title: "",
+    Amount: 0,
     DatePayment: "2021-05-17",
-    Description: "Bougie Gâteau d'annif de Dania, payé avec le momo de Ivan",
+    Description: "",
     PaymentMethodId: 2,
     created_at: null,
     updated_at: null,
-    BillPicture: require("../../img/logo-removebg.png"),
+    BillPicture: null, //require("../../img/logo-removebg.png"),
   },
 ];
 

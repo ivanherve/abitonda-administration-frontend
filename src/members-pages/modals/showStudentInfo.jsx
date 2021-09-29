@@ -39,80 +39,78 @@ export default function ShowStudentInfo(props) {
   return (
     <Modal show={props.show} onHide={props.hide} centered size="lg">
       <Modal.Body ref={ref}>
-        <Row>
-          <Col xs="9">
-            <h2>Fiche d'inscription</h2>
-          </Col>
-          <Col>
-            <Image src={logo} width="150" height="100" rounded />
-          </Col>
-        </Row>
-        <br />
-        <Row>
-          <Col xs="3">
-            <Image src={picture || pic} width="200" height="200" rounded />
-            <div>{picture ? "" : "Il manque une photo"}</div>
-          </Col>
-          <Col xs="9">
-            <Table style={{ marginLeft: "10px" }}>
-              <tbody>
-                <tr>
-                  <th>Prénom</th>
-                  <td>{student.Firstname}</td>
-                </tr>
-                <tr>
-                  <th>Nom</th>
-                  <td>{student.Lastname}</td>
-                </tr>
-                <tr>
-                  <th>Date de naissance</th>
-                  <td>{moment(student.Birthdate).format("LL")}</td>
-                </tr>
-                <tr>
-                  <th>Classe</th>
-                  <td>{student.Classe}</td>
-                </tr>
-                <tr>
-                  <th>Adresse</th>
-                  <td>
-                    <i>{student.Neighborhood}</i>
-                    <br />
-                    {student.Address}
-                  </td>
-                </tr>
-                {parents.map((p) => (
+        <div style={{ margin: "10px" }}>
+          <Row>
+            <Col xs="9">
+              <h2>Fiche d'inscription</h2>
+            </Col>
+            <Col>
+              <Image src={logo} width="150" height="100" rounded />
+            </Col>
+          </Row>
+          <br />
+          <Row>
+            <Col xs="4">
+              <Image src={picture || pic} width="200" height="200" rounded />
+              <div>{picture ? "" : "Il manque une photo"}</div>
+            </Col>
+            <Col xs="8">
+              <Table style={{ marginLeft: "10px", width: "100%" }}>
+                <tbody>
                   <tr>
-                    <th>Contact {parents.indexOf(p) + 1}</th>
+                    <th>Prénom</th>
+                    <td>{student.Firstname}</td>
+                  </tr>
+                  <tr>
+                    <th>Nom</th>
+                    <td>{student.Lastname}</td>
+                  </tr>
+                  <tr>
+                    <th>Date de naissance</th>
+                    <td>{moment(student.Birthdate).format("LL")}</td>
+                  </tr>
+                  <tr>
+                    <th>Classe</th>
+                    <td>{student.Classe}</td>
+                  </tr>
+                  <tr>
+                    <th>Adresse</th>
                     <td>
-                      {p.Firstname} {p.Lastname}
+                      <i>{student.Neighborhood}</i>
                       <br />
-                      {p.PhoneNumb}
+                      {student.Address}
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
-          </Col>
-        </Row>
-        <hr />
-        <h5>PRISE DE CONNAISSANCE DU REGLEMENT D'ORDRE INTÉRIEUR</h5>
-        <br />
-        <p>
-          Je soussigné .........................................................
-          parent de l'élève ....................................................
-          inscrit en classe de ...........................
-          cetifie avoir pris connaissance du règlement d'ordre intérieur de
-          l'école Abitonda.
-        </p>
-        <br />
-        <p>
-          Signature :
-        </p>
-        <br />
-        <br />
-        <p>
-          Lu et approuvé
-        </p>
+                  {parents.map((p) => (
+                    <tr>
+                      <th>Contact {parents.indexOf(p) + 1}</th>
+                      <td>
+                        {p.Firstname} {p.Lastname}
+                        <br />
+                        {p.PhoneNumb}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
+          <hr />
+          <h5>PRISE DE CONNAISSANCE DU RÈGLEMENT D'ORDRE INTÉRIEUR</h5>
+          <br />
+          <p>
+            Je soussigné
+            ................................................................................................................... parent de
+            l'élève <strong>{student.Firstname} {student.Lastname}</strong> inscrit
+            en classe de <strong>{student.Classe}</strong> cetifie avoir pris
+            connaissance du règlement d'ordre intérieur de l'école Abitonda.
+          </p>
+          <br />
+          <p>Signature :</p>
+          <br />
+          <br />
+          <p>Lu et approuvé</p>
+        </div>
       </Modal.Body>
       <Modal.Footer>
         <Pdf
@@ -127,3 +125,9 @@ export default function ShowStudentInfo(props) {
     </Modal>
   );
 }
+
+const styles = {
+  th: {
+    width: "15px",
+  },
+};
