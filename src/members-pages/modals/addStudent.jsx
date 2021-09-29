@@ -23,7 +23,7 @@ export default function AddStudent(props) {
   const [swimmingpool, setSwimmingpool] = useState(false);
   const [guitar, setGuitar] = useState(false);
   const [danse, setDanse] = useState(false);
-  const [classe, setClasse] = useState(1);
+  const [classe, setClasse] = useState("");
   const [picture, setPicture] = useState(null);
   const [file, setFile] = useState(null);
   const [neighborhoods, setNeighborhoods] = useState([
@@ -81,7 +81,10 @@ export default function AddStudent(props) {
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
       .then((r) => r.json())
       .then((r) => {
-        if (!r.status) console.log(r, classe);
+        if (!r.status) {
+          //console.log(r, classe);
+          swal('Oups!', r.response, "warning");
+        }
         else
           swal(
             "Nouvel élève!",
