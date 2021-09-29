@@ -16,6 +16,20 @@ const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
 
 library.add(faFileWord, faFileExcel, faDownload);
 
+const upFirstnameCase = (firstname) => {
+  if (!firstname) return "";
+  else if (firstname.lenght < 1) return "";
+  else {
+    var fname = firstname.split(" ");
+    var fn = [];
+    fname.forEach((e) => {
+      if(e) fn.push(e[0] + e.substring(1).toLowerCase());
+    });
+    var res = fn.join(" ");
+    return res;
+  }
+};
+
 export default function DownloadDocuments(props) {
   const [sorasDataSet, setSorasDataSet] = useState([]);
   const [canteenDataSet, setCanteenDataSet] = useState([]);
@@ -24,24 +38,12 @@ export default function DownloadDocuments(props) {
   const [newStudents, setNewStudents] = useState([]);
   const [schoolsite, setSchoolsite] = useState([]);
   const [kindergardensite, setKindergardensite] = useState([]);
+  const [firstnamesKindergarden, setFirstnamesKindergarden] = useState([]);
+  const [firstnamesSchool, setFirstnamesSchool] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
   const COLOR_SPEC = "black";
-
-  const HEADER_CELLS = {
-    style: {
-      font: {
-        bold: true,
-      },
-      border: {
-        top: { style: BORDER_STYLE, color: COLOR_SPEC },
-        bottom: { style: BORDER_STYLE, color: COLOR_SPEC },
-        left: { style: BORDER_STYLE, color: COLOR_SPEC },
-        right: { style: BORDER_STYLE, color: COLOR_SPEC },
-      },
-    },
-  };
 
   const BODY_CELLS = {
     style: {
@@ -54,20 +56,40 @@ export default function DownloadDocuments(props) {
     },
   };
 
+  const HEADER_CELLS = {
+    style: {
+      font: {
+        bold: true,
+      },
+      ...BODY_CELLS.style,
+    },
+  };
+
+  const BODY_CELLS_BIG_CHARACTER = {
+    style: {
+      font: {
+        sz: "75",
+      },
+    },
+  };
+
+  const BODY_CELLS_SCHOOL = {
+    style: {
+      font: {
+        name: "Brush Script MT",
+        sz: "75",
+      },
+    },
+  };
+
   const BODY_CELLS_NEW_STUDENTS = {
     style: {
-      border: {
-        top: { style: BORDER_STYLE, color: COLOR_SPEC },
-        bottom: { style: BORDER_STYLE, color: COLOR_SPEC },
-        left: { style: BORDER_STYLE, color: COLOR_SPEC },
-        right: { style: BORDER_STYLE, color: COLOR_SPEC },
-      },
+      ...BODY_CELLS.style,
       fill: {
         fgColor: { rgb: "fff700" },
       },
     },
   };
-
 
   var dt = new Date();
   var month = dt.getMonth();
@@ -96,6 +118,54 @@ export default function DownloadDocuments(props) {
       });
     }
   }
+
+  const exportFirstnamesKindergarden = () => {
+    fetch(ENDPOINT("kindergardensite"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setFirstnamesKindergarden([
+          {
+            columns: [
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r) => [
+              {
+                value: r.Firstname,
+                ...BODY_CELLS_BIG_CHARACTER,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportFirstnamesSchool = () => {
+    fetch(ENDPOINT("schoolsite"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setFirstnamesSchool([
+          {
+            columns: [
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r) => [
+              {
+                value: upFirstnameCase(r.Firstname),
+                ...BODY_CELLS_SCHOOL,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
 
   const exportSoras = () => {
     fetch(ENDPOINT("soras"), getAuthRequest(token))
@@ -597,6 +667,8 @@ export default function DownloadDocuments(props) {
     exportNewStudents();
     exportSchoolsite();
     exportKindergardensite();
+    exportFirstnamesKindergarden();
+    exportFirstnamesSchool();
   }, []);
 
   return (
@@ -628,6 +700,16 @@ export default function DownloadDocuments(props) {
             data={registrationIncomplete}
           />
           <ListsStudents title={`Liste des nouveaux`} data={newStudents} />
+          <ListsStudents
+            title="Étiquette"
+            subtitle="CRÈCHE"
+            data={firstnamesKindergarden}
+          />
+          <ListsStudents
+            title="Étiquette"
+            subtitle="ÉCOLE"
+            data={firstnamesSchool}
+          />
         </ListGroup>
       </Modal.Body>
     </Modal>
@@ -639,7 +721,7 @@ const ListsStudents = (props) => {
     <ListGroup.Item>
       <Row>
         <Col xs="9">
-          {props.title} <i>{props.subtitle ? '- '+props.subtitle : ''}</i>
+          {props.title} <i>{props.subtitle ? "- " + props.subtitle : ""}</i>
         </Col>
         <Col xs="3">
           <ExcelFile
