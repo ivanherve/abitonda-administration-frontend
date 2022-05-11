@@ -23,6 +23,7 @@ import ContactParent from "../containers/contactParent";
 import GeneralInformation from "../containers/generalInformation";
 import AddStudent from "../modals/addStudent";
 import DownloadDocuments from "../modals/downloadDocuments";
+import Payment from '../containers/studentPayment';
 
 library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
 
@@ -191,7 +192,7 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-2">Paiement</Nav.Link>
                 </Nav.Item>
-*/}                
+*/}
               </Nav>
             </Card.Header>
             <Card.Body>
@@ -215,7 +216,7 @@ export default function Student(props) {
           </Card>
           <br />
           <Row>
-            <Col md={{ span: 6, offset: 5 }}>
+            <Col md="auto">
               <Pagination>
                 {pages.map((p) => (
                   <Pagination.Item
