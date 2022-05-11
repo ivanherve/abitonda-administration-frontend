@@ -23,7 +23,7 @@ const upFirstnameCase = (firstname) => {
     var fname = firstname.split(" ");
     var fn = [];
     fname.forEach((e) => {
-      if(e) fn.push(e[0] + e.substring(1).toLowerCase());
+      if (e) fn.push(e[0] + e.substring(1).toLowerCase());
     });
     var res = fn.join(" ");
     return res;
@@ -94,22 +94,24 @@ export default function DownloadDocuments(props) {
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
-  var daysInMonth = new Date(year, month + 1, 0).getDate();
+  var daysInMonth = new Date(year, month, 0).getDate()+1;
   var days = [];
   var isPresent = [];
-  for (let i = 0; i < daysInMonth; i++) {
-    var dat = new Date(year, month + 1, i - 1).getDay();
+  for (let i = 1; i <= daysInMonth; i++) {
+    var dat = new Date(year, month, i);
+    var day = dat.getDay();
     //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
-    if (dat !== 6 && dat !== 0) {
+    if (day !== 6 && day !== 0) {
       days.push({
-        title: `${i + 1}`,
+        title: `${dat.getDate()}`,
         width: { wpx: 20 },
         ...HEADER_CELLS,
       });
     }
   }
-  for (let i = 0; i < daysInMonth; i++) {
-    var dat = new Date(year, month + 1, i - 1).getDay();
+  for (let i = 1; i <= daysInMonth; i++) {
+    var dat = new Date(year, month, i);
+    var day = dat.getDay();
     //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
     if (dat !== 6 && dat !== 0) {
       isPresent.push({

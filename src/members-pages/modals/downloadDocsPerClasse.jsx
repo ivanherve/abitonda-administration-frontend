@@ -53,21 +53,29 @@ export default function DownloadDocsPerClasse(props) {
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
-  var daysInMonth = new Date(year, month, 0).getDate();
+  var daysInMonth = new Date(year, month, 0).getDate() + 1;
   var days = [];
   var isPresent = [];
-  for (let i = 0; i < daysInMonth; i++) {
-    days.push({
-      title: `${i + 1}`,
-      width: { wpx: 20 },
-      ...HEADER_CELLS,
-    });
+  for (let i = 1; i <= daysInMonth; i++) {
+    var dat = new Date(year, month, i);
+    var day = dat.getDay();
+    if (day !== 6 && day !== 0) {
+      days.push({
+        title: `${dat.getDate()}`,
+        width: { wpx: 20 },
+        ...HEADER_CELLS,
+      });
+    }
   }
-  for (let i = 0; i < daysInMonth; i++) {
-    isPresent.push({
-      value: "",
-      ...BODY_CELLS,
-    });
+  for (let i = 1; i <= daysInMonth; i++) {
+    var dat = new Date(year, month, i);
+    var day = dat.getDay();
+    if (day !== 6 && day !== 0) {
+      isPresent.push({
+        value: "",
+        ...BODY_CELLS,
+      });
+    }
   }
 
   const getBirthdayList = () => {
