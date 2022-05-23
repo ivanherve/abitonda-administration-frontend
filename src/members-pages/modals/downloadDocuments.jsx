@@ -40,6 +40,7 @@ export default function DownloadDocuments(props) {
   const [kindergardensite, setKindergardensite] = useState([]);
   const [firstnamesKindergarden, setFirstnamesKindergarden] = useState([]);
   const [firstnamesSchool, setFirstnamesSchool] = useState([]);
+  const [ticketDataSet, setTicketDataSet] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -94,7 +95,7 @@ export default function DownloadDocuments(props) {
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
-  var daysInMonth = new Date(year, month, 0).getDate()+1;
+  var daysInMonth = new Date(year, month, 0).getDate() + 1;
   var days = [];
   var isPresent = [];
   for (let i = 1; i <= daysInMonth; i++) {
@@ -119,6 +120,21 @@ export default function DownloadDocuments(props) {
         ...BODY_CELLS,
       });
     }
+  }
+
+  var nbTicket = [];
+  var hasTickets = [];
+
+  for (let i = 1; i <= 10; i++) {
+    nbTicket.push({
+      title: `${i}`,
+      width: { wpx: 20 },
+      ...HEADER_CELLS,
+    });
+    hasTickets.push({
+      value: "",
+      ...BODY_CELLS,
+    });
   }
 
   const exportFirstnamesKindergarden = () => {
@@ -250,6 +266,87 @@ export default function DownloadDocuments(props) {
                   value: r.Classe,
                   ...BODY_CELLS,
                 },
+              ];
+            }),
+          },
+        ]);
+      });
+  };
+
+  const exportTickets = () => {
+    fetch(ENDPOINT("soras"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setTicketDataSet([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 50 },
+                ...HEADER_CELLS,
+              },
+              ...nbTicket,
+            ],
+            data: res.response.map((r) => {
+              /*
+              if (r.NewStudent)
+                return [
+                  {
+                    value: res.response.indexOf(r) + 1,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Firstname,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Lastname,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                  {
+                    value: r.Classe,
+                    ...BODY_CELLS_NEW_STUDENTS,
+                  },
+                ];
+              else
+              */
+              return [
+                {
+                  value: res.response.indexOf(r) + 1,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Firstname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Lastname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Classe,
+                  ...BODY_CELLS,
+                },
+                ...hasTickets,
               ];
             }),
           },
@@ -671,6 +768,7 @@ export default function DownloadDocuments(props) {
     exportKindergardensite();
     exportFirstnamesKindergarden();
     exportFirstnamesSchool();
+    exportTickets();
   }, []);
 
   return (
@@ -681,6 +779,10 @@ export default function DownloadDocuments(props) {
       <Modal.Body>
         <ListGroup variant="flush">
           <ListsStudents title={`Liste SORAS`} data={sorasDataSet} />
+          <ListsStudents
+            title={`Liste pour les Tickets`}
+            data={ticketDataSet}
+          />
           <ListsStudents
             title={`Liste de Présence`}
             subtitle={`Cantine`}
