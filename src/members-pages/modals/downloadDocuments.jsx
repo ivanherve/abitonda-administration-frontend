@@ -41,6 +41,7 @@ export default function DownloadDocuments(props) {
   const [firstnamesKindergarden, setFirstnamesKindergarden] = useState([]);
   const [firstnamesSchool, setFirstnamesSchool] = useState([]);
   const [ticketDataSet, setTicketDataSet] = useState([]);
+  const [monthlyBirthday, setMonthlyBirthday] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -136,6 +137,77 @@ export default function DownloadDocuments(props) {
       ...BODY_CELLS,
     });
   }
+
+  const exportBirthday = () => {
+    fetch(ENDPOINT("birthdaymonth"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setMonthlyBirthday([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "DATE DE NAISSANCE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 50 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "ÂGE",
+                width: { wpx: 50 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r) => {
+              return [
+                {
+                  value: res.response.indexOf(r) + 1,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Firstname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Lastname,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: moment(r.Birthdate).format("DD/MM/YYYY"),
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Classe,
+                  ...BODY_CELLS,
+                },
+                {
+                  value: r.Age,
+                  ...BODY_CELLS,
+                },
+              ];
+            }),
+          },
+        ]);
+      });
+  };
 
   const exportFirstnamesKindergarden = () => {
     fetch(ENDPOINT("kindergardensite"), getAuthRequest(token))
@@ -769,6 +841,7 @@ export default function DownloadDocuments(props) {
     exportFirstnamesKindergarden();
     exportFirstnamesSchool();
     exportTickets();
+    exportBirthday();
   }, []);
 
   return (
@@ -779,6 +852,10 @@ export default function DownloadDocuments(props) {
       <Modal.Body>
         <ListGroup variant="flush">
           <ListsStudents title={`Liste SORAS`} data={sorasDataSet} />
+          <ListsStudents
+            title={`Liste d'anniversaire du mois`}
+            data={monthlyBirthday}
+          />
           <ListsStudents
             title={`Liste pour les Tickets`}
             data={ticketDataSet}
