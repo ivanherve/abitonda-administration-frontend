@@ -48,6 +48,7 @@ export default function Header(props) {
           <Nav.Link href="/statistics">Statistiques</Nav.Link>
           {/*<Nav.Link href="/schoolreport">Livret scolaire</Nav.Link>*/}
           <Nav.Link href="/payments">Factures</Nav.Link>
+          {/*<Nav.Link href="/prints">Impression</Nav.Link>*/}
         </Nav>
         <div inline={true}>
           <Button variant="outline-warning" onClick={() => signOut()}>

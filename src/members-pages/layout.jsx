@@ -8,6 +8,7 @@ import {
 import Header from "./header";
 import Birthday from "./mainComponents/birthday";
 import Classe from "./mainComponents/classes";
+//import DocsToPrint from "./mainComponents/DocsToPrint";
 import Employees from "./mainComponents/Employees";
 import PaymentBook from "./mainComponents/paymentBook";
 import Statistics from "./mainComponents/statistics";
@@ -43,6 +44,7 @@ export default function Layout(props) {
             <Route path="/statistics" component={Statistics} />
             {/*<Route path="/schoolreport" component={Transcripts} />*/}
             <Route path="/payments" component={PaymentBook} />
+            {/*<Route path="/prints" component={DocsToPrint} />*/}
             <Redirect to="/classes" />
           </Switch>
         </Router>
