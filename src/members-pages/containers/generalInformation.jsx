@@ -56,6 +56,7 @@ export default function GeneralInformation(props) {
   const [swimmingpool, setSwimmingpool] = useState(false);
   const [guitar, setGuitar] = useState(false);
   const [danse, setDanse] = useState(false);
+  const [sexe, setSexe] = useState(false);
 
   const [showStudentFile, setShowStudentFile] = useState(false);
 
@@ -98,6 +99,8 @@ export default function GeneralInformation(props) {
     data.append("guitar", guitar);
     data.append("swimmingpool", swimmingpool);
     data.append("danse", danse);
+    data.append("Sexe", sexe);
+
     fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
@@ -110,6 +113,8 @@ export default function GeneralInformation(props) {
           console.log(r);
         }
       });
+
+    /*console.log(sexe) */
   };
 
   const getNeighborhoods = () => {
@@ -146,6 +151,7 @@ export default function GeneralInformation(props) {
     if (student.Piscine) setSwimmingpool(student.Piscine);
     if (student.Guitar) setGuitar(student.Guitar);
     if (student.Danse) setDanse(student.Danse);
+    if (student.Sexe) setSexe(student.Sexe);
     getNeighborhoods();
     getClasses();
     setLoading2(true);
@@ -278,7 +284,7 @@ export default function GeneralInformation(props) {
               <Form.Label column sm="2">
                 Date de naissance
               </Form.Label>
-              <Col sm="10">
+              <Col sm="6">
                 {!toEdit ? (
                   <Form.Control
                     disabled
@@ -291,6 +297,26 @@ export default function GeneralInformation(props) {
                     type="date"
                     onChange={(e) => setBirthdate(e.target.value)}
                   />
+                )}
+              </Col>
+              <Form.Label column sm="2">
+                Sexe
+              </Form.Label>
+              <Col sm="2">
+                {!toEdit ? (
+                  <Form.Control
+                    disabled
+                    placeholder={student.Sexe ? "F" : "M"}
+                  />
+                ) : (
+                  <Form.Control
+                    style={{ width: "100%" }}
+                    as="select"
+                    onChange={(e) => setSexe(e.target.value !== "M")}
+                  >
+                    <option>M</option>
+                    <option>F</option>
+                  </Form.Control>
                 )}
               </Col>
             </Form.Group>
