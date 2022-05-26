@@ -39,6 +39,7 @@ export default function EditEmployee(props) {
   const [over2, setOver2] = useState(false);
   const [jobs, setJobs] = useState([{ JobId: 0, Name: "" }]);
   const [banks, setBanks] = useState([{ BankId: 0, Name: "" }]);
+  const [isEmployed, setIsEmployed] = useState(false);
 
   let getJobs = () => {
     fetch(ENDPOINT("jobs"), getAuthRequest(token))
@@ -64,6 +65,7 @@ export default function EditEmployee(props) {
     else setDocuments([]);
     getJobs();
     getBanks();
+    if (employee.isEmployed) setIsEmployed(employee.isEmployed);
   }, [employee]);
 
   const editEmployee = () => {
@@ -79,6 +81,7 @@ export default function EditEmployee(props) {
       documents,
       email,
       positionsToRemove,
+      isEmployed
     };
     let formData = new FormData();
     formData.append("data", JSON.stringify(data));
@@ -157,6 +160,14 @@ export default function EditEmployee(props) {
             placeholder={employee.Email}
             change={(e) => setEmail(e.target.value)}
           />
+          <Form.Group className="mb-3" controlId="formBasicCheckbox">
+            <Form.Check
+              type="checkbox"
+              label="Travail actuellement"
+              defaultChecked={employee.isEmployed}
+              onChange={(e) => setIsEmployed(e.target.checked)}
+            />
+          </Form.Group>
           <hr />
           <Form.Group
             as={Row}

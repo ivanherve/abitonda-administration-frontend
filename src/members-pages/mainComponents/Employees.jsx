@@ -74,7 +74,7 @@ export default function Employees(props) {
             variant="outline-success"
             onClick={() => setShowAddEmployee(true)}
           >
-            <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter un employée
+            <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter un employé
           </Button>
         </Col>
       </Row>
@@ -85,6 +85,7 @@ export default function Employees(props) {
             {employees.map((e) => (
               <ListGroup.Item
                 action
+                variant={e.isEmployed ? 'success' : 'danger'}
                 key={employees.indexOf(e)}
                 onClick={() => setEmployee(e)}
               >
