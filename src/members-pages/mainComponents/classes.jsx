@@ -106,7 +106,7 @@ export default function Classe(props) {
               >
                 <strong>{c.Name}</strong>
                 <br />
-                <div style={{fontStyle: 'italic', fontSize: '0.8em'}}>{c.nbStudents} {c.nbStudents > 1 ? `élèves` : `élève`}</div>
+                <div style={{fontStyle: 'italic', fontSize: '0.8em'}}>{c.nbStudents} / {c.maxStudents} </div>
               </ListGroup.Item>
             ))}
           </ListGroup>
