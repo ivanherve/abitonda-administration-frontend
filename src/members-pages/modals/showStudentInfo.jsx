@@ -103,7 +103,7 @@ export default function ShowStudentInfo(props) {
             ................................................................................................................... parent de
             l'élève <strong>{student.Firstname} {student.Lastname}</strong> inscrit
             en classe de <strong>{student.Classe}</strong> cetifie avoir pris
-            connaissance du règlement d'ordre intérieur de l'école Abitonda.
+            connaissance et acceptez les termes et conditions du règlement d'ordre intérieur de l'école Abitonda.
           </p>
           <br />
           <p>Signature :</p>
