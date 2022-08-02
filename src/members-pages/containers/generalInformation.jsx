@@ -199,6 +199,7 @@ export default function GeneralInformation(props) {
           <h6>
             <i>{student.Firstname}</i>
           </h6>
+          <div>Inscrit le <strong>{moment(student.created_at).format("DD MMMM YYYY")}</strong></div>
           <Row>
             <Col>
               {toEdit ? (
@@ -249,7 +250,7 @@ export default function GeneralInformation(props) {
               style={{ width: "100%" }}
               onClick={() => setShowStudentFile(true)}
             >
-              Fiche d'inscription
+              Fiche d'inscription{" "}
               <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
             </Button>
           )}
