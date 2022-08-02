@@ -2,7 +2,7 @@ import moment from "moment";
 import { useEffect, useState, useRef } from "react";
 import { Modal, Row, Col, Image, Table, Button } from "react-bootstrap";
 import pic from "../../img/ppx.jpg";
-import logo from "../../img/logo.PNG";
+import logo from "../../img/logo-removebg.png";
 import Pdf from "react-to-pdf";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 
@@ -45,7 +45,7 @@ export default function ShowStudentInfo(props) {
               <h2>Fiche d'inscription</h2>
             </Col>
             <Col>
-              <Image src={logo} width="150" height="100" rounded />
+              <Image src={logo} width="150" height="150" rounded />
             </Col>
           </Row>
           <br />
