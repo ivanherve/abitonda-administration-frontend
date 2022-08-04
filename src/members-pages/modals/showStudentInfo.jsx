@@ -81,6 +81,10 @@ export default function ShowStudentInfo(props) {
                       {student.Address}
                     </td>
                   </tr>
+                  <tr>
+                    <th>Date d'inscription</th>
+                    <td>{moment(student.created_at).format("LL")}</td>
+                  </tr>
                   {parents.map((p) => (
                     <tr>
                       <th>Contact {parents.indexOf(p) + 1}</th>
