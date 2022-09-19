@@ -2,7 +2,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import {
   faArrowCircleDown,
   faArrowCircleUp,
-  faPlus
+  faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -11,19 +11,20 @@ import {
   Card,
   Col,
   Form,
+  InputGroup,
   ListGroup,
   Nav,
   OverlayTrigger,
   Pagination,
   Row,
-  Tooltip
+  Tooltip,
 } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import ContactParent from "../containers/contactParent";
 import GeneralInformation from "../containers/generalInformation";
 import AddStudent from "../modals/addStudent";
 import DownloadDocuments from "../modals/downloadDocuments";
-import Payment from '../containers/studentPayment';
+import Payment from "../containers/studentPayment";
 
 library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
 
@@ -55,6 +56,7 @@ export default function Student(props) {
   const [showDownloadDocuments, setShowDownloadDocuments] = useState(false);
   const [nameClicked, setNameClicked] = useState(false);
   const [nameSearched, setNameSearched] = useState("");
+  const [nameToSearch, setNameToSearch] = useState("");
 
   setTimeout(() => {
     setIsParents(false);
@@ -103,10 +105,22 @@ export default function Student(props) {
     <div>
       <Row>
         <Col xs="8">
-          <Form.Control
-            placeholder="Rechercher prénom ..."
-            onChange={(e) => setNameSearched(e.target.value)}
-          />
+          <InputGroup className="mb-3">
+            <Form.Control
+              placeholder="Rechercher prénom ..."
+              onChange={(e) => setNameToSearch(e.target.value)}
+            />
+            <Button
+              onClick={() => setNameSearched(nameToSearch)}
+              onKeyUp={(e) => {
+                if (e.keyCode === 13) setNameSearched(nameToSearch);
+              }}
+              variant="outline-primary"
+              id="button-addon2"
+            >
+              <FontAwesomeIcon icon={["fas", "search"]} />
+            </Button>
+          </InputGroup>
         </Col>
         <Col>
           <Button
@@ -255,6 +269,5 @@ function Links(props) {
     return <Payment />;
   } else if (props.link === "link-3") {
     return <StudentPresence />;
-  } */
-  else return <div>nothin</div>;
+  } */ else return <div>nothin</div>;
 }
