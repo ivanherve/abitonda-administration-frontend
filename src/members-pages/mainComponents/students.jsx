@@ -113,7 +113,7 @@ export default function Student(props) {
             <Button
               onClick={() => setNameSearched(nameToSearch)}
               onKeyUp={(e) => {
-                if (e.keyCode === 13) setNameSearched(nameToSearch);
+                if (e.key === 'Enter') setNameSearched(nameToSearch);
               }}
               variant="outline-primary"
               id="button-addon2"
