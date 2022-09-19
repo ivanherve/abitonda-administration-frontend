@@ -109,12 +109,12 @@ export default function Student(props) {
             <Form.Control
               placeholder="Rechercher prénom ..."
               onChange={(e) => setNameToSearch(e.target.value)}
+              onKeyUp={(e) => {
+                if (e.key === 'Enter') setNameSearched(e.target.value);
+              }}
             />
             <Button
               onClick={() => setNameSearched(nameToSearch)}
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') setNameSearched(nameToSearch);
-              }}
               variant="outline-primary"
               id="button-addon2"
             >
