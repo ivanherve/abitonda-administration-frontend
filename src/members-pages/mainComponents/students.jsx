@@ -3,6 +3,7 @@ import {
   faArrowCircleDown,
   faArrowCircleUp,
   faPlus,
+  faSearch
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -26,7 +27,7 @@ import AddStudent from "../modals/addStudent";
 import DownloadDocuments from "../modals/downloadDocuments";
 import Payment from "../containers/studentPayment";
 
-library.add(faPlus, faArrowCircleDown, faArrowCircleUp);
+library.add(faPlus, faArrowCircleDown, faArrowCircleUp, faSearch);
 
 let pages = [];
 const createPages = (max, click, activePage) => {
