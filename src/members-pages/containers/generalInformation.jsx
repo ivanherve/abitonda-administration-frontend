@@ -283,7 +283,7 @@ export default function GeneralInformation(props) {
             </Form.Group>
             <Form.Group as={Row} controlId="formPlaintextUrubuto">
               <Form.Label column sm="2">
-                Code Urubuto
+                Code Urubuto 
               </Form.Label>
               <Col sm="10">
                 <Form.Control
