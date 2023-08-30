@@ -13,6 +13,7 @@ export default function AddStudent(props) {
   const [classes, setClasses] = useState([{ ClasseId: 0, Name: "" }]);
   const [lastname, setLastname] = useState("");
   const [firstname, setFirstname] = useState("");
+  const [urubuto, setUrubuto] = useState("");
   const [birthdate, setBirthdate] = useState("");
   const [canteen, setCanteen] = useState(0);
   const [transport, setTransport] = useState(0);
@@ -62,6 +63,7 @@ export default function AddStudent(props) {
     let data = JSON.stringify({
       Lastname: lastname.toUpperCase(),
       Firstname: firstname.toUpperCase(),
+      Urubuto: urubuto,
       Birthdate: birthdate,
       Canteen: canteen,
       Transport: transport,
@@ -139,6 +141,19 @@ export default function AddStudent(props) {
                   <Form.Control
                     type="text"
                     onChange={(e) => setFirstname(e.target.value)}
+                  />
+                </Col>
+              </Form.Group>
+
+              <Form.Group as={Row} controlId="formPlaintextUrubuto">
+                <Form.Label column sm="2">
+                  Code Urubuto
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    type="number"
+                    min={202021334852}
+                    onChange={(e) => setUrubuto(e.target.value)}
                   />
                 </Col>
               </Form.Group>
