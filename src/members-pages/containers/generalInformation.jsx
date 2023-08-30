@@ -57,6 +57,7 @@ export default function GeneralInformation(props) {
   const [guitar, setGuitar] = useState(false);
   const [danse, setDanse] = useState(false);
   const [sexe, setSexe] = useState(false);
+  const [urubuto, setUrubuto] = useState("");
 
   const [showStudentFile, setShowStudentFile] = useState(false);
 
@@ -100,6 +101,7 @@ export default function GeneralInformation(props) {
     data.append("swimmingpool", swimmingpool);
     data.append("danse", danse);
     data.append("Sexe", sexe);
+    data.append("Urubuto", urubuto);
 
     fetch(ENDPOINT("editstudent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
@@ -289,7 +291,7 @@ export default function GeneralInformation(props) {
                 <Form.Control
                   disabled={!toEdit}
                   placeholder={student.Urubuto}
-                  onChange={(e) => setFirstname(e.target.value)}
+                  onChange={(e) => setUrubuto(e.target.value)}
                 />
               </Col>
             </Form.Group>
