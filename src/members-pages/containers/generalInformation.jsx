@@ -281,6 +281,18 @@ export default function GeneralInformation(props) {
                 />
               </Col>
             </Form.Group>
+            <Form.Group as={Row} controlId="formPlaintextUrubuto">
+              <Form.Label column sm="2">
+                Code Urubuto
+              </Form.Label>
+              <Col sm="10">
+                <Form.Control
+                  disabled={!toEdit}
+                  placeholder={student.Urubuto}
+                  onChange={(e) => setFirstname(e.target.value)}
+                />
+              </Col>
+            </Form.Group>
             <Form.Group as={Row} controlId="formPlaintextBirthday">
               <Form.Label column sm="2">
                 Date de naissance
