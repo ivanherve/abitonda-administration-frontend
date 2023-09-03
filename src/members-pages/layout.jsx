@@ -10,9 +10,13 @@ import Birthday from "./mainComponents/birthday";
 import Classe from "./mainComponents/classes";
 //import DocsToPrint from "./mainComponents/DocsToPrint";
 import Employees from "./mainComponents/Employees";
+//import Payment from "./mainComponents/payment";
 import PaymentBook from "./mainComponents/paymentBook";
 import Statistics from "./mainComponents/statistics";
 import Student from "./mainComponents/students";
+//import Stock from "./mainComponents/stock";
+//import Food from "./mainComponents/food";
+import Soras from "./mainComponents/soras";
 
 export default function Layout(props) {
   if (!sessionStorage.getItem("userData")) {
@@ -43,8 +47,12 @@ export default function Layout(props) {
             <Route path="/birthdays" component={Birthday} />
             <Route path="/statistics" component={Statistics} />
             {/*<Route path="/schoolreport" component={Transcripts} />*/}
-            <Route path="/payments" component={PaymentBook} />
+            <Route path="/invoices" component={PaymentBook} />
             {/*<Route path="/prints" component={DocsToPrint} />*/}
+            {/*<Route path="/payment" component={Payment} />
+            <Route path="/stock" component={Stock} />
+          <Route path="/food" component={Food} />*/}
+            <Route path="/soras" component={Soras} />
             <Redirect to="/classes" />
           </Switch>
         </Router>

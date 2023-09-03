@@ -52,10 +52,7 @@ export default function GeneralInformation(props) {
   const [rulesSigned, setRulesSigned] = useState(false);
   const [registrationFileFilled, setRegistrationFileFilled] = useState(false);
   const [vaccinsFile, setVaccinsFile] = useState(false);
-  const [piano, setPiano] = useState(false);
-  const [swimmingpool, setSwimmingpool] = useState(false);
-  const [guitar, setGuitar] = useState(false);
-  const [danse, setDanse] = useState(false);
+  const [paid, setPaid] = useState(false);
   const [sexe, setSexe] = useState(false);
   const [urubuto, setUrubuto] = useState("");
 
@@ -96,10 +93,7 @@ export default function GeneralInformation(props) {
     data.append("rulesSigned", rulesSigned);
     data.append("registrationFileFilled", registrationFileFilled);
     data.append("vaccinsFile", vaccinsFile);
-    data.append("piano", piano);
-    data.append("guitar", guitar);
-    data.append("swimmingpool", swimmingpool);
-    data.append("danse", danse);
+    data.append("paid", paid);
     data.append("Sexe", sexe);
     data.append("Urubuto", urubuto);
 
@@ -149,10 +143,7 @@ export default function GeneralInformation(props) {
     if (student.RegistrationFileFilled)
       setRegistrationFileFilled(student.RegistrationFileFilled);
     if (student.VaccinsFile) setVaccinsFile(student.VaccinsFile);
-    if (student.Piano) setPiano(student.Piano);
-    if (student.Piscine) setSwimmingpool(student.Piscine);
-    if (student.Guitar) setGuitar(student.Guitar);
-    if (student.Danse) setDanse(student.Danse);
+    if (student.Paid) setPaid(student.Paid);
     if (student.Sexe) setSexe(student.Sexe);
     getNeighborhoods();
     getClasses();
@@ -483,55 +474,16 @@ export default function GeneralInformation(props) {
                   </Col>
                 </Form.Group>
                 <hr />
-                <Form.Group as={Row} controlId="formPlaintextPiano">
+                <Form.Group as={Row} controlId="formPlaintextPaid">
                   <Form.Label column sm={COL_SIZE}>
-                    Piano
+                    Payé
                   </Form.Label>
                   <Col sm="1">
                     <Form.Check
                       type="checkbox"
                       disabled={!toEdit}
-                      defaultChecked={student.Piano}
-                      onChange={(e) => setPiano(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextPiscine">
-                  <Form.Label column sm={COL_SIZE}>
-                    Piscine
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Piscine}
-                      onChange={(e) => setSwimmingpool(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextGuitar">
-                  <Form.Label column sm={COL_SIZE}>
-                    Guitar
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Guitar}
-                      onChange={(e) => setGuitar(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextDanse">
-                  <Form.Label column sm={COL_SIZE}>
-                    Danse
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Danse}
-                      onChange={(e) => setDanse(e.target.checked)}
+                      defaultChecked={student.Paid}
+                      onChange={(e) => setPaid(e.target.checked)}
                     />
                   </Col>
                 </Form.Group>

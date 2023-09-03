@@ -47,7 +47,11 @@ export default function Header(props) {
           <Nav.Link href="/birthdays">Anniversaires</Nav.Link>
           <Nav.Link href="/statistics">Statistiques</Nav.Link>
           {/*<Nav.Link href="/schoolreport">Livret scolaire</Nav.Link>*/}
-          <Nav.Link href="/payments">Factures</Nav.Link>
+          <Nav.Link href="/invoices">Factures</Nav.Link>
+          {/*<Nav.Link href="/payment">Paiement</Nav.Link>
+          <Nav.Link href="/food">Alimentaire</Nav.Link>
+<Nav.Link href="/stock">Stock</Nav.Link>*/}
+          <Nav.Link href="/soras">SORAS</Nav.Link>
           {/*<Nav.Link href="/prints">Impression</Nav.Link>*/}
         </Nav>
         <div inline={true}>
