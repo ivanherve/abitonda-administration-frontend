@@ -40,8 +40,11 @@ export default function DownloadDocuments(props) {
   const [kindergardensite, setKindergardensite] = useState([]);
   const [firstnamesKindergarden, setFirstnamesKindergarden] = useState([]);
   const [firstnamesSchool, setFirstnamesSchool] = useState([]);
-  const [ticketDataSet, setTicketDataSet] = useState([]);
   const [monthlyBirthday, setMonthlyBirthday] = useState([]);
+  const [T1Omar, setT1Omar] = useState([]);
+  const [T1Costa, setT1Costa] = useState([]);
+  const [T2Omar, setT2Omar] = useState([]);
+  const [T2Costa, setT2Costa] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -102,41 +105,29 @@ export default function DownloadDocuments(props) {
   for (let i = 1; i <= daysInMonth; i++) {
     var dat = new Date(year, month, i);
     var day = dat.getDay();
-    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
     if (day !== 6 && day !== 0) {
       days.push({
         title: `${dat.getDate()}`,
         width: { wpx: 20 },
         ...HEADER_CELLS,
       });
-    }
-  }
-  for (let i = 1; i <= daysInMonth; i++) {
-    var dat = new Date(year, month, i);
-    var day = dat.getDay();
-    //console.log([year, month + 1, i + 1, dat, dat < 6, dat > 0, dat < 6 && dat > 0]);
-    if (dat !== 6 && dat !== 0) {
       isPresent.push({
         value: "",
         ...BODY_CELLS,
       });
     }
   }
-
-  var nbTicket = [];
-  var hasTickets = [];
-
-  for (let i = 1; i <= 10; i++) {
-    nbTicket.push({
-      title: `${i}`,
-      width: { wpx: 20 },
-      ...HEADER_CELLS,
-    });
-    hasTickets.push({
-      value: "",
-      ...BODY_CELLS,
-    });
-  }
+  /*
+  for (let i = 1; i <= daysInMonth; i++) {
+    var dat = new Date(year, month, i);
+    var day = dat.getDay();
+    if (day !== 6 && day !== 0) {
+      isPresent.push({
+        value: "",
+        ...BODY_CELLS,
+      });
+    }
+  }*/
 
   const exportBirthday = () => {
     fetch(ENDPOINT("birthdaymonth"), getAuthRequest(token))
@@ -338,87 +329,6 @@ export default function DownloadDocuments(props) {
                   value: r.Classe,
                   ...BODY_CELLS,
                 },
-              ];
-            }),
-          },
-        ]);
-      });
-  };
-
-  const exportTickets = () => {
-    fetch(ENDPOINT("soras"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setTicketDataSet([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 50 },
-                ...HEADER_CELLS,
-              },
-              ...nbTicket,
-            ],
-            data: res.response.map((r) => {
-              /*
-              if (r.NewStudent)
-                return [
-                  {
-                    value: res.response.indexOf(r) + 1,
-                    ...BODY_CELLS_NEW_STUDENTS,
-                  },
-                  {
-                    value: r.Firstname,
-                    ...BODY_CELLS_NEW_STUDENTS,
-                  },
-                  {
-                    value: r.Lastname,
-                    ...BODY_CELLS_NEW_STUDENTS,
-                  },
-                  {
-                    value: moment(r.Birthdate).format("DD/MM/YYYY"),
-                    ...BODY_CELLS_NEW_STUDENTS,
-                  },
-                  {
-                    value: r.Classe,
-                    ...BODY_CELLS_NEW_STUDENTS,
-                  },
-                ];
-              else
-              */
-              return [
-                {
-                  value: res.response.indexOf(r) + 1,
-                  ...BODY_CELLS,
-                },
-                {
-                  value: r.Firstname,
-                  ...BODY_CELLS,
-                },
-                {
-                  value: r.Lastname,
-                  ...BODY_CELLS,
-                },
-                {
-                  value: r.Classe,
-                  ...BODY_CELLS,
-                },
-                ...hasTickets,
               ];
             }),
           },
@@ -830,6 +740,362 @@ export default function DownloadDocuments(props) {
       });
   };
 
+  const exportT1OMAR = () => {
+    fetch(ENDPOINT("ot1transport"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setT1Omar([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "SId",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "LIGNE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CHAUFFEUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "TOUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.SId,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Ligne,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Chauffeur,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Tour,
+                ...BODY_CELLS,
+              },
+              ...isPresent
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportT2OMAR = () => {
+    fetch(ENDPOINT("ot2transport"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setT2Omar([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "SId",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "LIGNE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CHAUFFEUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "TOUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.SId,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Ligne,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Chauffeur,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Tour,
+                ...BODY_CELLS,
+              },
+              ...isPresent
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportT1COSTA = () => {
+    fetch(ENDPOINT("ct1transport"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setT1Costa([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "SId",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "LIGNE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CHAUFFEUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "TOUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.SId,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Ligne,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Chauffeur,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Tour,
+                ...BODY_CELLS,
+              },
+              ...isPresent
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportT2COSTA = () => {
+    fetch(ENDPOINT("ct2transport"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setT2Costa([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "SId",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "LIGNE",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CHAUFFEUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "TOUR",
+                width: { wpx: 125 },
+                ...HEADER_CELLS,
+              },
+              ...days,
+            ],
+            data: res.response.map((r) => [
+              {
+                value: res.response.indexOf(r) + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.SId,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Ligne,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Chauffeur,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Tour,
+                ...BODY_CELLS,
+              },
+              ...isPresent
+            ]),
+          },
+        ]);
+      });
+  };
+
   useEffect(() => {
     exportTransport();
     exportCanteen();
@@ -840,8 +1106,11 @@ export default function DownloadDocuments(props) {
     exportKindergardensite();
     exportFirstnamesKindergarden();
     exportFirstnamesSchool();
-    exportTickets();
     exportBirthday();
+    exportT1OMAR();
+    exportT2OMAR();
+    exportT1COSTA();
+    exportT2COSTA();
   }, []);
 
   return (
@@ -857,8 +1126,24 @@ export default function DownloadDocuments(props) {
             data={monthlyBirthday}
           />
           <ListsStudents
-            title={`Liste pour les Tickets`}
-            data={ticketDataSet}
+            title={`Liste de Transport`}
+            subtitle={`1er Tour OMAR`}
+            data={T1Omar}
+          />
+          <ListsStudents
+            title={`Liste de Transport`}
+            subtitle={`1er Tour COSTA`}
+            data={T1Costa}
+          />
+          <ListsStudents
+            title={`Liste de Transport`}
+            subtitle={`2ème Tour OMAR`}
+            data={T2Omar}
+          />
+          <ListsStudents
+            title={`Liste de Transport`}
+            subtitle={`2ème Tour COSTA`}
+            data={T2Costa}
           />
           <ListsStudents
             title={`Liste de Présence`}
