@@ -25,8 +25,9 @@ export default function Header(props) {
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
           {/*<Nav.Link href="/presence">Présence</Nav.Link>*/}
+          <Nav.Link href="/students">Élèves</Nav.Link>
           <Nav.Link href="/classes">Classes</Nav.Link>
-          <Nav.Link href="/students">Eleves</Nav.Link>
+          <Nav.Link href="/transport">Transport</Nav.Link>
           {/*
           <NavDropdown title="Activités Parascolaires" id="basic-nav-dropdown">
             <NavDropdown.Item href="/activity/swimmingpool" disabled>
