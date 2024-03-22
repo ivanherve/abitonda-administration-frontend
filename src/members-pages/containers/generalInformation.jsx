@@ -192,6 +192,8 @@ export default function GeneralInformation(props) {
           <h6>
             <i>{student.Firstname}</i>
           </h6>
+          <div style={{fontWeight: 'bold', fontSize: '0.8em'}}>Urubuto : {student.Urubuto}</div>
+          <br />
           <div>Inscrit le <strong>{moment(student.created_at).format("DD MMMM YYYY")}</strong></div>
           <Row>
             <Col>
