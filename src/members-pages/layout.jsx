@@ -18,6 +18,7 @@ import Student from "./mainComponents/students";
 //import Food from "./mainComponents/food";
 import Soras from "./mainComponents/soras";
 import Transport from "./mainComponents/transport";
+import Ticket from "./mainComponents/ticket";
 
 export default function Layout(props) {
   if (!sessionStorage.getItem("userData")) {
@@ -54,6 +55,7 @@ export default function Layout(props) {
             <Route path="/stock" component={Stock} />
           <Route path="/food" component={Food} />*/}
             <Route path="/soras" component={Soras} />
+            <Route path="/ticket" component={Ticket} />
             {/*<Route path="/transport" component={Transport} />*/}
             <Redirect to="/students" />
           </Switch>

@@ -53,6 +53,7 @@ export default function Header(props) {
           <Nav.Link href="/food">Alimentaire</Nav.Link>
 <Nav.Link href="/stock">Stock</Nav.Link>*/}
           <Nav.Link href="/soras">SORAS</Nav.Link>
+          <Nav.Link href="/ticket">Vente de Ticket</Nav.Link>
           {/*<Nav.Link href="/prints">Impression</Nav.Link>*/}
         </Nav>
         <div inline={true}>
