@@ -59,6 +59,15 @@ export default function DownloadDocsPerClasse(props) {
     },
   };
 
+  const BODY_CELLS_SCHOOL = {
+    style: {
+      font: {
+        name: "Brush Script MT",
+        sz: "75",
+      },
+    },
+  };
+
   var dt = new Date();
   var month = dt.getMonth();
   var year = dt.getFullYear();
@@ -241,7 +250,10 @@ export default function DownloadDocsPerClasse(props) {
   };
 
   const getNamesForStickers = () => {
-    fetch(ENDPOINT("presencelistperclasse?classe=" + props.classe), getAuthRequest(token))
+    fetch(
+      ENDPOINT("presencelistperclasse?classe=" + props.classe),
+      getAuthRequest(token)
+    )
       .then((r) => r.json())
       .then((res) => {
         setStickers([
@@ -253,12 +265,21 @@ export default function DownloadDocsPerClasse(props) {
                 ...HEADER_CELLS,
               },
             ],
-            data: res.response.map((r) => [
-              {
-                value: r.Firstname,
-                ...BODY_CELLS_BIG_CHARACTER,
-              },
-            ]),
+            data: res.response.map((r) =>
+              props.classe.indexOf("S")
+                ? [
+                    {
+                      value: r.Firstname,
+                      ...BODY_CELLS_BIG_CHARACTER,
+                    },
+                  ]
+                : [
+                    {
+                      value: r.Firstname,
+                      ...BODY_CELLS_SCHOOL,
+                    },
+                  ]
+            ),
           },
         ]);
       });
