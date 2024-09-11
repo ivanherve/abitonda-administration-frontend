@@ -350,7 +350,7 @@ export default function DownloadDocsPerClasse(props) {
                     </Button>
                   }
                 >
-                  <ExcelSheet dataSet={contactListDataSet} name={"Étiquette"} />
+                  <ExcelSheet dataSet={stickers} name={"Étiquette"} />
                 </ExcelFile>
               </Col>
             </Row>
