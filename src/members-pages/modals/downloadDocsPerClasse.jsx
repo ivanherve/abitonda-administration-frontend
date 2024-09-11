@@ -20,6 +20,7 @@ export default function DownloadDocsPerClasse(props) {
   const [bdayDataSet, setBdayDataSet] = useState([]);
   const [presenceDataSet, setPresenceDataSet] = useState([]);
   const [contactListDataSet, setContactListDataSet] = useState([]);
+  const [stickers, setStickers] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -46,6 +47,14 @@ export default function DownloadDocsPerClasse(props) {
         bottom: { style: BORDER_STYLE, color: COLOR_SPEC },
         left: { style: BORDER_STYLE, color: COLOR_SPEC },
         right: { style: BORDER_STYLE, color: COLOR_SPEC },
+      },
+    },
+  };
+
+  const BODY_CELLS_BIG_CHARACTER = {
+    style: {
+      font: {
+        sz: "75",
       },
     },
   };
@@ -231,10 +240,35 @@ export default function DownloadDocsPerClasse(props) {
       });
   };
 
+  const getNamesForStickers = () => {
+    fetch(ENDPOINT("presencelistperclasse?classe=" + props.classe), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setStickers([
+          {
+            columns: [
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r) => [
+              {
+                value: r.Firstname,
+                ...BODY_CELLS_BIG_CHARACTER,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
   useEffect(() => {
     getBirthdayList();
     getPresenceList();
     getContactList();
+    getNamesForStickers();
   }, [props.classe]);
 
   return (
@@ -300,6 +334,23 @@ export default function DownloadDocsPerClasse(props) {
                     dataSet={contactListDataSet}
                     name={"Liste de Contact"}
                   />
+                </ExcelFile>
+              </Col>
+            </Row>
+          </ListGroup.Item>
+          <ListGroup.Item>
+            <Row>
+              <Col xs="9">Etiquettes</Col>
+              <Col xs="3">
+                <ExcelFile
+                  filename={"Étiquette de " + props.classe}
+                  element={
+                    <Button variant="light">
+                      <FontAwesomeIcon icon={["fas", "download"]} />
+                    </Button>
+                  }
+                >
+                  <ExcelSheet dataSet={contactListDataSet} name={"Étiquette"} />
                 </ExcelFile>
               </Col>
             </Row>
