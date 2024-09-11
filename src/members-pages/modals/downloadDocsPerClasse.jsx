@@ -266,7 +266,7 @@ export default function DownloadDocsPerClasse(props) {
               },
             ],
             data: res.response.map((r) =>
-              props.classe.indexOf("S")
+              props.classe.indexOf("S") > -1
                 ? [
                     {
                       value: r.Firstname,
