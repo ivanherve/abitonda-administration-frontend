@@ -337,7 +337,7 @@ export default function DownloadDocuments(props) {
   };
 
   const exportCanteen = () => {
-    fetch(ENDPOINT("soras"), getAuthRequest(token))
+    fetch(ENDPOINT("canteen"), getAuthRequest(token))
       .then((r) => r.json())
       .then((res) => {
         setCanteenDataSet([
