@@ -27,6 +27,7 @@ export default function AddStudent(props) {
   const [classe, setClasse] = useState("");
   const [picture, setPicture] = useState(null);
   const [file, setFile] = useState(null);
+  const [pointDeRamassage, setPointDeRamassage] = useState("");
   const [neighborhoods, setNeighborhoods] = useState([
     { SectorId: 0, Neighborhood: "District - Sector" },
   ]);
@@ -77,7 +78,8 @@ export default function AddStudent(props) {
       guitar,
       danse,
       swimmingpool,
-      address
+      address,
+      pointDeRamassage
     });
 
     fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
@@ -211,6 +213,18 @@ export default function AddStudent(props) {
                       <option key={n.SectorId}>{n.Neighborhood}</option>
                     ))}
                   </Form.Control>
+                </Col>
+              </Form.Group>
+              <Form.Group as={Row} controlId="formPlaintextAddress">
+                <Form.Label column sm="2">
+                  Point de ramassage (si transport)
+                </Form.Label>
+                <Col sm="10">
+                  <Form.Control
+                    onChange={(e) => {
+                      setPointDeRamassage(e.target.value);
+                    }}
+                  />
                 </Col>
               </Form.Group>
               <Row>

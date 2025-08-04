@@ -47,6 +47,7 @@ export default function GeneralInformation(props) {
   ]);
   const [neighborhoodSelected, setNeighborhoodSelected] = useState("");
   const [address, setAddress] = useState("");
+  const [pointDeRamassage, setPointDeRamassage] = useState("");
   const [allClasses, setAllClasses] = useState([]);
   const [newStudent, setNewStudent] = useState("");
   const [rulesSigned, setRulesSigned] = useState(false);
@@ -86,6 +87,7 @@ export default function GeneralInformation(props) {
     if (newPic !== pic) data.append("Picture", newPic);
     data.append("neighborhood", neighborhoodSelected);
     data.append("address", address);
+    data.append("pointDeRamassage", pointDeRamassage);
     data.append("newStudent", newStudent);
     data.append("Canteen", canteen);
     data.append("Transport", transport);
@@ -352,6 +354,18 @@ export default function GeneralInformation(props) {
                     ))}
                   </Form.Control>
                 )}
+              </Col>
+            </Form.Group>
+            <Form.Group as={Row} controlId="formPlaintextPointDeRamassage">
+              <Form.Label column sm="2">
+                Point de ramassage
+              </Form.Label>
+              <Col sm="10">
+                <Form.Control
+                  disabled={!toEdit}
+                  placeholder={student.PointDeRamassage}
+                  onChange={(e) => setPointDeRamassage(e.target.value)}
+                />
               </Col>
             </Form.Group>
             <hr />
