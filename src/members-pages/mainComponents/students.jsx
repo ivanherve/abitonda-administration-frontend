@@ -26,23 +26,9 @@ import GeneralInformation from "../containers/generalInformation";
 import AddStudent from "../modals/addStudent";
 import DownloadDocuments from "../modals/downloadDocuments";
 import Payment from "../containers/studentPayment";
+import StudentRate from "../containers/studentRate";
 
 library.add(faPlus, faArrowCircleDown, faArrowCircleUp, faSearch);
-
-let pages = [];
-const createPages = (max, click, activePage) => {
-  for (let index = 0; index < max; index++) {
-    if (pages.length < max)
-      pages.push(
-        /*
-                <Pagination.Item key={index} onClick={click} active={index === activePage}>
-                    {index + 1}
-                </Pagination.Item>
-                */
-        { idx: index, toClick: click, toActive: index === activePage }
-      );
-  }
-};
 
 export default function Student(props) {
   const [link, setLink] = useState("");
@@ -85,10 +71,10 @@ export default function Student(props) {
       )
         .then((r) => r.json())
         .then((r) => {
-          //console.log(r)
+          console.log(r.response.data[0])
           //if (r.response.data !== students)
           setStudents(r.response.data);
-          createPages(r.response.last_page, (e) => changePage(e), currentPage);
+          setTotalPages(r.response.last_page);
           if (!oneStudent) setOneStudent(r.response.data[0]);
         });
     else searchStudent(nameSearched);
@@ -199,6 +185,9 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-0">Contact Parents</Nav.Link>
                 </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link eventKey="link-2">Facturation</Nav.Link>
+                </Nav.Item>
                 {/*
                 <Nav.Item>
                   <Nav.Link eventKey="link-3">Présences</Nav.Link>
@@ -224,6 +213,7 @@ export default function Student(props) {
                     link={link}
                     student={oneStudent}
                     isParents={isParents}
+                    students={students}
                   />
                 </div>
               )}
@@ -233,15 +223,39 @@ export default function Student(props) {
           <Row>
             <Col md="auto">
               <Pagination>
-                {pages.map((p) => (
-                  <Pagination.Item
-                    key={pages.indexOf(p)}
-                    onClick={(e) => p.toClick(e)}
-                    active={p.idx + 1 === currentPage}
-                  >
-                    {p.idx + 1}
-                  </Pagination.Item>
-                ))}
+                {currentPage > 1 && (
+                  <>
+                    <Pagination.First onClick={() => setCurrentPage(1)} />
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} />
+                  </>
+                )}
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) =>
+                    page === 1 || page === totalPages || (page >= currentPage - 2 && page <= currentPage + 2)
+                  )
+                  .map((page, idx, arr) => {
+                    const prevPage = arr[idx - 1];
+                    if (prevPage && page - prevPage > 1) {
+                      return <Pagination.Ellipsis key={`ellipsis-${page}`} disabled />;
+                    }
+                    return (
+                      <Pagination.Item
+                        key={page}
+                        active={page === currentPage}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </Pagination.Item>
+                    );
+                  })}
+
+                {currentPage < totalPages && (
+                  <>
+                    <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} />
+                    <Pagination.Last onClick={() => setCurrentPage(totalPages)} />
+                  </>
+                )}
               </Pagination>
             </Col>
           </Row>
@@ -257,6 +271,54 @@ export default function Student(props) {
 }
 
 function Links(props) {
+  const student = props.student;
+  const students = props.students || [];
+  const [parents, setParents] = useState([]);
+  const [selectedParent, setSelectedParent] = useState(null);
+  const token = JSON.parse(sessionStorage.getItem("userData"))?.token?.Api_token;
+
+  useEffect(() => {
+    if (!student?.StudentId || !token) return;
+
+    const controller = new AbortController();
+    const fallbackParent = [{
+      ParentId: 0,
+      Firstname: "",
+      Lastname: "",
+      Email: "",
+      PhoneNumb: "",
+      Address: "",
+      StudentId: student.StudentId,
+      SponsoredChildren: [{ StudentId: 0, Firstname: "", Lastname: "" }]
+    }];
+
+    fetch(ENDPOINT(`parents?studentid=${student.StudentId}`), {
+      ...getAuthRequest(token),
+      signal: controller.signal
+    })
+      .then(res => res.json())
+      .then(r => {
+        if (controller.signal.aborted) return;
+
+        if (r.status && r.response?.length > 0) {
+          setParents(r.response);
+          setSelectedParent(r.response[0]);
+          console.log("✅ Parents trouvés :", r.response);
+        } else {
+          setParents(fallbackParent);
+          setSelectedParent(fallbackParent[0]);
+          console.warn("⚠️ Aucun parent trouvé pour StudentId :", student.StudentId);
+        }
+      })
+      .catch(err => {
+        if (err.name !== "AbortError") {
+          console.error("❌ Erreur lors du chargement des parents :", err);
+        }
+      });
+
+    return () => controller.abort();
+  }, [student?.StudentId, token]);
+
   if (props.link === "link-0") {
     return (
       <ContactParent
@@ -266,9 +328,12 @@ function Links(props) {
     );
   } else if (props.link === "link-1") {
     return <GeneralInformation student={props.student} />;
-  } /*else if (props.link === "link-2") {
-    return <Payment />;
-  } else if (props.link === "link-3") {
+  } else if (props.link === "link-2") {
+    return <StudentRate student={props.student}
+      parents={parents}
+      selectedParent={selectedParent}
+      onSelectParent={setSelectedParent} />;
+  } /*else if (props.link === "link-3") {
     return <StudentPresence />;
   } */ else return <div>nothin</div>;
 }
