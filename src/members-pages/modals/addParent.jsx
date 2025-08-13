@@ -48,15 +48,20 @@ export default function AddParent(props) {
       });
   };
 
-  const selectParent = (parent) => {
-    if (listParent.length > 0)
-      listParent.map((p) => {
-        if (p.Name === parent) {
-          setParentId(p.ParentId);
-          setParentSelected(parent);
-        }
-      });
+  const selectParent = (parentName) => {
+    const selected = listParent.find(
+      (p) => p.Name.trim().toLowerCase() === parentName.trim().toLowerCase()
+    );
+
+    if (selected) {
+      setParentId(selected.ParentId);
+      setParentSelected(selected.Name);
+    } else {
+      setParentId(0);
+      setParentSelected("");
+    }
   };
+
 
   useEffect(() => {
     fetch(ENDPOINT("listparents"), getAuthRequest(token))
@@ -104,10 +109,12 @@ export default function AddParent(props) {
                           as="select"
                           onChange={(e) => selectParent(e.target.value)}
                         >
-                          {listParent.length > 0 &&
-                            listParent.map((p) => (
-                              <option key={p.ParentId}>{p.Name}</option>
-                            ))}
+                          <option value="">-- Sélectionnez un parent --</option>
+                          {listParent.map((p) => (
+                            <option key={p.ParentId} value={p.Name}>
+                              {p.Name}
+                            </option>
+                          ))}
                         </Form.Control>
                       </Col>
                     </Form.Group>
