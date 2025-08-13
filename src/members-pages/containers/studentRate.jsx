@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   Container, Row, Col, Card, Badge, ListGroup,
   Button, Alert, Form
 } from "react-bootstrap";
 import AddEditFee from "../modals/addEditFee";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
+import * as XLSX from "xlsx-js-style";
 
 export default function StudentRate({ student, parents, selectedParent, onSelectParent }) {
   const [copied, setCopied] = useState(null);
@@ -25,7 +26,6 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
 
   // Utiliser directement la réduction calculée par le backend pour le parent sélectionné
   const ReductionPourcentage = selectedParent?.ReductionPourcentage || 0;
-
   const eleve = {
     ...student,
     ReductionPourcentage,
@@ -35,9 +35,155 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
   };
 
   const minervaleNet = eleve.Tuition * (1 - eleve.ReductionPourcentage / 100);
-  const totalCharges = eleve.Charges.reduce((t, c) => t + c.Amount, 0);
+  const filteredChargesByTerm = eleve.Charges.filter(c => c.Term === selectedTerm);
+  const totalCharges = filteredChargesByTerm.reduce((t, c) => t + c.Amount, 0);
   const totalAPayer = minervaleNet + totalCharges;
   eleve.TotalAnnuel = totalAPayer;
+
+  const exportExcel = () => {
+    const academicYear = "2025-2026";
+    const trimesterMap = {
+      T1: { name: "Premier trimestre", months: ["Septembre", "Octobre", "Novembre", "Décembre"] },
+      T2: { name: "Deuxième trimestre", months: ["Janvier", "Février", "Mars"] },
+      T3: { name: "Troisième trimestre", months: ["Avril", "Mai", "Juin"] }
+    };
+    const trimesterCode = selectedTerm;
+    const selectedTrim = trimesterMap[trimesterCode];
+
+    const filteredCharges = eleve.Charges.filter(c => c.Term === trimesterCode);
+    const chargesParCategorie = filteredCharges.reduce((acc, c) => {
+      const cat = c.Category || "Autres frais";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(c);
+      return acc;
+    }, {});
+
+    const data = [];
+
+    // --- TITRE PRINCIPAL ---
+    data.push([`FACTURE TRIMESTRIELLE (BABYEYI)`]);
+    data.push([]);
+
+    // --- ZONE 1 : Infos élève ---
+    data.push(["ZONE : Informations élève"]);
+    data.push(["Nom de l'élève", `${eleve.Firstname} ${eleve.Lastname}`]);
+    data.push(["Classe", eleve.Classe]);
+    data.push(["Trimestre", `${selectedTrim.name} (${trimesterCode})`]);
+    data.push(["Année académique", academicYear]);
+    data.push([]);
+
+    // --- ZONE 2 : Charges ---
+    data.push(["ZONE : Charges"]);
+    Object.keys(chargesParCategorie).forEach(cat => {
+      data.push([`Catégorie : ${cat}`]);
+      data.push(["Nom du frais", "Montant (RWF)"]);
+      chargesParCategorie[cat].forEach(c => {
+        data.push([c.Name, c.Amount]);
+      });
+      data.push([]);
+    });
+
+    // --- ZONE 2b : Minervale brut et réductions ---
+    const reductionAmount = eleve.Tuition * (eleve.ReductionPourcentage / 100);
+    data.push(["ZONE : Minervale et réductions"]);
+    data.push(["Minervale brut", eleve.Tuition]);
+    data.push([`Réduction (${eleve.ReductionPourcentage}%)`, reductionAmount]);
+    data.push(["Minervale net", minervaleNet]);
+    data.push([]);
+
+    // --- ZONE 3 : Totaux ---
+    data.push(["ZONE : Totaux"]);
+    data.push(["Total autres frais", totalCharges]);
+    data.push(["Total à payer", totalAPayer]);
+    data.push([]);
+
+    // --- ZONE 4 : Paiements mensuels ---
+    data.push(["ZONE : Montants payés par mois"]);
+    data.push(["Mois", "Montant payé (RWF)"]);
+    selectedTrim.months.forEach(month => data.push([month, 0]));
+    data.push([]);
+    const montantPaye = 0;
+    const montantRestant = totalAPayer - montantPaye;
+    data.push(["Montant total payé", montantPaye]);
+    data.push(["Montant restant à payer", montantRestant]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet(data);
+    worksheet["!cols"] = [{ wch: 40 }, { wch: 20 }];
+
+    const range = XLSX.utils.decode_range(worksheet["!ref"]);
+
+    const setCellStyle = (cellRef, style) => {
+      if (!worksheet[cellRef]) return;
+      worksheet[cellRef].s = { ...worksheet[cellRef].s, ...style };
+    };
+
+    // --- STYLE GÉNÉRAL ---
+    for (let R = range.s.r; R <= range.e.r; R++) {
+      for (let C = range.s.c; C <= range.e.c; C++) {
+        const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!worksheet[cellRef]) continue;
+        worksheet[cellRef].s = worksheet[cellRef].s || {};
+        worksheet[cellRef].s.border = worksheet[cellRef].s.border || {
+          top: { style: "thin", color: { rgb: "000000" } },
+          bottom: { style: "thin", color: { rgb: "000000" } },
+          left: { style: "thin", color: { rgb: "000000" } },
+          right: { style: "thin", color: { rgb: "000000" } }
+        };
+        worksheet[cellRef].s.alignment = { vertical: "center", horizontal: C === 1 ? "right" : "left" };
+        worksheet[cellRef].s.font = { name: C === 1 ? "Consolas" : "Calibri" };
+      }
+    }
+
+    // --- STYLE TITRE PRINCIPAL ---
+    setCellStyle("A1", {
+      font: { bold: true, sz: 18, color: { rgb: "FFFFFF" } },
+      alignment: { horizontal: "center", vertical: "center" },
+      fill: { fgColor: { rgb: "4F81BD" } }
+    });
+    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+
+    // --- STYLE ZONES ET CATEGORIES ---
+    for (let R = 2; R <= range.e.r; R++) {
+      const cellRefA = XLSX.utils.encode_cell({ r: R, c: 0 });
+      const value = worksheet[cellRefA]?.v || "";
+      if (value.startsWith("ZONE :")) {
+        const cellRefB = XLSX.utils.encode_cell({ r: R, c: 1 });
+        [cellRefA, cellRefB].forEach(ref => setCellStyle(ref, {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "1F4E78" } },
+          alignment: { horizontal: "center" }
+        }));
+      }
+      if (value.startsWith("Catégorie :")) {
+        const cellRefB = XLSX.utils.encode_cell({ r: R, c: 1 });
+        [cellRefA, cellRefB].forEach(ref => setCellStyle(ref, {
+          font: { bold: true, color: { rgb: "000000" } },
+          fill: { fgColor: { rgb: "D9E1F2" } },
+          alignment: { horizontal: "center" }
+        }));
+      }
+    }
+
+    // --- STYLE TOTaux ET MINERVALE ---
+    const highlightLabels = ["Minervale brut", `Réduction (${eleve.ReductionPourcentage}%)`, "Minervale net", "Total autres frais", "Total à payer"];
+    for (let R = 0; R <= range.e.r; R++) {
+      const cellRefA = XLSX.utils.encode_cell({ r: R, c: 0 });
+      if (highlightLabels.includes(worksheet[cellRefA]?.v)) {
+        const cellRefB = XLSX.utils.encode_cell({ r: R, c: 1 });
+        [cellRefA, cellRefB].forEach(ref => setCellStyle(ref, {
+          font: { bold: true },
+          fill: { fgColor: { rgb: "FFF2CC" } },
+          alignment: { horizontal: "center" }
+        }));
+      }
+    }
+
+    const filename = `Facture_${trimesterCode}_${academicYear}_${eleve.Firstname}_${eleve.Lastname}.xlsx`;
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Facture");
+    XLSX.writeFile(workbook, filename);
+  };
+
 
   const messages = {
     fr: `Instructions de paiement Urubuto pour ${eleve.Firstname} ${eleve.Lastname}
@@ -269,7 +415,7 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
 
           <h5 className="text-primary mt-4">Total à payer : {totalAPayer.toLocaleString()} RWF</h5>
 
-          <Button variant="outline-primary" size="sm" disabled>Rapport Excel</Button>
+          <Button variant="outline-primary" size="sm" onClick={exportExcel}>Rapport Excel</Button>
 
           <hr />
 
