@@ -6,6 +6,7 @@ import {
 import AddEditFee from "../modals/addEditFee";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 import * as XLSX from "xlsx-js-style";
+import EditExemptionTuitionModal from "../modals/editExemptionTuition";
 
 export default function StudentRate({ student, parents, selectedParent, onSelectParent }) {
   const [copied, setCopied] = useState(null);
@@ -15,6 +16,8 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
   const [siblings, setSiblings] = useState([]);
   const [studentPosition, setStudentPosition] = useState(null);
   const [loadingSiblings, setLoadingSiblings] = useState(false);
+  const [tuitionExemption, setTuitionExemption] = useState("none"); // none, parentEmployee, schoolSponsored
+  const [showExemptionModal, setShowExemptionModal] = useState(false);
 
   const timerRef = useRef(null);
 
@@ -30,12 +33,16 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
     ...student,
     ReductionPourcentage,
     PositionFamille: studentPosition?.PositionLabel || "",
-    Parrain: null,
-    Charges: student.fees || [],
+    Parrain: null
   };
 
-  const minervaleNet = eleve.Tuition * (1 - eleve.ReductionPourcentage / 100);
-  const filteredChargesByTerm = eleve.Charges.filter(c => c.Term === selectedTerm);
+  let minervaleNet = eleve.Tuition * (1 - eleve.ReductionPourcentage / 100);
+  if (tuitionExemption === "parentEmployee" || tuitionExemption === "schoolSponsored") {
+    minervaleNet = 0; // ou appliquer une réduction spécifique si ce n'est pas 100%
+  } else {
+    minervaleNet = eleve.Tuition * (1 - eleve.ReductionPourcentage / 100);
+  }
+  const filteredChargesByTerm = charges.filter(c => c.Term === selectedTerm);
   const totalCharges = filteredChargesByTerm.reduce((t, c) => t + c.Amount, 0);
   const totalAPayer = minervaleNet + totalCharges;
   eleve.TotalAnnuel = totalAPayer;
@@ -50,7 +57,7 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
     const trimesterCode = selectedTerm;
     const selectedTrim = trimesterMap[trimesterCode];
 
-    const filteredCharges = eleve.Charges.filter(c => c.Term === trimesterCode);
+    const filteredCharges = charges.filter(c => c.Term === trimesterCode);
     const chargesParCategorie = filteredCharges.reduce((acc, c) => {
       const cat = c.Category || "Autres frais";
       if (!acc[cat]) acc[cat] = [];
@@ -59,6 +66,11 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
     }, {});
 
     const data = [];
+
+    // --- EN-TÊTE : École ---
+    data.push(["ÉCOLE FRANCOPHONE ABITONDA"]);
+    data.push(["Adresse : KG 679 St, Gisozi, Kigali"]);
+    data.push([]); // ligne vide pour espacement
 
     // --- TITRE PRINCIPAL ---
     data.push([`FACTURE TRIMESTRIELLE (BABYEYI)`]);
@@ -74,26 +86,29 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
 
     // --- ZONE 2 : Charges ---
     data.push(["ZONE : Charges"]);
+    const totalCharges = filteredCharges.reduce((t, c) => t + c.Amount, 0);
     Object.keys(chargesParCategorie).forEach(cat => {
       data.push([`Catégorie : ${cat}`]);
       data.push(["Nom du frais", "Montant (RWF)"]);
       chargesParCategorie[cat].forEach(c => {
         data.push([c.Name, c.Amount]);
       });
-      data.push([]);
     });
+    data.push(["Total autres frais", totalCharges]);
+    data.push([]);
 
     // --- ZONE 2b : Minervale brut et réductions ---
     const reductionAmount = eleve.Tuition * (eleve.ReductionPourcentage / 100);
+    const minervaleNet = eleve.Tuition - reductionAmount;
     data.push(["ZONE : Minervale et réductions"]);
     data.push(["Minervale brut", eleve.Tuition]);
-    data.push([`Réduction (${eleve.ReductionPourcentage}%)`, reductionAmount]);
+    data.push([`Réduction (${eleve.ReductionPourcentage}%)`, `- ${reductionAmount}`]);
     data.push(["Minervale net", minervaleNet]);
     data.push([]);
 
     // --- ZONE 3 : Totaux ---
+    const totalAPayer = minervaleNet + totalCharges;
     data.push(["ZONE : Totaux"]);
-    data.push(["Total autres frais", totalCharges]);
     data.push(["Total à payer", totalAPayer]);
     data.push([]);
 
@@ -106,6 +121,12 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
     const montantRestant = totalAPayer - montantPaye;
     data.push(["Montant total payé", montantPaye]);
     data.push(["Montant restant à payer", montantRestant]);
+
+    // --- ZONE SIGNATURE ---
+    data.push([]);
+    data.push([]);
+    data.push(["Signature du parent : ______________________"]);
+    data.push(["Signature de l'administration : ______________________"]);
 
     const worksheet = XLSX.utils.aoa_to_sheet(data);
     worksheet["!cols"] = [{ wch: 40 }, { wch: 20 }];
@@ -134,16 +155,28 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
       }
     }
 
-    // --- STYLE TITRE PRINCIPAL ---
+    // --- STYLE EN-TÊTE ÉCOLE ---
     setCellStyle("A1", {
+      font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } },
+      alignment: { horizontal: "center" },
+      fill: { fgColor: { rgb: "4F81BD" } }
+    });
+    setCellStyle("A2", {
+      font: { italic: true, sz: 12, color: { rgb: "000000" } },
+      alignment: { horizontal: "center" }
+    });
+    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }, { s: { r: 1, c: 0 }, e: { r: 1, c: 1 } }];
+
+    // --- STYLE TITRE PRINCIPAL ---
+    setCellStyle("A4", {
       font: { bold: true, sz: 18, color: { rgb: "FFFFFF" } },
       alignment: { horizontal: "center", vertical: "center" },
       fill: { fgColor: { rgb: "4F81BD" } }
     });
-    worksheet["!merges"] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }];
+    worksheet["!merges"].push({ s: { r: 3, c: 0 }, e: { r: 3, c: 1 } });
 
     // --- STYLE ZONES ET CATEGORIES ---
-    for (let R = 2; R <= range.e.r; R++) {
+    for (let R = 5; R <= range.e.r; R++) {
       const cellRefA = XLSX.utils.encode_cell({ r: R, c: 0 });
       const value = worksheet[cellRefA]?.v || "";
       if (value.startsWith("ZONE :")) {
@@ -164,8 +197,14 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
       }
     }
 
-    // --- STYLE TOTaux ET MINERVALE ---
-    const highlightLabels = ["Minervale brut", `Réduction (${eleve.ReductionPourcentage}%)`, "Minervale net", "Total autres frais", "Total à payer"];
+    // --- STYLE TOTaux, MINERVALE et SIGNATURE ---
+    const highlightLabels = [
+      "Minervale brut",
+      `Réduction (${eleve.ReductionPourcentage}%)`,
+      "Minervale net",
+      "Total autres frais",
+      "Total à payer"
+    ];
     for (let R = 0; R <= range.e.r; R++) {
       const cellRefA = XLSX.utils.encode_cell({ r: R, c: 0 });
       if (highlightLabels.includes(worksheet[cellRefA]?.v)) {
@@ -178,12 +217,16 @@ export default function StudentRate({ student, parents, selectedParent, onSelect
       }
     }
 
+    // --- STYLE SIGNATURE ---
+    const lastRow = XLSX.utils.decode_range(worksheet["!ref"]).e.r;
+    setCellStyle(`A${lastRow - 1}`, { font: { bold: true } });
+    setCellStyle(`A${lastRow}`, { font: { bold: true } });
+
     const filename = `Facture_${trimesterCode}_${academicYear}_${eleve.Firstname}_${eleve.Lastname}.xlsx`;
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Facture");
     XLSX.writeFile(workbook, filename);
   };
-
 
   const messages = {
     fr: `Instructions de paiement Urubuto pour ${eleve.Firstname} ${eleve.Lastname}
@@ -237,16 +280,13 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
 
   const handleCopy = () => {
     if (!selectedParent?.PhoneNumb) return;
-
     const rawNumber = selectedParent.PhoneNumb.replace(/\s+/g, '');
     const number = rawNumber.startsWith("+250") ? rawNumber.replace("+", "") :
       rawNumber.startsWith("250") ? rawNumber :
         "250" + rawNumber;
-
     const rawMessage = messages[selectedLang];
     const message = encodeURIComponent(rawMessage || "Bonjour, ceci est un test");
     const url = `https://wa.me/${number}?text=${message}`;
-
     window.open(url, '_blank');
     setCopied(selectedLang);
     clearTimeout(timerRef.current);
@@ -261,9 +301,14 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
     if (!student?.StudentId || !student?.FamilyId) {
       setSiblings([]);
       setStudentPosition(null);
+      setCharges([]);
       return;
     }
     setLoadingSiblings(true);
+
+    // Init charges depuis les props
+    setCharges(student.fees || []);
+
     fetch(ENDPOINT(`students/${student.StudentId}/siblings`), getAuthRequest(token))
       .then(res => res.json())
       .then(data => {
@@ -345,6 +390,23 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
                 - <i>{(eleve.Tuition * (eleve.ReductionPourcentage / 100)).toLocaleString()} RWF</i>
               </Badge>
             </ListGroup.Item>
+            <ListGroup.Item className="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <div className="fw-bold mb-1">Exonération de minerval</div>
+                <div>
+                  <small className="text-muted">{tuitionExemption === "none" && "Non exonéré"}</small>
+                  <small className="text-muted">{tuitionExemption === "parentEmployee" && "Parent employé de l'école"}</small>
+                  <small className="text-muted">{tuitionExemption === "schoolSponsored" && "Parrainé par l'école"}</small>
+                </div>
+              </div>
+              <Button
+                variant="outline-primary"
+                size="sm"
+                onClick={() => setShowExemptionModal(true)}
+              >
+                Modifier
+              </Button>
+            </ListGroup.Item>
 
             <ListGroup.Item className="d-flex justify-content-between align-items-center">
               <div className="d-flex align-items-center">
@@ -356,7 +418,6 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
 
             <ListGroup.Item className="d-flex justify-content-between align-items-start">
               <div className="ms-3 me-auto w-100">
-
                 <Row className="mb-2">
                   <Col xs={6} className="d-flex align-items-center">
                     <h6 className="fw-bold mb-0">Autres frais</h6>
@@ -369,7 +430,6 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
                         setEditingCharge(null);
                         setShowModal(true);
                       }}
-                      disabled
                     >
                       <i className="bi bi-plus-circle me-1"></i>
                       Ajouter / Modifier
@@ -397,9 +457,8 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
                     ))}
                   </Col>
                 </Form.Group>
-
                 <ul className="mb-0" style={{ listStyleType: 'none', paddingLeft: 0 }}>
-                  {eleve.Charges.filter(c => c.Term === selectedTerm).map((c, i) => (
+                  {charges.filter(c => c.Term === selectedTerm).map((c, i) => (
                     <li key={i} style={{ fontSize: '0.8em' }}>
                       <i><u>{c.Name}</u> : {c.Amount.toLocaleString()} RWF</i>
                     </li>
@@ -476,7 +535,12 @@ Kwishyura amafaranga y'ishuri ukoresheje USSD, andika *775# hanyuma ukurikize ib
         setCharges={setCharges}
         editingCharge={editingCharge}
         setEditingCharge={setEditingCharge}
-        selectedTerm={selectedTerm}
+      />
+      <EditExemptionTuitionModal
+        showExemptionModal={showExemptionModal}
+        setShowExemptionModal={setShowExemptionModal}
+        tuitionExemption={tuitionExemption}
+        setTuitionExemption={setTuitionExemption}
       />
     </Container>
   );

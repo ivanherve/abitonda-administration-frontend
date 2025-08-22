@@ -6,27 +6,26 @@ import { useEffect, useState } from "react";
 import swal from "sweetalert";
 import {
   ENDPOINT,
-  getAuthRequest, postAuthRequestFormData
+  getAuthRequest,
+  postAuthRequestFormData,
 } from "../../links/links";
 import AddParent from "../modals/addParent";
 import EditParent from "../modals/editParent";
 
-const { Row, Col, Alert, Button } = require("react-bootstrap");
+import { Row, Col, Alert, Button, Card } from "react-bootstrap";
 
 library.add(faPlus, faEdit, faTimes);
 
 function formatNumb(numb) {
-  var res;
-  if (numb.length !== 10) res = numb;
-  else {
-    res =
-      numb.substring(0, 4) +
-      " " +
-      numb.substring(4, 7) +
-      " " +
-      numb.substring(7, numb.length);
-  }
-  return res;
+  if (!numb) return "";
+  if (numb.length !== 10) return numb;
+  return (
+    numb.substring(0, 4) +
+    " " +
+    numb.substring(4, 7) +
+    " " +
+    numb.substring(7, numb.length)
+  );
 }
 
 export default function ContactParent(props) {
@@ -46,8 +45,8 @@ export default function ContactParent(props) {
     data.append("studentId", studentId);
     data.append("parentId", parentId);
     swal({
-      title: "Êtes-vous sûr?",
-      text: "",
+      title: "Êtes-vous sûr ?",
+      text: "Cette action supprimera le parent de la liste.",
       icon: "warning",
       buttons: true,
       dangerMode: true,
@@ -76,10 +75,9 @@ export default function ContactParent(props) {
       .then((r) => r.json())
       .then((r) => {
         if (r.status) {
-          if (r.response.length < 1) setParents([]);
-          setParents(r.response);
+          setParents(r.response || []);
           setStudentId(props.studentId);
-          setSelectedParent(r.response[0] || selectedParent);
+          setSelectedParent(r.response?.[0] || selectedParent);
         }
       });
   }, [props.studentId]);
@@ -91,74 +89,83 @@ export default function ContactParent(props) {
 
   return (
     <div>
+      {/* Bouton ajouter */}
       <Button
-        style={{ width: "100%" }}
         variant="light"
+        className="w-100 mb-3"
         onClick={() => setShowAddParent(true)}
       >
-        <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter un Parent
+        <FontAwesomeIcon icon={["fas", "plus"]} className="me-2" />
+        Ajouter un parent
       </Button>
+
+      {/* Liste des parents */}
       {parents.length < 1 ? (
-        <div>Il n'y a pas de parents</div>
+        <Alert variant="info">Aucun parent n’est enregistré pour cet élève.</Alert>
       ) : (
-        parents.map((p) => (
-          <div key={parents.indexOf(p)}>
-            <hr />
-            <Row>
-              <Col xs="5">
-                <h2>{p.Firstname + " " + p.Lastname}</h2>
-                <p>
-                  <i>{p.Link}</i>
-                </p>
-              </Col>
-              <Col xs="5">
-                <ul>
-                  {p.Address && (
-                    <li>
-                      <u>Adresse</u>: {p.Address}
-                    </li>
-                  )}
-                  {p.Email && (
-                    <li>
-                      <u>E-mail</u>: <a href={p.Email}>{p.Email}</a>
-                    </li>
-                  )}
-                  {p.PhoneNumb && (
-                    <li>
-                      <u>Téléphone</u>: {formatNumb(p.PhoneNumb)}
-                    </li>
-                  )}
-                  {p.Profession && (
-                    <li>
-                      <u>Profession</u>: {p.Profession}
-                    </li>
-                  )}
-                </ul>
-              </Col>
-              <Col xs="2">
-                <Row>
+        parents.map((p, index) => (
+          <Card key={index} className="mb-3 shadow-sm border-0">
+            <Card.Body>
+              <Row>
+                <Col md={8}>
+                  <h5 className="fw-bold mb-1">
+                    {p.Firstname} {p.Lastname}
+                  </h5>
+                  <p className="text-muted">
+                    <i>{p.Link}</i>
+                  </p>
+                  <ul className="list-unstyled mb-0">
+                    {p.Address && (
+                      <li>
+                        <strong>Adresse :</strong> {p.Address}
+                      </li>
+                    )}
+                    {p.Email && (
+                      <li>
+                        <strong>Email :</strong>{" "}
+                        <a href={`mailto:${p.Email}`}>{p.Email}</a>
+                      </li>
+                    )}
+                    {p.PhoneNumb && (
+                      <li>
+                        <strong>Téléphone :</strong> {formatNumb(p.PhoneNumb)}
+                      </li>
+                    )}
+                    {p.Profession && (
+                      <li>
+                        <strong>Profession :</strong> {p.Profession}
+                      </li>
+                    )}
+                  </ul>
+                </Col>
+                <Col
+                  md={4}
+                  className="d-flex flex-column justify-content-center align-items-end"
+                >
                   <Button
                     variant="light"
-                    style={{ width: "100%" }}
+                    className="mb-2 w-100"
                     onClick={() => editSelectedParent(p)}
                   >
-                    <FontAwesomeIcon icon={["far", "edit"]} />
+                    <FontAwesomeIcon icon={["far", "edit"]} className="me-2" />
+                    Modifier
                   </Button>
-                </Row>
-                <Row>
                   <Button
                     variant="light"
-                    style={{ width: "100%", marginTop: "10px" }}
+                    className="w-100"
                     onClick={() => removeParent(props.studentId, p.ParentId)}
                   >
-                    <FontAwesomeIcon icon={["fas", "times"]} />
+                    <FontAwesomeIcon icon={["fas", "times"]} className="me-2" />
+                    Supprimer
                   </Button>
-                </Row>
-              </Col>
-            </Row>
-          </div>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
         ))
       )}
+
+      {/* Modals */}
       <AddParent
         show={showAddParent}
         hide={() => setShowAddParent(false)}

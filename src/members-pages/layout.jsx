@@ -56,7 +56,7 @@ export default function Layout(props) {
           <Route path="/food" component={Food} />*/}
             <Route path="/soras" component={Soras} />
             <Route path="/ticket" component={Ticket} />
-            {/*<Route path="/transport" component={Transport} />*/}
+            <Route path="/transport" component={Transport} />
             <Redirect to="/students" />
           </Switch>
         </Router>

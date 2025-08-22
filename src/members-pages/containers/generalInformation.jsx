@@ -3,7 +3,7 @@ import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import { faArrowCircleDown, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import {
   Button,
   Col,
@@ -12,6 +12,7 @@ import {
   OverlayTrigger,
   Row,
   Tooltip,
+  Card
 } from "react-bootstrap";
 import FileBase64 from "react-file-base64";
 import swal from "sweetalert";
@@ -58,6 +59,8 @@ export default function GeneralInformation(props) {
   const [urubuto, setUrubuto] = useState("");
 
   const [showStudentFile, setShowStudentFile] = useState(false);
+
+  const imgSize = 150;
 
   setTimeout(() => {
     setLoading(false);
@@ -133,6 +136,16 @@ export default function GeneralInformation(props) {
       });
   };
 
+  const daysOfWeek = [
+    { value: 1, label: "Lundi" },
+    { value: 2, label: "Mardi" },
+    { value: 3, label: "Mercredi" },
+    { value: 4, label: "Jeudi" },
+    { value: 5, label: "Vendredi" },
+    { value: 6, label: "Samedi" },
+    { value: 7, label: "Dimanche" }
+  ];
+
   const COL_SIZE = 5;
 
   useEffect(() => {
@@ -168,403 +181,272 @@ export default function GeneralInformation(props) {
   }, [student]);
 
   return loading ? (
-    <div>Chargement ...</div>
+    <div className="text-center my-5 fw-bold">Chargement ...</div>
   ) : loading2 ? (
     <Loading />
   ) : (
-    <div>
+    <div className="p-3">
       <Row>
+        {/* Colonne de gauche : infos principales */}
         <Col xs="3">
-          {loadingPicture ? (
-            <Loading />
-          ) : (
-            <Image src={newPic} width="200" height="200" rounded />
-          )}
-          <br />
-          {toEdit && (
-            <div style={{ width: "100%" }}>
-              <FileBase64
-                className="form-control"
-                onDone={(e) => setNewPic(e.base64)}
-              />
-            </div>
-          )}
-          <hr />
-          <h4>{student.Lastname}</h4>
-          <h6>
-            <i>{student.Firstname}</i>
-          </h6>
-          <div style={{fontWeight: 'bold', fontSize: '0.8em'}}>Urubuto : {student.Urubuto}</div>
-          <br />
-          <div>Inscrit le <strong>{moment(student.created_at).format("DD MMMM YYYY")}</strong></div>
-          <Row>
-            <Col>
-              {toEdit ? (
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Annuler</Tooltip>}
-                >
-                  <Button
-                    style={{ width: "100%" }}
-                    variant="outline-info"
-                    onClick={() => setToEdit(false)}
-                  >
-                    <FontAwesomeIcon icon={["fas", "times"]} />
-                  </Button>
-                </OverlayTrigger>
+          <Card className="shadow-sm mb-3 text-center">
+            <Card.Body>
+              {loadingPicture ? (
+                <Loading />
               ) : (
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Modifier</Tooltip>}
-                >
-                  <Button
-                    style={{ width: "100%" }}
-                    variant="light"
-                    onClick={() => setToEdit(true)}
-                  >
-                    <FontAwesomeIcon icon={["far", "edit"]} />
-                  </Button>
-                </OverlayTrigger>
+                <Image
+                  src={newPic}
+                  width={imgSize}
+                  height={imgSize}
+                  roundedCircle
+                  className="mb-3 shadow"
+                />
               )}
-            </Col>
-            <Col>
-              {/*!toEdit && (
-                <OverlayTrigger
-                  placement="auto"
-                  overlay={<Tooltip>Désinscrire</Tooltip>}
-                >
-                  <Button style={{ width: "100%" }} variant="light">
-                    <FontAwesomeIcon icon={["fas", "times"]} />
-                  </Button>
-                </OverlayTrigger>
-              )*/}
-            </Col>
-          </Row>
-          <br />
-          {!toEdit && (
-            <Button
-              variant="light"
-              style={{ width: "100%" }}
-              onClick={() => setShowStudentFile(true)}
-            >
-              Fiche d'inscription{" "}
-              <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
-            </Button>
-          )}
-        </Col>
-        <Col>
-          <Form>
-            <Form.Group as={Row} controlId="formPlaintextNom">
-              <Form.Label column sm="2">
-                Nom
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  disabled={!toEdit}
-                  placeholder={student.Lastname}
-                  onChange={(e) => setLastname(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextPrenom">
-              <Form.Label column sm="2">
-                Prénom
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  disabled={!toEdit}
-                  placeholder={student.Firstname}
-                  onChange={(e) => setFirstname(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextUrubuto">
-              <Form.Label column sm="2">
-                Code Urubuto 
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  disabled={!toEdit}
-                  placeholder={student.Urubuto}
-                  onChange={(e) => setUrubuto(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextBirthday">
-              <Form.Label column sm="2">
-                Date de naissance
-              </Form.Label>
-              <Col sm="6">
-                {!toEdit ? (
-                  <Form.Control
-                    disabled
-                    placeholder={moment(student.Birthdate).format(
-                      "Do MMMM YYYY"
-                    )}
-                  />
-                ) : (
-                  <Form.Control
-                    type="date"
-                    onChange={(e) => setBirthdate(e.target.value)}
-                  />
-                )}
-              </Col>
-              <Form.Label column sm="2">
-                Sexe
-              </Form.Label>
-              <Col sm="2">
-                {!toEdit ? (
-                  <Form.Control
-                    disabled
-                    placeholder={student.Sexe ? "F" : "M"}
-                  />
-                ) : (
-                  <Form.Control
-                    style={{ width: "100%" }}
-                    as="select"
-                    onChange={(e) => setSexe(e.target.value !== "M")}
-                  >
-                    <option>M</option>
-                    <option>F</option>
-                  </Form.Control>
-                )}
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formAddress">
-              <Form.Label column sm="2">
-                Adresse
-              </Form.Label>
-              <Col sm="5">
-                <Form.Control
-                  disabled={!toEdit}
-                  placeholder={student.Address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </Col>
-              <Col sm="5">
-                {!toEdit ? (
-                  <Form.Control disabled placeholder={student.Neighborhood} />
-                ) : (
-                  <Form.Control
-                    as="select"
-                    onChange={(e) => setNeighborhoodSelected(e.target.value)}
-                  >
-                    {neighborhoods.map((n) => (
-                      <option key={n.SectorId}>{n.Neighborhood}</option>
-                    ))}
-                  </Form.Control>
-                )}
-              </Col>
-            </Form.Group>
-            <Form.Group as={Row} controlId="formPlaintextPointDeRamassage">
-              <Form.Label column sm="2">
-                Point de ramassage
-              </Form.Label>
-              <Col sm="10">
-                <Form.Control
-                  disabled={!toEdit}
-                  placeholder={student.PointDeRamassage}
-                  onChange={(e) => setPointDeRamassage(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <hr />
-            <Form.Group as={Row} controlId="formPlaintextClass">
-              <Form.Label column sm="2">
-                Classe
-              </Form.Label>
-              <Col sm="10">
-                {!toEdit ? (
-                  <Form.Control disabled placeholder={student.Classe} />
-                ) : (
-                  <Form.Control
-                    as="select"
-                    disabled={!toEdit}
-                    placeholder="CP"
-                    onChange={(e) => setClasse(e.target.value)}
-                  >
-                    {allClasses.map((c) => (
-                      <option key={allClasses.indexOf(c)}>{c.Name}</option>
-                    ))}
-                  </Form.Control>
-                )}
-              </Col>
-            </Form.Group>
 
-            <hr />
-            <Row>
-              <Col>
-                <Form.Group as={Row} controlId="formPlaintextRegistering">
-                  <Form.Label column sm={COL_SIZE}>
-                    Inscription
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
+              {toEdit && (
+                <div className="mb-3">
+                  <FileBase64
+                    className="form-control"
+                    onDone={(e) => setNewPic(e.base64)}
+                  />
+                </div>
+              )}
+
+              <h4 className="fw-bold mb-1">{student.Lastname}</h4>
+              <h6 className="text-muted mb-2">{student.Firstname}</h6>
+              <div className="fw-semibold text-secondary mb-2" style={{ fontSize: "0.85em" }}>
+                Urubuto : {student.Urubuto}
+              </div>
+              <div className="small text-muted mb-3">
+                Inscrit le <strong>{moment(student.created_at).format("DD MMMM YYYY")}</strong>
+              </div>
+
+              <Row className="g-2">
+                <Col>
+                  {toEdit ? (
+                    <OverlayTrigger placement="auto" overlay={<Tooltip>Annuler</Tooltip>}>
+                      <Button
+                        style={{ width: "100%" }}
+                        variant="outline-info"
+                        onClick={() => setToEdit(false)}
+                      >
+                        <FontAwesomeIcon icon={["fas", "times"]} />
+                      </Button>
+                    </OverlayTrigger>
+                  ) : (
+                    <OverlayTrigger placement="auto" overlay={<Tooltip>Modifier</Tooltip>}>
+                      <Button
+                        style={{ width: "100%" }}
+                        variant="light"
+                        onClick={() => setToEdit(true)}
+                      >
+                        <FontAwesomeIcon icon={["far", "edit"]} />
+                      </Button>
+                    </OverlayTrigger>
+                  )}
+                </Col>
+              </Row>
+
+              {!toEdit && (
+                <Button
+                  variant="light"
+                  style={{ width: "100%" }}
+                  className="mt-3"
+                  onClick={() => setShowStudentFile(true)}
+                >
+                  Fiche d'inscription{" "}
+                  <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
+                </Button>
+              )}
+            </Card.Body>
+          </Card>
+        </Col>
+
+        {/* Colonne de droite : formulaire */}
+        <Col>
+          <Card className="shadow-sm">
+            <Card.Body>
+              <Form>
+                {/* Identité */}
+                <h5 className="fw-bold mb-3">Informations personnelles</h5>
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextNom">
+                  <Form.Label column sm="2">Nom</Form.Label>
+                  <Col sm="10">
+                    <Form.Control
                       disabled={!toEdit}
-                      defaultChecked={student.Registered}
-                      onChange={(e) => setRegistered(e.target.checked)}
+                      placeholder={student.Lastname}
+                      onChange={(e) => setLastname(e.target.value)}
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNewStudent">
-                  <Form.Label column sm={COL_SIZE}>
-                    Nouvel élève
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextPrenom">
+                  <Form.Label column sm="2">Prénom</Form.Label>
+                  <Col sm="10">
+                    <Form.Control
                       disabled={!toEdit}
-                      defaultChecked={student.NewStudent}
-                      onChange={(e) => setNewStudent(e.target.checked)}
+                      placeholder={student.Firstname}
+                      onChange={(e) => setFirstname(e.target.value)}
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNewStudent">
-                  <Form.Label column sm={COL_SIZE}>
-                    ROI signé
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextUrubuto">
+                  <Form.Label column sm="2">Code Urubuto</Form.Label>
+                  <Col sm="10">
+                    <Form.Control
                       disabled={!toEdit}
-                      defaultChecked={student.InternalRulesSigned}
-                      onChange={(e) => setRulesSigned(e.target.checked)}
+                      placeholder={student.Urubuto}
+                      onChange={(e) => setUrubuto(e.target.value)}
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNewStudent">
-                  <Form.Label column sm={COL_SIZE}>
-                    Fiche d'inscription
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
+
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextBirthday">
+                  <Form.Label column sm="2">Naissance</Form.Label>
+                  <Col sm="6">
+                    {!toEdit ? (
+                      <Form.Control
+                        disabled
+                        placeholder={moment(student.Birthdate).format("Do MMMM YYYY")}
+                      />
+                    ) : (
+                      <Form.Control
+                        type="date"
+                        onChange={(e) => setBirthdate(e.target.value)}
+                      />
+                    )}
+                  </Col>
+                  <Form.Label column sm="2">Sexe</Form.Label>
+                  <Col sm="2">
+                    {!toEdit ? (
+                      <Form.Control disabled placeholder={student.Sexe ? "F" : "M"} />
+                    ) : (
+                      <Form.Control
+                        as="select"
+                        onChange={(e) => setSexe(e.target.value !== "M")}
+                      >
+                        <option>M</option>
+                        <option>F</option>
+                      </Form.Control>
+                    )}
+                  </Col>
+                </Form.Group>
+
+                {/* Adresse */}
+                <h5 className="fw-bold mt-4 mb-3">Adresse & Transport</h5>
+                <Form.Group as={Row} className="mb-3" controlId="formAddress">
+                  <Form.Label column sm="2">Adresse</Form.Label>
+                  <Col sm="5">
+                    <Form.Control
                       disabled={!toEdit}
-                      defaultChecked={student.RegistrationFileFilled}
-                      onChange={(e) =>
-                        setRegistrationFileFilled(e.target.checked)
-                      }
+                      placeholder={student.Address}
+                      onChange={(e) => setAddress(e.target.value)}
+                    />
+                  </Col>
+                  <Col sm="5">
+                    {!toEdit ? (
+                      <Form.Control disabled placeholder={student.Neighborhood} />
+                    ) : (
+                      <Form.Control as="select" onChange={(e) => setNeighborhoodSelected(e.target.value)}>
+                        {neighborhoods.map((n) => (
+                          <option key={n.SectorId}>{n.Neighborhood}</option>
+                        ))}
+                      </Form.Control>
+                    )}
+                  </Col>
+                </Form.Group>
+
+                {/* Classe */}
+                <h5 className="fw-bold mt-4 mb-3">Scolarité</h5>
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextClass">
+                  <Form.Label column sm="2">Classe</Form.Label>
+                  <Col sm="10">
+                    {!toEdit ? (
+                      <Form.Control disabled placeholder={student.Classe} />
+                    ) : (
+                      <Form.Control
+                        as="select"
+                        onChange={(e) => setClasse(e.target.value)}
+                      >
+                        {allClasses.map((c) => (
+                          <option key={allClasses.indexOf(c)}>{c.Name}</option>
+                        ))}
+                      </Form.Control>
+                    )}
+                  </Col>
+                </Form.Group>
+
+                {/* Cases à cocher */}
+                <h5 className="fw-bold mt-4 mb-3">Dossiers & Options</h5>
+                <Row>
+                  <Col md={6}>
+                    {[
+                      { label: "Inscription", value: student.Registered, setter: setRegistered },
+                      { label: "Nouvel élève", value: student.NewStudent, setter: setNewStudent },
+                      { label: "ROI signé", value: student.InternalRulesSigned, setter: setRulesSigned },
+                      { label: "Fiche d'inscription", value: student.RegistrationFileFilled, setter: setRegistrationFileFilled },
+                      { label: "Carnet vaccination", value: student.VaccinsFile, setter: setVaccinsFile },
+                    ].map((item, idx) => (
+                      <Form.Group as={Row} key={idx} className="mb-2">
+                        <Form.Label column sm="8">{item.label}</Form.Label>
+                        <Col sm="4" className="d-flex align-items-center">
+                          <Form.Check
+                            type="checkbox"
+                            disabled={!toEdit}
+                            defaultChecked={item.value}
+                            onChange={(e) => item.setter(e.target.checked)}
+                          />
+                        </Col>
+                      </Form.Group>
+                    ))}
+                  </Col>
+                  <Col md={6}>
+                    {[
+                      { label: "Cantine", value: student.Canteen, setter: setCanteen },
+                      { label: "Transport", value: student.Transport, setter: setTransport },
+                      { label: "Payé", value: student.Paid, setter: setPaid },
+                    ].map((item, idx) => (
+                      <Form.Group as={Row} key={idx} className="mb-2">
+                        <Form.Label column sm="8">{item.label}</Form.Label>
+                        <Col sm="4" className="d-flex align-items-center">
+                          <Form.Check
+                            type="checkbox"
+                            disabled={!toEdit}
+                            defaultChecked={item.value}
+                            onChange={(e) => item.setter(e.target.checked)}
+                          />
+                        </Col>
+                      </Form.Group>
+                    ))}
+                  </Col>
+                </Row>
+
+                {/* Allergies */}
+                <h5 className="fw-bold mt-4 mb-3">Santé</h5>
+                <Form.Group as={Row} className="mb-3" controlId="formPlaintextAllergies">
+                  <Form.Label column sm="4">Allergies</Form.Label>
+                  <Col sm="8">
+                    <Form.Control
+                      as="textarea"
+                      disabled={!toEdit}
+                      onChange={(e) => setAllergies(e.target.value)}
                     />
                   </Col>
                 </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextNewStudent">
-                  <Form.Label column sm={COL_SIZE}>
-                    Carnet de vaccination
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.VaccinsFile}
-                      onChange={(e) => setVaccinsFile(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-              </Col>
-              <Col>
-                <Form.Group as={Row} controlId="formPlaintextCantine">
-                  <Form.Label column sm={COL_SIZE}>
-                    Cantine
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Canteen}
-                      onChange={(e) => setCanteen(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-                <Form.Group as={Row} controlId="formPlaintextTransport">
-                  <Form.Label column sm={COL_SIZE}>
-                    Transport
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Transport}
-                      onChange={(e) => setTransport(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-                <hr />
-                <Form.Group as={Row} controlId="formPlaintextPaid">
-                  <Form.Label column sm={COL_SIZE}>
-                    Payé
-                  </Form.Label>
-                  <Col sm="1">
-                    <Form.Check
-                      type="checkbox"
-                      disabled={!toEdit}
-                      defaultChecked={student.Paid}
-                      onChange={(e) => setPaid(e.target.checked)}
-                    />
-                  </Col>
-                </Form.Group>
-              </Col>
-            </Row>
-            <hr />
-            {/*
-            <Form.Group as={Row} controlId="formPlaintextExtraActivities">
-              <Form.Label column sm={COL_SIZE}>
-                Activités Parascolaires
-              </Form.Label>
-              <Col sm="8">
-                <Form.Control as="select" disabled={!toEdit}>
-                  <option>Aucun</option>
-                  <option>Karaté</option>
-                  <option>Piscine</option>
-                  <option>Dance Traditionelle</option>
-                  <option>Musique</option>
-                </Form.Control>
-              </Col>
-            </Form.Group>
-            <hr />
-            <Form.Group as={Row} controlId="formPlaintextGarde">
-              <Form.Label column sm={COL_SIZE}>
-                Mode de garde *
-              </Form.Label>
-              <Col sm="8">
-                <Form.Check
-                  type="radio"
-                  label="Journée"
-                  name="formHorizontalRadios"
-                  id="formHorizontalRadios1"
-                  disabled={!toEdit}
-                />
-                <Form.Check
-                  type="radio"
-                  label="Demi-journée"
-                  name="formHorizontalRadios"
-                  id="formHorizontalRadios2"
-                  disabled={!toEdit}
-                />
-              </Col>
-            </Form.Group>
-*/}
-            <Form.Group as={Row} controlId="formPlaintextAllergies">
-              <Form.Label column sm="4">
-                Allergies
-              </Form.Label>
-              <Col sm="8">
-                <Form.Control
-                  as="textarea"
-                  disabled={!toEdit}
-                  onChange={(e) => setAllergies(e.target.value)}
-                />
-              </Col>
-            </Form.Group>
-            <hr />
-            {toEdit && (
-              <Button variant="outline-primary" onClick={() => editStudent()}>
-                Sauvegarder
-              </Button>
-            )}
-          </Form>
+
+                {/* Bouton sauvegarde */}
+                {toEdit && (
+                  <div className="text-end">
+                    <Button variant="outline-primary" onClick={() => editStudent()}>
+                      Sauvegarder
+                    </Button>
+                  </div>
+                )}
+              </Form>
+            </Card.Body>
+          </Card>
         </Col>
       </Row>
+
       <ShowStudentInfo
         show={showStudentFile}
         student={student}
@@ -573,6 +455,7 @@ export default function GeneralInformation(props) {
       />
     </div>
   );
+
 }
 
 /*

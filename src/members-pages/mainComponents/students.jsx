@@ -3,7 +3,7 @@ import {
   faArrowCircleDown,
   faArrowCircleUp,
   faPlus,
-  faSearch
+  faSearch, faCheckCircle, faExclamationTriangle, faTimesCircle
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
@@ -27,8 +27,11 @@ import AddStudent from "../modals/addStudent";
 import DownloadDocuments from "../modals/downloadDocuments";
 import Payment from "../containers/studentPayment";
 import StudentRate from "../containers/studentRate";
+import StudentCanteenPage from "../containers/StudentCanteenPage";
+import StudentTransport from "../containers/studentTransport";
 
-library.add(faPlus, faArrowCircleDown, faArrowCircleUp, faSearch);
+
+library.add(faPlus, faArrowCircleDown, faArrowCircleUp, faSearch, faCheckCircle, faExclamationTriangle, faTimesCircle);
 
 export default function Student(props) {
   const [link, setLink] = useState("");
@@ -90,45 +93,50 @@ export default function Student(props) {
 
   return (
     <div>
-      <Row>
-        <Col xs="8">
-          <InputGroup className="mb-3">
+      <Row className="align-items-center mb-3 g-2">
+        {/* Champ de recherche */}
+        <Col xs={8}>
+          <InputGroup>
             <Form.Control
               placeholder="Rechercher prénom ..."
+              value={nameToSearch}
               onChange={(e) => setNameToSearch(e.target.value)}
-              onKeyUp={(e) => {
-                if (e.key === 'Enter') setNameSearched(e.target.value);
-              }}
+              onKeyUp={(e) => e.key === "Enter" && setNameSearched(e.target.value)}
+              className="shadow-sm"
             />
             <Button
-              onClick={() => setNameSearched(nameToSearch)}
               variant="outline-primary"
-              id="button-addon2"
+              onClick={() => setNameSearched(nameToSearch)}
+              className="border-start-0"
             >
               <FontAwesomeIcon icon={["fas", "search"]} />
             </Button>
           </InputGroup>
         </Col>
-        <Col>
+
+        {/* Bouton Ajouter des élèves */}
+        <Col xs>
           <Button
             variant="outline-success"
-            style={{ width: "100%" }}
+            className="w-100 shadow-sm d-flex align-items-center justify-content-center gap-2"
             onClick={() => setShowAddStudent(true)}
           >
-            Ajouter des élèves <FontAwesomeIcon icon={["fas", "plus"]} />
+            <FontAwesomeIcon icon={["fas", "plus"]} /> Ajouter des élèves
           </Button>
         </Col>
-        <Col xs="1">
+
+        {/* Bouton Télécharger documents */}
+        <Col xs="auto">
           <OverlayTrigger
-            placement="auto"
+            placement="top"
             overlay={<Tooltip>Télécharger documents</Tooltip>}
           >
             <Button
               variant="outline-secondary"
-              style={{ width: "100%" }}
+              className="d-flex align-items-center justify-content-center shadow-sm"
               onClick={() => setShowDownloadDocuments(true)}
             >
-              <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} />
+              <FontAwesomeIcon icon={["fas", "arrow-circle-down"]} size="lg" />
             </Button>
           </OverlayTrigger>
         </Col>
@@ -136,34 +144,41 @@ export default function Student(props) {
       <br />
       <Row>
         <Col xs="2">
-          <ListGroup>
+          <ListGroup className="shadow-sm rounded">
             {loading ? (
               <Loading />
             ) : (
-              students.map((s) => (
-                <ListGroup.Item
-                  action
-                  variant={
-                    s.Registered
-                      ? s.InternalRulesSigned &&
-                        s.RegistrationFileFilled &&
-                        s.Picture
-                        ? "success"
-                        : "warning"
-                      : "danger"
-                  }
-                  key={students.indexOf(s)}
-                  onClick={() => {
-                    setOneStudent(s);
-                    setIsParents(true);
-                    //console.log(s);
-                  }}
-                >
-                  <div>
-                    <strong>{s.Firstname}</strong> {s.Lastname}
-                  </div>
-                </ListGroup.Item>
-              ))
+              students.map((s) => {
+                const status = s.Registered
+                  ? s.InternalRulesSigned && s.RegistrationFileFilled && s.Picture
+                    ? "success"
+                    : "warning"
+                  : "danger";
+
+                return (
+                  <ListGroup.Item
+                    action
+                    variant={status}
+                    key={s.id || `${s.Firstname}-${s.Lastname}`}
+                    onClick={() => {
+                      setOneStudent(s);
+                      setIsParents(true);
+                    }}
+                    className="py-3 px-3 mb-2 rounded d-flex align-items-center"
+                    style={{
+                      cursor: "pointer",
+                      fontWeight: "500",
+                      transition: "transform 0.1s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.02)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                  >
+                    <div>
+                      <strong>{s.Firstname}</strong> <br /> <small><i>{s.Lastname}</i></small>
+                    </div>
+                  </ListGroup.Item>
+                );
+              })
             )}
           </ListGroup>
         </Col>
@@ -188,11 +203,13 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-2">Facturation</Nav.Link>
                 </Nav.Item>
-                {/*
                 <Nav.Item>
-                  <Nav.Link eventKey="link-3">Présences</Nav.Link>
+                  <Nav.Link eventKey="link-3">Cantine</Nav.Link>
                 </Nav.Item>
-
+                <Nav.Item>
+                  <Nav.Link eventKey="link-4">Transport</Nav.Link>
+                </Nav.Item>
+                {/*
                 <Nav.Item>
                   <Nav.Link eventKey="link-2">Paiement</Nav.Link>
                 </Nav.Item>
@@ -333,7 +350,9 @@ function Links(props) {
       parents={parents}
       selectedParent={selectedParent}
       onSelectParent={setSelectedParent} />;
-  } /*else if (props.link === "link-3") {
-    return <StudentPresence />;
-  } */ else return <div>nothin</div>;
+  } else if (props.link === "link-3") {
+    return <StudentCanteenPage student={props.student} />;
+  } else if (props.link === "link-4") {
+    return <StudentTransport student={props.student} />;
+  } /**/ else return <div>nothin</div>;
 }

@@ -119,14 +119,15 @@ export default function AddStudent(props) {
       <Modal.Header>
         <Modal.Title>Ajouter des élèves</Modal.Title>
       </Modal.Header>
+
       <Tabs defaultActiveKey="addOne">
+        {/* Ajouter un seul élève */}
         <Tab eventKey="addOne" title="Ajouter un élève">
           <Modal.Body>
             <Form>
-              <Form.Group as={Row} controlId="formPlaintextLastname">
-                <Form.Label column sm="2">
-                  Nom de famille
-                </Form.Label>
+              {/* Informations personnelles */}
+              <Form.Group as={Row} controlId="formLastname">
+                <Form.Label column sm="2">Nom de famille</Form.Label>
                 <Col sm="10">
                   <Form.Control
                     type="text"
@@ -135,10 +136,8 @@ export default function AddStudent(props) {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formPlaintextFirstname">
-                <Form.Label column sm="2">
-                  Prénom
-                </Form.Label>
+              <Form.Group as={Row} controlId="formFirstname">
+                <Form.Label column sm="2">Prénom</Form.Label>
                 <Col sm="10">
                   <Form.Control
                     type="text"
@@ -147,10 +146,8 @@ export default function AddStudent(props) {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formPlaintextUrubuto">
-                <Form.Label column sm="2">
-                  Code Urubuto
-                </Form.Label>
+              <Form.Group as={Row} controlId="formUrubuto">
+                <Form.Label column sm="2">Code Urubuto</Form.Label>
                 <Col sm="10">
                   <Form.Control
                     type="number"
@@ -160,10 +157,8 @@ export default function AddStudent(props) {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formPlaintextBirthdate">
-                <Form.Label column sm="2">
-                  Date de naissance
-                </Form.Label>
+              <Form.Group as={Row} controlId="formBirthdate">
+                <Form.Label column sm="2">Date de naissance</Form.Label>
                 <Col sm="10">
                   <Form.Control
                     type="date"
@@ -172,37 +167,25 @@ export default function AddStudent(props) {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formPlaintextClasse">
-                <Form.Label column sm="2">
-                  Classe
-                </Form.Label>
+              <Form.Group as={Row} controlId="formClasse">
+                <Form.Label column sm="2">Classe</Form.Label>
                 <Col sm="10">
                   <Form.Control
                     as="select"
                     onChange={(e) => setClasse(e.target.value)}
                   >
-                    {classes.map((c) => (
-                      <option
-                        key={classes.indexOf(c)}
-                        onClick={() => console.log(c)}
-                      >
-                        {c.Name}
-                      </option>
+                    {classes.map((c, idx) => (
+                      <option key={idx}>{c.Name}</option>
                     ))}
                   </Form.Control>
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} controlId="formPlaintextAddress">
-                <Form.Label column sm="2">
-                  Adresse*
-                </Form.Label>
+              {/* Adresse et quartier */}
+              <Form.Group as={Row} controlId="formAddress">
+                <Form.Label column sm="2">Adresse*</Form.Label>
                 <Col sm="5">
-                  <Form.Control
-                    onChange={(e) => {
-                      setAddress(e.target.value);
-                    }}
-                  />
+                  <Form.Control onChange={(e) => setAddress(e.target.value)} />
                 </Col>
                 <Col sm="5">
                   <Form.Control
@@ -215,178 +198,109 @@ export default function AddStudent(props) {
                   </Form.Control>
                 </Col>
               </Form.Group>
-              <Form.Group as={Row} controlId="formPlaintextAddress">
-                <Form.Label column sm="2">
-                  Point de ramassage (si transport)
-                </Form.Label>
+
+              <Form.Group as={Row} controlId="formPickupPoint">
+                <Form.Label column sm="2">Point de ramassage (si transport)</Form.Label>
                 <Col sm="10">
                   <Form.Control
-                    onChange={(e) => {
-                      setPointDeRamassage(e.target.value);
-                    }}
+                    onChange={(e) => setPointDeRamassage(e.target.value)}
                   />
                 </Col>
               </Form.Group>
+
+              {/* Services et options */}
               <Row>
                 <Col xs="4">
-                  <Form.Group as={Row} controlId="formPlaintextCanteen">
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Cantine
-                    </Form.Label>
+                  <Form.Group as={Row} controlId="formCanteen">
+                    <Form.Label column sm={LABEL_SIZE}>Cantine</Form.Label>
                     <Col sm={CHECKBOX_SIZE}>
                       <Form.Check
                         type="checkbox"
-                        id="checkbox-canteen"
                         onChange={(e) => setCanteen(e.target.checked)}
                       />
                     </Col>
                   </Form.Group>
-                  <Form.Group as={Row} controlId="formPlaintextTransport">
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Transport
-                    </Form.Label>
+
+                  <Form.Group as={Row} controlId="formTransport">
+                    <Form.Label column sm={LABEL_SIZE}>Transport</Form.Label>
                     <Col sm={CHECKBOX_SIZE}>
                       <Form.Check
                         type="checkbox"
-                        id="checkbox-transport"
                         onChange={(e) => setTransport(e.target.checked)}
                       />
                     </Col>
                   </Form.Group>
                 </Col>
+
                 <Col>
-                  <Form.Group as={Row} controlId="formPlaintextRulesSigned">
-                    <Form.Label column sm={LABEL_SIZE}>
-                      ROI signé
-                    </Form.Label>
+                  <Form.Group as={Row} controlId="formRulesSigned">
+                    <Form.Label column sm={LABEL_SIZE}>ROI signé</Form.Label>
                     <Col sm={CHECKBOX_SIZE}>
                       <Form.Check
                         type="checkbox"
-                        id="checkbox-transport"
                         onChange={(e) => setRulesSigned(e.target.checked)}
                       />
                     </Col>
                   </Form.Group>
-                  <Form.Group as={Row} controlId="formPlaintextVaccin">
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Carnet de vaccination
-                    </Form.Label>
+
+                  <Form.Group as={Row} controlId="formVaccins">
+                    <Form.Label column sm={LABEL_SIZE}>Carnet de vaccination</Form.Label>
                     <Col sm={CHECKBOX_SIZE}>
                       <Form.Check
                         type="checkbox"
-                        id="checkbox-transport"
                         onChange={(e) => setVaccinsFile(e.target.checked)}
                       />
                     </Col>
                   </Form.Group>
-                  <Form.Group
-                    as={Row}
-                    controlId="formPlaintextRegistrationFile"
-                  >
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Fiche d'inscription
-                    </Form.Label>
+
+                  <Form.Group as={Row} controlId="formRegistrationFile">
+                    <Form.Label column sm={LABEL_SIZE}>Fiche d'inscription</Form.Label>
                     <Col sm={CHECKBOX_SIZE}>
                       <Form.Check
                         type="checkbox"
-                        id="checkbox-transport"
-                        onChange={(e) =>
-                          setRegistrationFileFilled(e.target.checked)
-                        }
+                        onChange={(e) => setRegistrationFileFilled(e.target.checked)}
                       />
                     </Col>
                   </Form.Group>
                 </Col>
+
                 <Col>
-                  <Form.Group
-                    as={Row}
-                    controlId="formPlaintextPiano"
-                  >
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Piano
-                    </Form.Label>
-                    <Col sm={CHECKBOX_SIZE}>
-                      <Form.Check
-                        type="checkbox"
-                        id="checkbox-transport"
-                        onChange={(e) =>
-                          setPiano(e.target.checked)
-                        }
-                      />
-                    </Col>
-                  </Form.Group>
-                  <Form.Group
-                    as={Row}
-                    controlId="formPlaintextSwimmingpool"
-                  >
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Piscine
-                    </Form.Label>
-                    <Col sm={CHECKBOX_SIZE}>
-                      <Form.Check
-                        type="checkbox"
-                        id="checkbox-transport"
-                        onChange={(e) =>
-                          setSwimmingpool(e.target.checked)
-                        }
-                      />
-                    </Col>
-                  </Form.Group>
-                  <Form.Group
-                    as={Row}
-                    controlId="formPlaintextGuitar"
-                  >
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Guitar
-                    </Form.Label>
-                    <Col sm={CHECKBOX_SIZE}>
-                      <Form.Check
-                        type="checkbox"
-                        id="checkbox-transport"
-                        onChange={(e) =>
-                          setGuitar(e.target.checked)
-                        }
-                      />
-                    </Col>
-                  </Form.Group>
-                  <Form.Group
-                    as={Row}
-                    controlId="formPlaintextDanse"
-                  >
-                    <Form.Label column sm={LABEL_SIZE}>
-                      Danse
-                    </Form.Label>
-                    <Col sm={CHECKBOX_SIZE}>
-                      <Form.Check
-                        type="checkbox"
-                        id="checkbox-transport"
-                        onChange={(e) =>
-                          setDanse(e.target.checked)
-                        }
-                      />
-                    </Col>
-                  </Form.Group>
+                  {["Piano", "Piscine", "Guitar", "Danse"].map((activity) => (
+                    <Form.Group as={Row} controlId={`form${activity}`} key={activity}>
+                      <Form.Label column sm={LABEL_SIZE}>{activity}</Form.Label>
+                      <Col sm={CHECKBOX_SIZE}>
+                        <Form.Check
+                          type="checkbox"
+                          onChange={(e) =>
+                            eval(`set${activity}`)(e.target.checked)
+                          }
+                        />
+                      </Col>
+                    </Form.Group>
+                  ))}
                 </Col>
               </Row>
+
               <hr />
-              <Form.Group as={Row} controlId="formPlaintextPicture">
-                <Form.Label column sm={LABEL_SIZE}>
-                  Photo
-                </Form.Label>
+
+              {/* Photo */}
+              <Form.Group as={Row} controlId="formPicture">
+                <Form.Label column sm={LABEL_SIZE}>Photo</Form.Label>
                 <Col sm={CHECKBOX_SIZE}>
                   <FileBase64 onDone={(e) => setPicture(e.base64)} />
                 </Col>
               </Form.Group>
-              <Button variant="outline-primary" onClick={() => addStudent()}>
-                Ajouter
-              </Button>
+
+              <Button variant="outline-primary" onClick={addStudent}>Ajouter</Button>
             </Form>
           </Modal.Body>
         </Tab>
+
+        {/* Ajouter plusieurs élèves */}
         <Tab eventKey="addMany" title="Ajouter plusieurs élèves">
           <div style={{ padding: "30px" }}>
             <Form>
-              <Form.Group as={Row} controlId="formPlaintextCSV">
+              <Form.Group as={Row} controlId="formCSV">
                 <Form.Label>Importer un fichier (.csv)</Form.Label>
               </Form.Group>
               <Row>
@@ -394,13 +308,12 @@ export default function AddStudent(props) {
               </Row>
             </Form>
             <br />
-            <Button variant="outline-primary" onClick={() => uploadFile(file)}>
-              Ajouter
-            </Button>
+            <Button variant="outline-primary" onClick={() => uploadFile(file)}>Ajouter</Button>
           </div>
         </Tab>
       </Tabs>
-      <Modal.Footer></Modal.Footer>
+
+      <Modal.Footer />
     </Modal>
   );
 }
