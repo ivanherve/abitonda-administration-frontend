@@ -37,6 +37,7 @@ const StudentTransport = ({ student }) => {
                 const res = await fetch(ENDPOINT("pickup"), getAuthRequest(token));
                 const data = await res.json();
                 if (data.status === 0) return;
+                console.log("Fetched pickup points:", data.response);
                 setPickupPoints(data.response);
             } catch (err) {
                 console.error(err);
@@ -91,7 +92,7 @@ const StudentTransport = ({ student }) => {
 
     return (
         <>
-            <Nav variant="tabs" fill activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
+            <Nav variant="pills" fill activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
                 <Nav.Item>
                     <Nav.Link eventKey="all">Tous les jours</Nav.Link>
                 </Nav.Item>
@@ -137,9 +138,14 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
     const returnTime = isDefault
         ? (settings.returnTime || "16:30")
         : (settings.returnTime || autoReturnTimes[dayValue]);
+        
+    // Trouver les arrêts sélectionnés
+    const selectedGoPoint = pickupPoints.find(p => p.Name === settings.goPoint);
+    const selectedReturnPoint = pickupPoints.find(p => p.Name === settings.returnPoint);
 
     return (
         <>
+            {/* Aller */}
             <Form.Group as={Row} className="mb-3">
                 <Form.Label column sm="2">Aller</Form.Label>
                 <Col sm="5">
@@ -159,14 +165,14 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 </Col>
                 <Col sm="4">
                     <Form.Group as={Row} className="mb-3">
-                        <Col>
-                            <Form.Label>Heure départ</Form.Label>
+                        <Col xs="2">
+                            <Form.Label>Heure</Form.Label>
                         </Col>
-                        <Col>
+                        <Col xs="10">
                             <Form.Control
                                 type="time"
-                                disabled={!toEdit}
-                                value={settings.goTime || ""}
+                                disabled
+                                value={selectedGoPoint?.ArrivalGo || ""}
                                 onChange={e => onChange("goTime", e.target.value)}
                             />
                         </Col>
@@ -174,6 +180,7 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 </Col>
             </Form.Group>
 
+            {/* Retour */}
             <Form.Group as={Row} className="mb-3">
                 <Form.Label column sm="2">Retour</Form.Label>
                 <Col sm="5">
@@ -193,14 +200,14 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 </Col>
                 <Col sm="4">
                     <Form.Group as={Row} className="mb-3">
-                        <Col>
-                            <Form.Label>Heure départ</Form.Label>
+                        <Col xs="2">
+                            <Form.Label>Heure</Form.Label>
                         </Col>
-                        <Col>
+                        <Col xs="10">
                             <Form.Control
                                 type="time"
-                                disabled={!toEdit}
-                                value={returnTime}
+                                disabled
+                                value={selectedReturnPoint?.ArrivalReturn || returnTime}
                                 readOnly={isDefault}
                             />
                         </Col>

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { Container, Row, Col, ListGroup, Card, Tabs, Tab, Badge, Button } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { AddPickupPoint } from "../modals/addPickupPoint";
+import moment from "moment";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -10,9 +12,15 @@ const Transport = () => {
   const [loading, setLoading] = useState(true);
   const [selectedLine, setSelectedLine] = useState(null);
   const [selectedStop, setSelectedStop] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [directionId, setDirectionId] = useState(1); // 1 pour aller, 2 pour retour
+
+  const handleOpenModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
-
+  const currentLine = busData.find(l => l.id === selectedLine?.id);
   // Charger les lignes de bus
   useEffect(() => {
     const loadBusLines = async () => {
@@ -35,16 +43,14 @@ const Transport = () => {
             const students = await fetchBusStudents(line.LineId);
 
             // Filtrer les arrêts par direction
-            const goStops = stops.filter(s => s.Direction === "go");
-            const returnStops = stops.filter(s => s.Direction === "return");
+            const stopsList = stops; // les arrêts sont les mêmes pour toutes les directions
 
             return {
               id: line.LineId,
               name: line.Name,
               driver: line.DriverId,
               assistant: line.AssistantId,
-              goStops,
-              returnStops,
+              stops: stopsList,
               students
             };
           })
@@ -52,6 +58,7 @@ const Transport = () => {
 
         setBusData(formattedLines);
         setSelectedLine(formattedLines[0] || null);
+        console.log("Fetched bus lines 62:", formattedLines);
       } catch (err) {
         console.error("Erreur fetch bus lines:", err);
       } finally {
@@ -62,20 +69,33 @@ const Transport = () => {
     loadBusLines();
   }, [token]);
 
+  useEffect(() => {
+    const loadStops = async () => {
+      if (!selectedLine) return;
+      const stops = await fetchStops(selectedLine.id);
+      setBusData(prev =>
+        prev.map(line =>
+          line.id === selectedLine.id ? { ...line, stops } : line
+        )
+      );
+    };
+    loadStops();
+  }, [selectedLine?.id]);
+
   // Fetch stops
   const fetchStops = async (lineId) => {
     try {
-      const res = await fetch(ENDPOINT(`pickup?lineId=${lineId}`), getAuthRequest(token));
+      const res = await fetch(ENDPOINT(`pickup?lineId=${lineId}&directionId=${directionId}`), getAuthRequest(token));
       const data = await res.json();
       if (data.status === 0) return [];
-
+      console.log("Stops for line", lineId, data);
       // Associer une direction par défaut si elle existe dans la réponse
       return data.response.map(stop => ({
         stop: stop.Name,
         latitude: stop.Latitude,
         longitude: stop.Longitude,
-        arrival: stop.Arrival || "",
-        departure: stop.Departure || "",
+        timeGo: stop.ArrivalGo || "",
+        timeReturn: stop.ArrivalReturn || "",
         Direction: stop.Direction || "go"
       }));
     } catch (err) {
@@ -87,16 +107,17 @@ const Transport = () => {
   // Fetch students for a bus line
   const fetchBusStudents = async (lineId) => {
     try {
-      const res = await fetch(ENDPOINT(`bus/${lineId}/students`), getAuthRequest(token));
+      const res = await fetch(ENDPOINT(`bus/${lineId}/students?date=${date}&directionId=${directionId}`), getAuthRequest(token));
       const data = await res.json();
+      console.log("Students for line", lineId, data);
       if (data.status === 0) return [];
 
-      return data.response.map(s => ({
+      return data.response.students.map(s => ({
         StudentId: s.StudentId,
         name: `${s.Firstname} ${s.Lastname}`,
         classe: s.Classe || "N/A",
-        stop: s.pickup_point?.Name || "N/A",
-        Direction: s.Direction // doit correspondre à "go" ou "return"
+        stop: s.PickupPoint || "N/A",
+        Direction: s.pivot.DirectionId === 1 ? "go" : "return" // doit correspondre à "go" ou "return"
       }));
     } catch (err) {
       console.error(err);
@@ -104,12 +125,31 @@ const Transport = () => {
     }
   };
 
+  // Charger les élèves pour la ligne sélectionnée
+  useEffect(() => {
+    const loadStudents = async () => {
+      if (!selectedLine) return;
+      setLoading(true);
+      try {
+        const students = await fetchBusStudents(selectedLine.id);
+        console.log("Fetched students for selected line:", students);
+        setStudentPickups(students);
+      } catch (err) {
+        console.error("Erreur fetch students:", err);
+        setStudentPickups([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStudents();
+  }, [selectedLine, directionId, date]);
+
   // Obtenir les élèves par arrêt et direction
   const getStudentsAtStop = (stopName, period = "go") => {
-    if (!selectedLine) return [];
+    if (!studentPickups) return [];
     const direction = period === "go" ? "go" : "return";
-
-    return selectedLine.students
+    return studentPickups
       .filter(s => s.Direction === direction)
       .filter(s => stopName === "Tous" || s.stop === stopName);
   };
@@ -133,7 +173,6 @@ const Transport = () => {
                   className="d-flex justify-content-between align-items-center"
                 >
                   {line.id}. {line.name}
-                  {selectedLine.id === line.id && <Badge bg="success">Sélectionnée</Badge>}
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -143,19 +182,52 @@ const Transport = () => {
         {/* Détails droite */}
         <Col md={9}>
           <Card className="shadow-sm rounded-3">
-            <Card.Header className="bg-light">
-              <h5 className="mb-1">{selectedLine.name}</h5>
-              <div className="text-muted small">
-                Ligne {selectedLine.id} <br />
-                Chauffeur : {selectedLine.driver} <br />
-                Assistant : {selectedLine.assistant}
+            <Card.Header id="BusLineHeader" className="bg-light d-flex justify-content-between align-items-center">
+              <div className="d-flex flex-column flex-md-row align-items-md-center gap-3">
+                <div>
+                  <h5 className="mb-1">{selectedLine.name}</h5>
+                  <div className="text-muted small">
+                    Ligne {selectedLine.id} <br />
+                    Chauffeur : {selectedLine.driver} <br />
+                    Assistant : {selectedLine.assistant}
+                  </div>
+                </div>
+
+                {/* Sélecteur de date */}
+                <input
+                  type="date"
+                  className="form-control form-control-sm"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                />
               </div>
+
+              <Button
+                variant="outline-success"
+                size="sm"
+                onClick={handleOpenModal}
+              >
+                Ajouter un point de ramassage
+              </Button>
             </Card.Header>
             <Card.Body>
-              <Tabs defaultActiveKey="go" id="transport-tabs" className="mb-3" variant="pills" fill>
+              <Tabs
+                activeKey={directionId === 1 ? "go" : "return"}
+                id="transport-tabs"
+                className="mb-3"
+                variant="pills"
+                fill
+                onSelect={(key) => {
+                  if (key === "go") setDirectionId(1);
+                  else if (key === "return") setDirectionId(2);
+
+                  setSelectedStop(null);
+                  // Pas besoin de fetch ici : le useEffect ci-dessus va se déclencher automatiquement
+                }}
+              >
                 <Tab eventKey="go" title="Aller">
                   <StopTab
-                    stops={selectedLine.goStops}
+                    stops={currentLine?.stops || []}
                     selectedStop={selectedStop}
                     setSelectedStop={setSelectedStop}
                     getStudentsAtStop={getStudentsAtStop}
@@ -165,7 +237,7 @@ const Transport = () => {
 
                 <Tab eventKey="return" title="Retour">
                   <StopTab
-                    stops={selectedLine.returnStops}
+                    stops={selectedLine.stops}
                     selectedStop={selectedStop}
                     setSelectedStop={setSelectedStop}
                     getStudentsAtStop={getStudentsAtStop}
@@ -174,6 +246,11 @@ const Transport = () => {
                 </Tab>
               </Tabs>
             </Card.Body>
+            <AddPickupPoint
+              showModal={showModal}
+              selectedLine={selectedLine}
+              handleCloseModal={handleCloseModal}
+            />
           </Card>
         </Col>
       </Row>
@@ -220,7 +297,8 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
               {activeStop === "Tous" && <Badge bg="light" text="dark">✓</Badge>}
             </ListGroup.Item>
 
-            {stops.map(stopObj => (
+            {/* Arrêts de bus */}
+            {(stops || []).map(stopObj => (
               <ListGroup.Item
                 key={stopObj.stop}
                 action
@@ -230,7 +308,7 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
                 <div className="d-flex flex-column">
                   <strong>{stopObj.stop}</strong>
                   <small className={activeStop === stopObj.stop ? "" : "text-muted"}>
-                    {stopObj.arrival} → {stopObj.departure}
+                    {period === 'go' ? moment(stopObj.timeGo, "HH:mm:ss").format('HH:mm') : moment(stopObj.timeReturn, "HH:mm:ss").format('HH:mm')}
                   </small>
                 </div>
               </ListGroup.Item>
@@ -263,7 +341,7 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
                     className="d-flex justify-content-between align-items-center"
                   >
                     {student.name}
-                    <small className="text-muted">({student.classe})</small>
+                    <small className="text-muted">{student.classe}</small>
                   </ListGroup.Item>
                 ))
               ) : (

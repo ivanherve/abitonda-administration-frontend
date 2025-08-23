@@ -195,7 +195,7 @@ export default function Student(props) {
                 }}
               >
                 <Nav.Item>
-                  <Nav.Link eventKey="link-1">Informations Générales</Nav.Link>
+                  <Nav.Link eventKey="link-1">Informations</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="link-0">Contact Parents</Nav.Link>
