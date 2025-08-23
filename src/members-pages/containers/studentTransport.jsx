@@ -67,13 +67,16 @@ const StudentTransport = ({ student }) => {
                 returnTime: transportSettings[day.value]?.returnTime || defaultReturnTimes[day.value]
             }));
 
+            const dataToSend = { studentId: student.StudentId, settings: payload };
+            console.log("Payload to send:", JSON.stringify(dataToSend));
+
             const res = await fetch(ENDPOINT("student/update-transport"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     ...getAuthRequest(token).headers
                 },
-                body: JSON.stringify({ studentId: student.StudentId, settings: payload })
+                body: JSON.stringify(dataToSend)
             });
 
             const data = await res.json();
@@ -153,7 +156,7 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                         as="select"
                         disabled={!toEdit}
                         value={settings.goPoint || ""}
-                        onChange={e => onChange("goPoint", e.target.value)}
+                        onChange={e => {onChange("goPoint", e.target.value); onChange("returnPoint", e.target.value);}}
                     >
                         <option value="">Sélectionnez un point d'arrêt</option>
                         {pickupPoints.map(p => (
