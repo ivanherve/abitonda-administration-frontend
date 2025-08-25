@@ -51,14 +51,14 @@ const Transport = () => {
               driver: line.DriverId,
               assistant: line.AssistantId,
               stops: stopsList,
-              students
+              nbStudents: line.nbStudents
             };
           })
         );
 
         setBusData(formattedLines);
         setSelectedLine(formattedLines[0] || null);
-        console.log("Fetched bus lines 62:", formattedLines);
+        console.log("Fetched bus lines 62:", selectedLine);
       } catch (err) {
         console.error("Erreur fetch bus lines:", err);
       } finally {
@@ -85,7 +85,7 @@ const Transport = () => {
   // Fetch stops
   const fetchStops = async (lineId) => {
     try {
-      const res = await fetch(ENDPOINT(`pickup?lineId=${lineId}&directionId=${directionId}`), getAuthRequest(token));
+      const res = await fetch(ENDPOINT(`pickup?lineId=${lineId}&directionId=${directionId}&date=${date}`), getAuthRequest(token));
       const data = await res.json();
       if (data.status === 0) return [];
       console.log("Stops for line", lineId, data);
@@ -96,7 +96,8 @@ const Transport = () => {
         longitude: stop.Longitude,
         timeGo: stop.ArrivalGo || "",
         timeReturn: stop.ArrivalReturn || "",
-        Direction: stop.Direction || "go"
+        Direction: stop.Direction || "go",
+        nbStudents: stop.nbStudents || 0
       }));
     } catch (err) {
       console.error(err);
@@ -170,9 +171,10 @@ const Transport = () => {
                   action
                   active={selectedLine.id === line.id}
                   onClick={() => { setSelectedLine(line); setSelectedStop(null); }}
-                  className="d-flex justify-content-between align-items-center"
                 >
-                  {line.id}. {line.name}
+                  {line.id}. <strong>{line.name}</strong>
+                  <br />
+                  <small><i>{line.nbStudents} élèves</i></small>                  
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -310,6 +312,7 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
                   <small className={activeStop === stopObj.stop ? "" : "text-muted"}>
                     {period === 'go' ? moment(stopObj.timeGo, "HH:mm:ss").format('HH:mm') : moment(stopObj.timeReturn, "HH:mm:ss").format('HH:mm')}
                   </small>
+                  <small><i>({stopObj.nbStudents} élèves)</i></small>
                 </div>
               </ListGroup.Item>
             ))}
