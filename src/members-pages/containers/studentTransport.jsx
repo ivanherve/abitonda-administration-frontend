@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Nav, Form, Row, Col, Button, Card, Badge, ListGroup } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faArrowLeft, faBus } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faArrowLeft, faBus, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 import moment from "moment/moment";
 
@@ -203,7 +203,7 @@ const StudentTransport = ({ student }) => {
             <Card className="mt-4 shadow-sm">
                 <Card.Header>
                     <Card.Title className="mb-3">
-                        <FontAwesomeIcon icon={faBus} className="me-2 text-primary" />
+                        <FontAwesomeIcon icon={faBus} className="me-2 text-secondary" />{" "}
                         Informations de transport
                     </Card.Title>
                 </Card.Header>
@@ -238,6 +238,9 @@ const StudentTransport = ({ student }) => {
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                     </small>
                                                 </div>
+                                                <Button variant="outline-danger" disabled>
+                                                    <FontAwesomeIcon icon={faTimes} /> Supprimer
+                                                </Button>
                                             </ListGroup.Item>
                                         ))}
                                     </ListGroup>
@@ -274,6 +277,9 @@ const StudentTransport = ({ student }) => {
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                     </small>
                                                 </div>
+                                                <Button variant="outline-danger" disabled>
+                                                    <FontAwesomeIcon icon={faTimes} /> Supprimer
+                                                </Button>
                                             </ListGroup.Item>
                                         ))}
                                     </ListGroup>
@@ -367,7 +373,7 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 field="returnPoint"
                 point={selectedReturnPoint}
                 time={selectedReturnPoint?.ArrivalReturn}
-                defaultTime={returnTime}
+                defaultTime=""
                 onPointChange={val => onChange("returnPoint", val)}
                 readOnly={isDefault}
             />
