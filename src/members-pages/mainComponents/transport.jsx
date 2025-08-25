@@ -1,9 +1,10 @@
 import React, { useState, useEffect, use } from "react";
-import { Container, Row, Col, ListGroup, Card, Tabs, Tab, Badge, Button } from "react-bootstrap";
+import { Container, Row, Col, ListGroup, Card, Tabs, Tab, Badge, Button, Form } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExcel } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faLocationArrow, faPen } from "@fortawesome/free-solid-svg-icons";
 import { AddPickupPoint } from "../modals/addPickupPoint";
+import * as XLSX from "xlsx-js-style";
 import moment from "moment";
 
 const Transport = () => {
@@ -48,8 +49,8 @@ const Transport = () => {
             return {
               id: line.LineId,
               name: line.Name,
-              driver: line.DriverId,
-              assistant: line.AssistantId,
+              driver: line.driver,
+              assistant: line.assistant,
               stops: stopsList,
               nbStudents: line.nbStudents
             };
@@ -58,7 +59,7 @@ const Transport = () => {
 
         setBusData(formattedLines);
         setSelectedLine(formattedLines[0] || null);
-        console.log("Fetched bus lines 62:", selectedLine);
+        console.log("Fetched bus lines 62:", formattedLines[0]);
       } catch (err) {
         console.error("Erreur fetch bus lines:", err);
       } finally {
@@ -174,7 +175,7 @@ const Transport = () => {
                 >
                   {line.id}. <strong>{line.name}</strong>
                   <br />
-                  <small><i>{line.nbStudents} élèves</i></small>                  
+                  <small><i>{line.nbStudents} élèves</i></small>
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -184,33 +185,63 @@ const Transport = () => {
         {/* Détails droite */}
         <Col md={9}>
           <Card className="shadow-sm rounded-3">
-            <Card.Header id="BusLineHeader" className="bg-light d-flex justify-content-between align-items-center">
-              <div className="d-flex flex-column flex-md-row align-items-md-center gap-3">
-                <div>
-                  <h5 className="mb-1">{selectedLine.name}</h5>
-                  <div className="text-muted small">
-                    Ligne {selectedLine.id} <br />
-                    Chauffeur : {selectedLine.driver} <br />
-                    Assistant : {selectedLine.assistant}
+            <Card.Header id="BusLineHeader" className="bg-light border-0 shadow-sm py-3">
+              <Row className="align-items-center">
+                {/* Infos ligne */}
+                <Col md={8} className="mb-3 mb-md-0">
+                  <div className="d-flex flex-column flex-md-row align-items-md-center gap-4">
+                    <div>
+                      <h5 className="mb-1 fw-bold text-secondary">{selectedLine.name}</h5>
+                      <div className="text-muted small lh-sm">
+                        <div><h6><i>Ligne {selectedLine.id}</i></h6></div>
+                        <div><span className="fw-semibold"><u>Chauffeur</u> :</span> {`${selectedLine.driver.Firstname} ${selectedLine.driver.Lastname}`}</div>
+                        <div><span className="fw-semibold"><u>Assistant</u> :</span> {`${selectedLine.assistant.Firstname} ${selectedLine.assistant.Lastname}`}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </Col>
 
-                {/* Sélecteur de date */}
-                <input
-                  type="date"
-                  className="form-control form-control-sm"
-                  value={date}
-                  onChange={e => setDate(e.target.value)}
-                />
-              </div>
+                {/* Actions */}
+                <Col md={4} className="d-flex flex-column gap-2">
+                  {/* Sélecteur de date */}
+                  <Form.Group controlId="datePicker" className="w-100">
+                    <Form.Label className="form-label small text-muted fw-semibold mb-1">
+                      Date
+                    </Form.Label>
+                    <Form.Control
+                      type="date"
+                      size="sm"
+                      value={date}
+                      onChange={e => setDate(e.target.value)}
+                      className="shadow-sm"
+                    />
+                  </Form.Group>
 
-              <Button
-                variant="outline-success"
-                size="sm"
-                onClick={handleOpenModal}
-              >
-                Ajouter un point de ramassage
-              </Button>
+                  {/* Boutons */}
+                  <div className="d-flex gap-2">
+                    <Button
+                      variant="light"
+                      size="sm"
+                      // className="fw-semibold shadow-sm d-flex align-items-center gap-2 flex-grow-1"
+                      onClick={handleOpenModal}
+                      style={{width: "100%"}}
+                    >
+                      <FontAwesomeIcon icon={faLocationArrow} />
+                      Ajouter arrêt de bus
+                    </Button>
+                    <Button
+                      variant="light"
+                      size="sm"
+                      // className="fw-semibold shadow-sm d-flex align-items-center gap-2 flex-grow-1"
+                      style={{width: "100%"}}
+                      disabled
+                    >
+                      <FontAwesomeIcon icon={faPen} />
+                      Modifier équipe
+                    </Button>
+                  </div>
+                </Col>
+              </Row>
             </Card.Header>
             <Card.Body>
               <Tabs
@@ -234,6 +265,9 @@ const Transport = () => {
                     setSelectedStop={setSelectedStop}
                     getStudentsAtStop={getStudentsAtStop}
                     period="go"
+                    selectedLine={selectedLine}
+                    directionId={directionId}
+                    date={date}
                   />
                 </Tab>
 
@@ -244,6 +278,9 @@ const Transport = () => {
                     setSelectedStop={setSelectedStop}
                     getStudentsAtStop={getStudentsAtStop}
                     period="return"
+                    selectedLine={selectedLine}
+                    directionId={directionId}
+                    date={date}
                   />
                 </Tab>
               </Tabs>
@@ -261,25 +298,150 @@ const Transport = () => {
 };
 
 // Composant StopTab
-const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, period }) => {
+const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, period, selectedLine, directionId, date }) => {
   const activeStop = selectedStop || "Tous";
 
   const downloadStudentList = (stopName) => {
     const students = getStudentsAtStop(stopName, period);
     if (students.length === 0) return;
 
-    const csvContent = "data:text/csv;charset=utf-8," +
-      ["Nom,Classe,Arrêt"]
-        .concat(students.map(s => `${s.name},${s.classe},${s.stop}`))
-        .join("\n");
+    // ➝ Générer les dates du mois sélectionné
+    const currentDate = new Date(date); // variable date sélectionnée
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth(); // 0-11
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `eleves_${stopName}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // ➝ Liste des dates sans weekends
+    const dateHeaders = [];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateObj = new Date(year, month, d);
+      const day = dateObj.getDay(); // 0=Dimanche, 6=Samedi
+      if (day !== 0 && day !== 6) dateHeaders.push(d.toString().padStart(2, "0"));
+    }
+
+    // ➝ Texte du mois et année (ex: "Août 2025")
+    const moisNom = currentDate.toLocaleString("fr-FR", { month: "long" });
+    const moisEtAnnee = `${moisNom.charAt(0).toUpperCase() + moisNom.slice(1)} ${year}`;
+
+    // ➝ Construire les données
+    const directionText = directionId === 1 ? "Aller" : "Retour";
+    const data = [
+      [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`], // ligne 1 : titre
+      [`Chauffeur : ${selectedLine.driver.Name}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee], // ligne 2 : IDs + Mois/Année
+      ["Nom", "Classe", "Arrêt", ...dateHeaders], // ligne 3 : en-tête
+      ...students.map(s => [s.name, s.classe, s.stop, ...Array(dateHeaders.length).fill("")])
+    ];
+
+    // ➝ Transformer en worksheet
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    // ➝ Fusionner le titre, l'assistant et le mois/année
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 2 + dateHeaders.length } }, // ligne 1 : titre fusionné
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 2 } },                       // ligne 2 : fusion B2:C2 (assistant)
+      { s: { r: 1, c: 3 }, e: { r: 1, c: 2 + dateHeaders.length } }   // ligne 2 : mois + année
+    ];
+
+    // ➝ Définir les bordures
+    const borderStyle = {
+      top: { style: "thin", color: { rgb: "000000" } },
+      bottom: { style: "thin", color: { rgb: "000000" } },
+      left: { style: "thin", color: { rgb: "000000" } },
+      right: { style: "thin", color: { rgb: "000000" } }
+    };
+
+    // ➝ Style du titre
+    ws["A1"].s = {
+      font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+      fill: { fgColor: { rgb: "1E90FF" } },
+      alignment: { horizontal: "center", vertical: "center" },
+      border: borderStyle
+    };
+
+    // ➝ Style ligne 2 : Chauffeur
+    ws["A2"].s = {
+      font: { bold: true },
+      alignment: { horizontal: "center", vertical: "center" },
+      border: borderStyle
+    };
+
+    // ➝ Style ligne 2 : Assistant (fusion B2:C2)
+    const assistantCell = XLSX.utils.encode_cell({ r: 1, c: 1 });
+    if (ws[assistantCell]) {
+      ws[assistantCell].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: borderStyle
+      };
+    }
+
+    // ➝ Style ligne 2 : Mois + année
+    const moisCell = XLSX.utils.encode_cell({ r: 1, c: 3 });
+    if (ws[moisCell]) {
+      ws[moisCell].s = {
+        font: { bold: true, sz: 12 },
+        alignment: { horizontal: "center", vertical: "center" }
+      };
+    }
+
+    // ➝ Style des en-têtes (ligne 3)
+    for (let c = 0; c < 3 + dateHeaders.length; c++) {
+      const cell = XLSX.utils.encode_cell({ r: 2, c });
+      if (ws[cell]) {
+        ws[cell].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "228B22" } },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: borderStyle
+        };
+      }
+    }
+
+    // ➝ Style et bordures pour toutes les cellules élèves
+    for (let r = 3; r < students.length + 3; r++) {
+      for (let c = 0; c < 3 + dateHeaders.length; c++) {
+        const cell = XLSX.utils.encode_cell({ r, c });
+        if (ws[cell]) {
+          ws[cell].s = {
+            alignment: { horizontal: "left", vertical: "left" },
+            border: borderStyle
+          };
+        }
+      }
+    }
+
+    // ➝ Largeur des colonnes
+    const colWidths = [];
+
+    // Largeur auto pour Nom, Classe, Arrêt
+    for (let c = 0; c < 3; c++) {
+      let maxLen = 3;
+      data.forEach(row => {
+        const val = row[c];
+        const len = val ? val.toString().length : 0;
+        maxLen = Math.max(maxLen, len + 2);
+      });
+      colWidths[c] = { wch: maxLen };
+    }
+
+    // Largeur fixe pour les colonnes des dates
+    for (let c = 3; c < 3 + dateHeaders.length; c++) {
+      colWidths[c] = { wch: 5 };
+    }
+
+    ws["!cols"] = colWidths;
+
+    // ➝ Créer un workbook
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Élèves");
+
+    // ➝ Nom du fichier
+    const fileName =
+      stopName === "Tous"
+        ? `Liste Transport - Ligne_${selectedLine.id}_(${selectedLine.name.toUpperCase()}) - ${directionId === 1 ? "ALLER" : "RETOUR"} - ${moisEtAnnee}.xlsx`
+        : `Liste_Transport_${stopName}_${directionId === 1 ? "ALLER" : "RETOUR"}.xlsx`;
+
+    XLSX.writeFile(wb, fileName);
   };
 
   return (
@@ -330,8 +492,7 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
               </span>
             </div>
             <Button size="sm" variant="success" onClick={() => downloadStudentList(activeStop)}>
-              <FontAwesomeIcon icon={faFileExcel} className="me-2" />
-              Télécharger
+              <FontAwesomeIcon icon={faFileExcel} className="me-2" />{" "}Télécharger
             </Button>
           </Card.Header>
 
