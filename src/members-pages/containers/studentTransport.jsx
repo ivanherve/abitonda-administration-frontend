@@ -127,43 +127,77 @@ const StudentTransport = ({ student }) => {
 
     return (
         <>
-            <Nav variant="pills" fill activeKey={activeTab} onSelect={setActiveTab} className="mb-3">
+            <Nav
+                variant="pills"
+                fill
+                activeKey={activeTab}
+                onSelect={setActiveTab}
+                className="mb-4 shadow-sm rounded"
+            >
                 <Nav.Item>
-                    <Nav.Link eventKey="all" onClick={() => setDay(0)}>Tous les jours</Nav.Link>
+                    <Nav.Link
+                        eventKey="all"
+                        onClick={() => setDay(0)}
+                        className="fw-bold"
+                    >
+                        Tous les jours
+                    </Nav.Link>
                 </Nav.Item>
-                {daysOfWeek.map(day => (
+
+                {daysOfWeek.map((day) => (
                     <Nav.Item key={day.value}>
-                        <Nav.Link eventKey={String(day.value)} onClick={() => setDay(day.value)}>{day.label}</Nav.Link>
+                        <Nav.Link
+                            eventKey={String(day.value)}
+                            onClick={() => setDay(day.value)}
+                            className="fw-bold"
+                        >
+                            {day.label}
+                        </Nav.Link>
                     </Nav.Item>
                 ))}
             </Nav>
 
+            {/* Formulaire pour "Tous les jours" */}
             {activeTab === "all" && (
                 <TransportForm
                     pickupPoints={pickupPoints}
                     toEdit={toEdit}
                     settings={defaultSettings}
-                    onChange={(field, value) => setDefaultSettings(prev => ({ ...prev, [field]: value }))}
                     days={daysOfWeek}
                     autoReturnTimes={defaultReturnTimes}
-                    isDefault={true}
+                    isDefault
+                    onChange={(field, value) =>
+                        setDefaultSettings((prev) => ({ ...prev, [field]: value }))
+                    }
                 />
             )}
 
-            {daysOfWeek.map(day => activeTab === String(day.value) && (
-                <TransportForm
-                    key={day.value}
-                    pickupPoints={pickupPoints}
-                    toEdit={toEdit}
-                    settings={transportSettings[day.value] || {}}
-                    onChange={(field, value) => handleChange(day.value, field, value)}
-                    dayValue={day.value}
-                    autoReturnTimes={defaultReturnTimes}
-                />
-            ))}
+            {/* Formulaire pour chaque jour spécifique */}
+            {daysOfWeek.map(
+                (day) =>
+                    activeTab === String(day.value) && (
+                        <TransportForm
+                            key={day.value}
+                            pickupPoints={pickupPoints}
+                            toEdit={toEdit}
+                            settings={transportSettings[day.value] || {}}
+                            dayValue={day.value}
+                            autoReturnTimes={defaultReturnTimes}
+                            onChange={(field, value) =>
+                                handleChange(day.value, field, value)
+                            }
+                        />
+                    )
+            )}
 
-            <div className="mt-3">
-                <Button onClick={handleSave} variant="success">Enregistrer</Button>
+            <div className="mt-4 text-end">
+                <Button
+                    onClick={handleSave}
+                    variant="success"
+                    className="px-4 shadow-sm"
+                >
+                    Enregistrer
+                </Button>
             </div>
 
             <Card className="mt-4 shadow-sm">
@@ -189,6 +223,15 @@ const StudentTransport = ({ student }) => {
                                                         <i>{sp.days.map((d, idx) => (moment().day(d).format("dddd").charAt(0).toUpperCase() + moment().day(d).format("dddd").slice(1))).join(", ")}</i>
                                                     </h6>}
                                                     <div className="mt-1 fw-bold">
+                                                        {/* <h4>
+                                                            <a
+                                                                href={`https://www.google.com/maps/search/?api=1&query=${sp.latitude},${sp.longitude}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="ms-2">
+                                                                {sp.name}
+                                                            </a>
+                                                        </h4> */}
                                                         <h4>{sp.name}</h4>
                                                     </div>
                                                     <small className="text-muted">
@@ -216,6 +259,15 @@ const StudentTransport = ({ student }) => {
                                                         <i>{sp.days.map((d, idx) => (moment().day(d).format("dddd").charAt(0).toUpperCase() + moment().day(d).format("dddd").slice(1))).join(", ")}</i>
                                                     </h6>}
                                                     <div className="mt-1 fw-bold">
+                                                        {/* <h4>
+                                                            <a
+                                                                href={`https://www.google.com/maps/search/?api=1&query=${sp.latitude},${sp.longitude}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="ms-2">
+                                                                {sp.name}
+                                                            </a>
+                                                        </h4> */}
                                                         <h4>{sp.name}</h4>
                                                     </div>
                                                     <small className="text-muted">
@@ -253,77 +305,72 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
     const selectedGoPoint = pickupPoints.find(p => p.Name === settings.goPoint);
     const selectedReturnPoint = pickupPoints.find(p => p.Name === settings.returnPoint);
 
+    // Composant réutilisable pour un champ (Aller / Retour)
+    const RenderRow = ({ label, field, point, time, onPointChange, onTimeChange, defaultTime, readOnly }) => (
+        <Form.Group as={Row} className="align-items-center mb-3">
+            <Form.Label column sm="2" className="fw-bold">
+                {label}
+            </Form.Label>
+            <Col sm="5">
+                <Form.Control
+                    as="select"
+                    disabled={!toEdit}
+                    value={settings[field] || ""}
+                    onChange={e => onPointChange(e.target.value)}
+                >
+                    <option value="">Sélectionnez un point d'arrêt</option>
+                    {pickupPoints.map(p => (
+                        <option key={p.PickupId} value={p.Name}>
+                            {p.Name} → {p.line ? `Ligne ${p.line.LineId} : ${p.line.Name}` : "Aucune ligne"}
+                        </option>
+                    ))}
+                </Form.Control>
+            </Col>
+            <Col sm="5">
+                <Row className="align-items-center">
+                    <Col xs="4">
+                        <Form.Label className="mb-0">Heure</Form.Label>
+                    </Col>
+                    <Col xs="8">
+                        <Form.Control
+                            type="time"
+                            disabled
+                            value={time || defaultTime}
+                            onChange={e => onTimeChange?.(e.target.value)}
+                            readOnly={readOnly}
+                        />
+                    </Col>
+                </Row>
+            </Col>
+        </Form.Group>
+    );
+
     return (
         <>
             {/* Aller */}
-            <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm="2">Aller</Form.Label>
-                <Col sm="5">
-                    <Form.Control
-                        as="select"
-                        disabled={!toEdit}
-                        value={settings.goPoint || ""}
-                        onChange={e => { onChange("goPoint", e.target.value); onChange("returnPoint", e.target.value); }}
-                    >
-                        <option value="">Sélectionnez un point d'arrêt</option>
-                        {pickupPoints.map(p => (
-                            <option key={p.PickupId} value={p.Name}>
-                                {p.Name} → {p.line ? `Ligne ${p.line.LineId} : ${p.line.Name}` : "Aucune ligne associée"}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-                <Col sm="4">
-                    <Form.Group as={Row} className="mb-3">
-                        <Col xs="2">
-                            <Form.Label>Heure</Form.Label>
-                        </Col>
-                        <Col xs="10">
-                            <Form.Control
-                                type="time"
-                                disabled
-                                value={selectedGoPoint?.ArrivalGo || ""}
-                                onChange={e => onChange("goTime", e.target.value)}
-                            />
-                        </Col>
-                    </Form.Group>
-                </Col>
-            </Form.Group>
+            <RenderRow
+                label="Aller"
+                field="goPoint"
+                point={selectedGoPoint}
+                time={selectedGoPoint?.ArrivalGo}
+                defaultTime=""
+                onPointChange={val => {
+                    onChange("goPoint", val);
+                    onChange("returnPoint", val); // garder la synchro Aller = Retour
+                }}
+                onTimeChange={val => onChange("goTime", val)}
+            />
 
             {/* Retour */}
-            <Form.Group as={Row} className="mb-3">
-                <Form.Label column sm="2">Retour</Form.Label>
-                <Col sm="5">
-                    <Form.Control
-                        as="select"
-                        disabled={!toEdit}
-                        value={settings.returnPoint || ""}
-                        onChange={e => onChange("returnPoint", e.target.value)}
-                    >
-                        <option value="">Sélectionnez un point d'arrêt</option>
-                        {pickupPoints.map(p => (
-                            <option key={p.PickupId} value={p.Name}>
-                                {p.Name} → {p.line ? `Ligne ${p.line.LineId} : ${p.line.Name}` : "Aucune ligne associée"}
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Col>
-                <Col sm="4">
-                    <Form.Group as={Row} className="mb-3">
-                        <Col xs="2">
-                            <Form.Label>Heure</Form.Label>
-                        </Col>
-                        <Col xs="10">
-                            <Form.Control
-                                type="time"
-                                disabled
-                                value={selectedReturnPoint?.ArrivalReturn || returnTime}
-                                readOnly={isDefault}
-                            />
-                        </Col>
-                    </Form.Group>
-                </Col>
-            </Form.Group>
+            <RenderRow
+                label="Retour"
+                field="returnPoint"
+                point={selectedReturnPoint}
+                time={selectedReturnPoint?.ArrivalReturn}
+                defaultTime={returnTime}
+                onPointChange={val => onChange("returnPoint", val)}
+                readOnly={isDefault}
+            />
         </>
     );
 };
