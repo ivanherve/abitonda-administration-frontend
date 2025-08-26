@@ -6,6 +6,7 @@ import { faFileExcel, faLocationArrow, faPen } from "@fortawesome/free-solid-svg
 import { AddPickupPoint } from "../modals/addPickupPoint";
 import * as XLSX from "xlsx-js-style";
 import moment from "moment";
+import { EditDriverAssistant } from "../modals/editDriverAssistant";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -16,9 +17,14 @@ const Transport = () => {
   const [showModal, setShowModal] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [directionId, setDirectionId] = useState(1); // 1 pour aller, 2 pour retour
+  const [showModalEditTeam, setShowModalEditTeam] = useState(false);
+  const [employees, setEmployees] = useState([]);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
+
+  const handleOpenModalEditTeam = () => setShowModalEditTeam(true);
+  const handleCloseModalEditTeam = () => setShowModalEditTeam(false);
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
   const currentLine = busData.find(l => l.id === selectedLine?.id);
@@ -82,6 +88,14 @@ const Transport = () => {
     };
     loadStops();
   }, [selectedLine?.id]);
+
+  useEffect(() => {
+    fetch(ENDPOINT("employees"), getAuthRequest(token))
+      .then(res => res.json())
+      .then(r => {
+        if(r.status) {setEmployees(r.response); console.log(r.response)}
+      })
+  }, []);
 
   // Fetch stops
   const fetchStops = async (lineId) => {
@@ -224,7 +238,7 @@ const Transport = () => {
                       size="sm"
                       // className="fw-semibold shadow-sm d-flex align-items-center gap-2 flex-grow-1"
                       onClick={handleOpenModal}
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                     >
                       <FontAwesomeIcon icon={faLocationArrow} />
                       Ajouter arrêt de bus
@@ -233,8 +247,8 @@ const Transport = () => {
                       variant="light"
                       size="sm"
                       // className="fw-semibold shadow-sm d-flex align-items-center gap-2 flex-grow-1"
-                      style={{width: "100%"}}
-                      disabled
+                      style={{ width: "100%" }}
+                      onClick={handleOpenModalEditTeam}
                     >
                       <FontAwesomeIcon icon={faPen} />
                       Modifier équipe
@@ -289,6 +303,13 @@ const Transport = () => {
               showModal={showModal}
               selectedLine={selectedLine}
               handleCloseModal={handleCloseModal}
+            />
+            <EditDriverAssistant
+              show={showModalEditTeam}
+              handleCloseModal={handleCloseModalEditTeam}
+              line={selectedLine}
+              employees={employees}
+              onSave
             />
           </Card>
         </Col>
