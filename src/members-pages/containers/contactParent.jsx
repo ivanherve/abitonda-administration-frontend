@@ -13,6 +13,7 @@ import AddParent from "../modals/addParent";
 import EditParent from "../modals/editParent";
 
 import { Row, Col, Alert, Button, Card } from "react-bootstrap";
+import ReactCountryFlag from "react-country-flag";
 
 library.add(faPlus, faEdit, faTimes);
 
@@ -78,6 +79,7 @@ export default function ContactParent(props) {
           setParents(r.response || []);
           setStudentId(props.studentId);
           setSelectedParent(r.response?.[0] || selectedParent);
+          // console.log(r.response);
         }
       });
   }, [props.studentId]);
@@ -114,7 +116,31 @@ export default function ContactParent(props) {
                   <p className="text-muted">
                     <i>{p.Link}</i>
                   </p>
+
                   <ul className="list-unstyled mb-0">
+                    <li>
+                      <strong>Langues : </strong> {p.French ? (
+                      <ReactCountryFlag
+                        countryCode="FR"
+                        svg
+                        style={{ width: "1.5em", height: "1.5em" }}
+                      />
+                    ) : null}{" "}
+                    {p.English ? (
+                      <ReactCountryFlag
+                        countryCode="GB"
+                        svg
+                        style={{ width: "1.5em", height: "1.5em" }}
+                      />
+                    ) : null}{" "}
+                    {p.Kinyarwanda ? (
+                      <ReactCountryFlag
+                        countryCode="RW"
+                        svg
+                        style={{ width: "1.5em", height: "1.5em" }}
+                      />
+                    ) : null}{" "}
+                    </li>
                     {p.Address && (
                       <li>
                         <strong>Adresse :</strong> {p.Address}
