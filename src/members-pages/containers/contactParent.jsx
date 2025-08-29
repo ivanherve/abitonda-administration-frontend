@@ -13,7 +13,7 @@ import AddParent from "../modals/addParent";
 import EditParent from "../modals/editParent";
 
 import { Row, Col, Alert, Button, Card } from "react-bootstrap";
-import ReactCountryFlag from "react-country-flag";
+// import ReactCountryFlag from "react-country-flag";
 
 library.add(faPlus, faEdit, faTimes);
 
@@ -120,25 +120,28 @@ export default function ContactParent(props) {
                   <ul className="list-unstyled mb-0">
                     <li>
                       <strong>Langues : </strong> {p.French ? (
-                      <ReactCountryFlag
-                        countryCode="FR"
-                        svg
-                        style={{ width: "1.5em", height: "1.5em" }}
-                      />
+                      // <ReactCountryFlag
+                      //   countryCode="FR"
+                      //   svg
+                      //   style={{ width: "1.5em", height: "1.5em" }}
+                      // />
+                      <div>Français</div>
                     ) : null}{" "}
                     {p.English ? (
-                      <ReactCountryFlag
-                        countryCode="GB"
-                        svg
-                        style={{ width: "1.5em", height: "1.5em" }}
-                      />
+                      // <ReactCountryFlag
+                      //   countryCode="GB"
+                      //   svg
+                      //   style={{ width: "1.5em", height: "1.5em" }}
+                      // />
+                      <div>Anglais</div>
                     ) : null}{" "}
                     {p.Kinyarwanda ? (
-                      <ReactCountryFlag
-                        countryCode="RW"
-                        svg
-                        style={{ width: "1.5em", height: "1.5em" }}
-                      />
+                      // <ReactCountryFlag
+                      //   countryCode="RW"
+                      //   svg
+                      //   style={{ width: "1.5em", height: "1.5em" }}
+                      // />
+                      <div>Kinyarwanda</div>
                     ) : null}{" "}
                     </li>
                     {p.Address && (
