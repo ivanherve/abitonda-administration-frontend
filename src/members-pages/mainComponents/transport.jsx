@@ -208,8 +208,8 @@ const Transport = () => {
                       <h5 className="mb-1 fw-bold text-secondary">{selectedLine.name}</h5>
                       <div className="text-muted small lh-sm">
                         <div><h6><i>Ligne {selectedLine.id}</i></h6></div>
-                        <div><span className="fw-semibold"><u>Chauffeur</u> :</span> {`${selectedLine.driver.Firstname} ${selectedLine.driver.Lastname}`}</div>
-                        <div><span className="fw-semibold"><u>Assistant</u> :</span> {`${selectedLine.assistant.Firstname} ${selectedLine.assistant.Lastname}`}</div>
+                        <div><span className="fw-semibold"><u>Chauffeur</u> :</span> {`${selectedLine.driverName}`}</div>
+                        <div><span className="fw-semibold"><u>Assistant</u> :</span> {`${selectedLine.assistantName}`}</div>
                       </div>
                     </div>
                   </div>
@@ -348,7 +348,7 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
     const directionText = directionId === 1 ? "Aller" : "Retour";
     const data = [
       [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`], // ligne 1 : titre
-      [`Chauffeur : ${selectedLine.driver.Name}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee], // ligne 2 : IDs + Mois/Année
+      [`Chauffeur : ${selectedLine.driverName}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee], // ligne 2 : IDs + Mois/Année
       ["Nom", "Classe", "Arrêt", ...dateHeaders], // ligne 3 : en-tête
       ...students.map(s => [s.name, s.classe, s.stop, ...Array(dateHeaders.length).fill("")])
     ];
