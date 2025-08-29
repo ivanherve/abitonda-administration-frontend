@@ -125,7 +125,7 @@ export default function ContactParent(props) {
                       //   svg
                       //   style={{ width: "1.5em", height: "1.5em" }}
                       // />
-                      <div>Français</div>
+                      <div>Français.</div>
                     ) : null}{" "}
                     {p.English ? (
                       // <ReactCountryFlag
@@ -133,7 +133,7 @@ export default function ContactParent(props) {
                       //   svg
                       //   style={{ width: "1.5em", height: "1.5em" }}
                       // />
-                      <div>Anglais</div>
+                      <div>Anglais.</div>
                     ) : null}{" "}
                     {p.Kinyarwanda ? (
                       // <ReactCountryFlag
