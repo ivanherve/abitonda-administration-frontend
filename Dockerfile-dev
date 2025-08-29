@@ -1,20 +1,25 @@
-# pull official base image
-FROM node:13.12.0-alpine
+FROM node:16-alpine
 
-# set working directory
+# Dossier de travail
 WORKDIR /app
 
-# add `/app/node_modules/.bin` to $PATH
+# Mettre à jour npm à une version compatible
+RUN npm install -g npm@8
+
+# Ajouter node_modules/.bin au PATH
 ENV PATH /app/node_modules/.bin:$PATH
 
-# install app dependencies
-COPY package.json ./
-COPY package-lock.json ./
-RUN npm install 
-RUN npm install react-scripts@3.4.1 -g 
+# Copier uniquement les fichiers nécessaires pour installer les deps
+COPY package.json package-lock.json ./
 
-# add app
-COPY . ./
+# Installer les dépendances en ignorant les peer deps cassés
+RUN npm install --legacy-peer-deps
 
-# start app
+# Copier le reste de ton code
+COPY . .
+
+# Exposer le port React (si tu fais npm start)
+EXPOSE 3000
+
+# Commande par défaut
 CMD ["npm", "start"]
