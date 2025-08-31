@@ -11,6 +11,8 @@ import { EditDriverAssistant } from "../modals/editDriverAssistant";
 const Transport = () => {
   const [busData, setBusData] = useState([]);
   const [studentPickups, setStudentPickups] = useState([]);
+  const [stops, setStops] = useState([]);
+  const [busStudents, setBusStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLine, setSelectedLine] = useState(null);
   const [selectedStop, setSelectedStop] = useState(null);
@@ -44,10 +46,10 @@ const Transport = () => {
         const formattedLines = await Promise.all(
           lines.map(async (line) => {
             // Charger les arrêts
-            const stops = await fetchStops(line.LineId);
+
 
             // Charger les élèves pour cette ligne
-            const students = await fetchBusStudents(line.LineId);
+            const students = busStudents;
 
             // Filtrer les arrêts par direction
             const stopsList = stops; // les arrêts sont les mêmes pour toutes les directions
@@ -55,10 +57,11 @@ const Transport = () => {
             return {
               id: line.LineId,
               name: line.Name,
-              driver: line.driver,
-              assistant: line.assistant,
+              driverName: line.driverName,
+              assistantName: line.assistantName,
               stops: stopsList,
-              nbStudents: line.nbStudents
+              nbStudents: line.nbStudents,
+              students: students
             };
           })
         );
@@ -79,7 +82,6 @@ const Transport = () => {
   useEffect(() => {
     const loadStops = async () => {
       if (!selectedLine) return;
-      const stops = await fetchStops(selectedLine.id);
       setBusData(prev =>
         prev.map(line =>
           line.id === selectedLine.id ? { ...line, stops } : line
@@ -93,51 +95,64 @@ const Transport = () => {
     fetch(ENDPOINT("employees"), getAuthRequest(token))
       .then(res => res.json())
       .then(r => {
-        if(r.status) {setEmployees(r.response); console.log(r.response)}
+        if (r.status) { setEmployees(r.response); console.log(r.response) }
       })
   }, []);
 
-  // Fetch stops
-  const fetchStops = async (lineId) => {
+  const fetchBusData = async () => {
     try {
-      const res = await fetch(ENDPOINT(`pickup?lineId=${lineId}&directionId=${directionId}&date=${date}`), getAuthRequest(token));
-      const data = await res.json();
-      if (data.status === 0) return [];
-      console.log("Stops for line", lineId, data);
-      // Associer une direction par défaut si elle existe dans la réponse
-      return data.response.map(stop => ({
-        stop: stop.Name,
-        latitude: stop.Latitude,
-        longitude: stop.Longitude,
-        timeGo: stop.ArrivalGo || "",
-        timeReturn: stop.ArrivalReturn || "",
-        Direction: stop.Direction || "go",
-        nbStudents: stop.nbStudents || 0
-      }));
-    } catch (err) {
-      console.error(err);
-      return [];
-    }
-  };
+      setLoading(true);
+      const response = await fetch(
+        ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`)
+      );
+      const data = await response.json();
 
-  // Fetch students for a bus line
-  const fetchBusStudents = async (lineId) => {
-    try {
-      const res = await fetch(ENDPOINT(`bus/${lineId}/students?date=${date}&directionId=${directionId}`), getAuthRequest(token));
-      const data = await res.json();
-      console.log("Students for line", lineId, data);
-      if (data.status === 0) return [];
+      // Vérifie qu'on a bien la structure attendue
+      if (data.status) {
+        const res = data.response;
+        console.log("API response for bus data:", res);
+        if (res.pickups.length > 0) {
+          console.log("Fetched pickups data:", res.pickups);
+        }
+        if (res.students.length > 0) {
+          console.log("Fetched students data:", res.students);
+        } else {
+          console.log("No students data found with fetchBusData");
+        }
 
-      return data.response.students.map(s => ({
-        StudentId: s.StudentId,
-        name: `${s.Firstname} ${s.Lastname}`,
-        classe: s.Classe || "N/A",
-        stop: s.PickupPoint || "N/A",
-        Direction: s.pivot.DirectionId === 1 ? "go" : "return" // doit correspondre à "go" ou "return"
-      }));
+        // Stops avec élèves
+        const stopsData = res.pickups.map(stop => ({
+          PickupId: stop.PickupId,
+          stop: stop.Name,
+          students: stop.students.map(s => ({
+            id: s.StudentId,
+            name: `${s.Firstname} ${s.Lastname}`,
+            classe: s.Classe,
+            stop: s.PickupPoint
+          })),
+          nbStudents: stop.nbStudents,
+          time: stop.Arrival
+        }));
+
+        // Liste globale des élèves
+        const studentsData = res.students.map(s => ({
+          id: s.StudentId,
+          name: `${s.Firstname} ${s.Lastname}`,
+          classe: s.Classe,
+          stop: s.PickupPoint,
+          Direction: Number(s.DirectionId) === 1 ? "go" : "return"
+        }));
+
+        setStops(stopsData);
+        setSelectedStop(null);
+        setBusStudents(studentsData);
+      } else {
+        console.error("Unexpected API response:", data);
+      }
     } catch (err) {
-      console.error(err);
-      return [];
+      console.error("Error fetching bus data:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -145,9 +160,10 @@ const Transport = () => {
   useEffect(() => {
     const loadStudents = async () => {
       if (!selectedLine) return;
+      fetchBusData();
       setLoading(true);
       try {
-        const students = await fetchBusStudents(selectedLine.id);
+        const students = busStudents;
         console.log("Fetched students for selected line:", students);
         setStudentPickups(students);
       } catch (err) {
@@ -160,15 +176,6 @@ const Transport = () => {
 
     loadStudents();
   }, [selectedLine, directionId, date]);
-
-  // Obtenir les élèves par arrêt et direction
-  const getStudentsAtStop = (stopName, period = "go") => {
-    if (!studentPickups) return [];
-    const direction = period === "go" ? "go" : "return";
-    return studentPickups
-      .filter(s => s.Direction === direction)
-      .filter(s => stopName === "Tous" || s.stop === stopName);
-  };
 
   if (loading || !selectedLine) return <Loading />;
 
@@ -208,8 +215,8 @@ const Transport = () => {
                       <h5 className="mb-1 fw-bold text-secondary">{selectedLine.name}</h5>
                       <div className="text-muted small lh-sm">
                         <div><h6><i>Ligne {selectedLine.id}</i></h6></div>
-                        <div><span className="fw-semibold"><u>Chauffeur</u> :</span> {`${selectedLine.driverName}`}</div>
-                        <div><span className="fw-semibold"><u>Assistant</u> :</span> {`${selectedLine.assistantName}`}</div>
+                        <div><span className="fw-semibold"><u>Chauffeur</u> :</span> {selectedLine.driverName}</div>
+                        <div><span className="fw-semibold"><u>Assistant</u> :</span> {selectedLine.assistantName}</div>
                       </div>
                     </div>
                   </div>
@@ -268,17 +275,15 @@ const Transport = () => {
                   if (key === "go") setDirectionId(1);
                   else if (key === "return") setDirectionId(2);
 
-                  setSelectedStop(null);
                   // Pas besoin de fetch ici : le useEffect ci-dessus va se déclencher automatiquement
                 }}
               >
                 <Tab eventKey="go" title="Aller">
                   <StopTab
-                    stops={currentLine?.stops || []}
                     selectedStop={selectedStop}
                     setSelectedStop={setSelectedStop}
-                    getStudentsAtStop={getStudentsAtStop}
-                    period="go"
+                    stops={stops}
+                    busStudents={busStudents}
                     selectedLine={selectedLine}
                     directionId={directionId}
                     date={date}
@@ -287,11 +292,10 @@ const Transport = () => {
 
                 <Tab eventKey="return" title="Retour">
                   <StopTab
-                    stops={selectedLine.stops}
                     selectedStop={selectedStop}
                     setSelectedStop={setSelectedStop}
-                    getStudentsAtStop={getStudentsAtStop}
-                    period="return"
+                    stops={stops}
+                    busStudents={busStudents}
                     selectedLine={selectedLine}
                     directionId={directionId}
                     date={date}
@@ -319,11 +323,31 @@ const Transport = () => {
 };
 
 // Composant StopTab
-const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, period, selectedLine, directionId, date }) => {
+const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date }) => {
   const activeStop = selectedStop || "Tous";
 
+  const studentsToShow =
+    activeStop === "Tous"
+      ? busStudents
+      : (stops.find(s => s.PickupId === activeStop)?.students || []);
+
   const downloadStudentList = (stopName) => {
-    const students = getStudentsAtStop(stopName, period);
+    let students = [];
+
+    if (stopName === "Tous") {
+      // Tous les élèves
+      students = busStudents;
+    } else {
+      // Chercher l'arrêt
+      const stopObj = stops.find(s => s.PickupId === stopName);
+      if (!stopObj) return;
+      students = stopObj.students.map(s => ({
+        name: s.name,
+        classe: s.classe,
+        stop: s.stop
+      }));
+    }
+
     if (students.length === 0) return;
 
     // ➝ Générer les dates du mois sélectionné
@@ -485,15 +509,15 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
             {/* Arrêts de bus */}
             {(stops || []).map(stopObj => (
               <ListGroup.Item
-                key={stopObj.stop}
+                key={stopObj.PickupId}
                 action
-                active={activeStop === stopObj.stop}
-                onClick={() => setSelectedStop(stopObj.stop)}
+                active={activeStop === stopObj.PickupId}
+                onClick={() => setSelectedStop(stopObj.PickupId)}
               >
                 <div className="d-flex flex-column">
                   <strong>{stopObj.stop}</strong>
-                  <small className={activeStop === stopObj.stop ? "" : "text-muted"}>
-                    {period === 'go' ? moment(stopObj.timeGo, "HH:mm:ss").format('HH:mm') : moment(stopObj.timeReturn, "HH:mm:ss").format('HH:mm')}
+                  <small className={activeStop === stopObj.PickupId ? "" : "text-muted"}>
+                    {moment(stopObj.time, "HH:mm:ss").format('HH:mm')}
                   </small>
                   <small><i>({stopObj.nbStudents} élèves)</i></small>
                 </div>
@@ -507,9 +531,12 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
         <Card className="shadow-sm rounded-3 mb-3" style={{ height: "300px" }}>
           <Card.Header className="fw-bold bg-light d-flex justify-content-between align-items-center">
             <div>
-              {activeStop === "Tous" ? "Tous les élèves" : `Arrêt : ${activeStop}`}{" "}
+              {activeStop === "Tous"
+                ? "Tous les élèves"
+                : `Arrêt : ${stops.find(s => s.PickupId === activeStop)?.stop || ""}`}
+              {" "}
               <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '8px' }}>
-                ({getStudentsAtStop(activeStop, period).length} élèves)
+                ({studentsToShow.length} élèves)
               </span>
             </div>
             <Button size="sm" variant="success" onClick={() => downloadStudentList(activeStop)}>
@@ -519,10 +546,10 @@ const StopTab = ({ stops, selectedStop, setSelectedStop, getStudentsAtStop, peri
 
           <div style={{ overflowY: "auto", height: "100%" }}>
             <ListGroup variant="flush">
-              {getStudentsAtStop(activeStop, period).length > 0 ? (
-                getStudentsAtStop(activeStop, period).map(student => (
+              {stops.length > 0 ? (
+                studentsToShow.map(student => (
                   <ListGroup.Item
-                    key={student.StudentId}
+                    key={student.id}
                     className="d-flex justify-content-between align-items-center"
                   >
                     {student.name}
