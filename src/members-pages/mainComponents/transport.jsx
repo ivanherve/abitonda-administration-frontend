@@ -21,6 +21,7 @@ const Transport = () => {
   const [directionId, setDirectionId] = useState(1); // 1 pour aller, 2 pour retour
   const [showModalEditTeam, setShowModalEditTeam] = useState(false);
   const [employees, setEmployees] = useState([]);
+  const [gps, setGps] = useState([]);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
@@ -131,7 +132,9 @@ const Transport = () => {
             stop: s.PickupPoint
           })),
           nbStudents: stop.nbStudents,
-          time: stop.Arrival
+          time: stop.Arrival,
+          Latitude: stop.Latitude,
+          Longitude: stop.Longitude
         }));
 
         // Liste globale des élèves
@@ -287,6 +290,8 @@ const Transport = () => {
                     selectedLine={selectedLine}
                     directionId={directionId}
                     date={date}
+                    gps={gps}
+                    setGps={setGps}
                   />
                 </Tab>
 
@@ -299,6 +304,8 @@ const Transport = () => {
                     selectedLine={selectedLine}
                     directionId={directionId}
                     date={date}
+                    gps={gps}
+                    setGps={setGps}
                   />
                 </Tab>
               </Tabs>
@@ -323,7 +330,7 @@ const Transport = () => {
 };
 
 // Composant StopTab
-const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date }) => {
+const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date, gps, setGps }) => {
   const activeStop = selectedStop || "Tous";
 
   const studentsToShow =
@@ -512,7 +519,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 key={stopObj.PickupId}
                 action
                 active={activeStop === stopObj.PickupId}
-                onClick={() => setSelectedStop(stopObj.PickupId)}
+                onClick={() => { setSelectedStop(stopObj.PickupId); setGps([stopObj.Latitude, stopObj.Longitude]) }}
               >
                 <div className="d-flex flex-column">
                   <strong>{stopObj.stop}</strong>
@@ -568,9 +575,20 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
         <Card className="shadow-sm rounded-3" style={{ height: "300px" }}>
           <Card.Header className="fw-bold bg-light">Carte Map</Card.Header>
           <div className="d-flex justify-content-center align-items-center h-100 text-muted">
-            Ici pourrait apparaître une carte interactive
+            {gps.length > 0 ? (
+              <a
+                href={`https://www.google.com/maps/@${gps[0]},${gps[1]},15z`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {`${gps[0]}, ${gps[1]}`}
+              </a>
+            ) : (
+              <span className="text-muted">Coordonnées non disponibles</span>
+            )}
           </div>
         </Card>
+
       </Col>
     </Row>
   );
