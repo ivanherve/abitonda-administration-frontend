@@ -200,12 +200,12 @@ export default function Student(props) {
                 <Nav.Item>
                   <Nav.Link eventKey="link-0">Contact Parents</Nav.Link>
                 </Nav.Item>
-                <Nav.Item>
+                {/* <Nav.Item>
                   <Nav.Link eventKey="link-2">Facturation</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="link-3">Cantine</Nav.Link>
-                </Nav.Item>
+                </Nav.Item> */}
                 <Nav.Item>
                   <Nav.Link eventKey="link-4">Transport</Nav.Link>
                 </Nav.Item>
