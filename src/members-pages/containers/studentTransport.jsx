@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Nav, Form, Row, Col, Button, Card, Badge, ListGroup } from "react-bootstrap";
-import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
+import { ENDPOINT, getAuthRequest, Loading, postAuthRequest } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faArrowLeft, faBus, faTimes } from "@fortawesome/free-solid-svg-icons";
+import swal from "sweetalert";
 
 import moment from "moment/moment";
 
@@ -110,6 +111,35 @@ const StudentTransport = ({ student }) => {
             } else {
                 alert("Erreur : " + data.response);
             }
+        } catch (err) {
+            console.error(err);
+            alert("Erreur lors de la connexion au serveur.");
+        }
+    };
+
+    const handleDeletePickup = async (pickupId, dayValue, directionId) => {
+        if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet arrêt ?")) return;
+
+        const data = {
+            studentId: student.StudentId,
+            pickupId,
+            day: dayValue,      // 0 = tous les jours
+            directionId         // 1 = Aller, 2 = Retour
+        };
+
+        try {
+            console.log("Delete pickup:", data);
+            fetch(ENDPOINT("student/unset-pickup-point"), postAuthRequest(JSON.stringify(data), token))
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 1) {
+                    swal("Arrêt supprimé avec succès !", {
+                        icon: "success",
+                    }).then(() => console.log(data.response));
+                } else {
+                    swal("Erreur : " + data.response);
+                }
+            });
         } catch (err) {
             console.error(err);
             alert("Erreur lors de la connexion au serveur.");
@@ -238,7 +268,7 @@ const StudentTransport = ({ student }) => {
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                     </small>
                                                 </div>
-                                                <Button variant="outline-danger" disabled>
+                                                <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, 1) }>
                                                     <FontAwesomeIcon icon={faTimes} /> Supprimer
                                                 </Button>
                                             </ListGroup.Item>
@@ -277,7 +307,7 @@ const StudentTransport = ({ student }) => {
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                     </small>
                                                 </div>
-                                                <Button variant="outline-danger" disabled>
+                                                <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, 2) }>
                                                     <FontAwesomeIcon icon={faTimes} /> Supprimer
                                                 </Button>
                                             </ListGroup.Item>
