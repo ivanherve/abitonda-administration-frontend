@@ -1,12 +1,16 @@
 import React, { useState, useEffect, use } from "react";
 import { Container, Row, Col, ListGroup, Card, Tabs, Tab, Badge, Button, Form } from "react-bootstrap";
-import { ENDPOINT, getAuthRequest, Loading } from "../../links/links";
+import { ENDPOINT, getAuthRequest, Loading, postAuthRequest } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExcel, faLocationArrow, faPen } from "@fortawesome/free-solid-svg-icons";
+import { faFileExcel, faLocationArrow, faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddPickupPoint } from "../modals/addPickupPoint";
 import * as XLSX from "xlsx-js-style";
 import moment from "moment";
 import { EditDriverAssistant } from "../modals/editDriverAssistant";
+import AddBus from "../modals/addBus";
+import AddTourModal from "../modals/addAddTour";
+import AddBusLine from "../modals/addBusLine";
+import { post } from "jquery";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -22,12 +26,30 @@ const Transport = () => {
   const [showModalEditTeam, setShowModalEditTeam] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [gps, setGps] = useState([]);
+  const [showAddBus, setShowAddBus] = useState(false);
+  const [showAddTour, setShowAddTour] = useState(false);
+  const [showAddBusLine, setShowAddBusLine] = useState(false);
+  const [pickupPoints, setPickupPoints] = useState([]);
 
   const handleOpenModal = () => setShowModal(true);
   const handleCloseModal = () => setShowModal(false);
 
   const handleOpenModalEditTeam = () => setShowModalEditTeam(true);
   const handleCloseModalEditTeam = () => setShowModalEditTeam(false);
+
+  const handleOpenAddBus = () => setShowAddBus(true);
+  const handleCloseAddBus = () => setShowAddBus(false);
+
+  const handleOpenAddTour = () => setShowAddTour(true);
+  const handleCloseAddTour = () => setShowAddTour(false);
+
+  const handleOpenAddBusLine = () => setShowAddBusLine(true);
+  const handleCloseAddBusLine = () => setShowAddBusLine(false);
+
+  const handleSaveAddBusLine = (newBusLine) => {
+    setBusData((prev) => [...prev, newBusLine]);
+    console.log("New bus line added:", newBusLine);
+  };
 
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
   const currentLine = busData.find(l => l.id === selectedLine?.id);
@@ -99,6 +121,17 @@ const Transport = () => {
         if (r.status) { setEmployees(r.response); console.log(r.response) }
       })
   }, []);
+
+  useEffect(() => {
+    fetch(ENDPOINT("pickup"), getAuthRequest(token))
+      .then(res => res.json())
+      .then(r => {
+        if (r.status) {
+          setPickupPoints(r.response);
+          console.log(r.response);
+        }
+      });
+  }, [token]);
 
   const fetchBusData = async () => {
     try {
@@ -187,8 +220,23 @@ const Transport = () => {
       <Row className="g-4">
         {/* Menu gauche : lignes de bus */}
         <Col md={3}>
+          <Button variant="info" onClick={handleOpenAddBus} disabled style={{ width: "100%" }}>
+            <FontAwesomeIcon icon={faPlus} /> Ajouter un bus
+          </Button>
+          <br />
           <Card className="shadow-sm rounded-3">
-            <Card.Header className="fw-bold bg-secondary text-white">Lignes de bus</Card.Header>
+            <Card.Header className="bg-secondary text-white">
+              <Row>
+                <Col xs={8}>
+                  Lignes de bus
+                </Col>
+                <Col className="text-end" xs={4}>
+                  <Button variant="success" onClick={handleOpenAddBusLine} size="sm">
+                    <FontAwesomeIcon icon={faPlus} />
+                  </Button>
+                </Col>
+              </Row>
+            </Card.Header>
             <ListGroup variant="flush">
               {busData.map(line => (
                 <ListGroup.Item
@@ -212,7 +260,7 @@ const Transport = () => {
             <Card.Header id="BusLineHeader" className="bg-light border-0 shadow-sm py-3">
               <Row className="align-items-center">
                 {/* Infos ligne */}
-                <Col md={8} className="mb-3 mb-md-0">
+                <Col md={7} className="mb-3 mb-md-0">
                   <div className="d-flex flex-column flex-md-row align-items-md-center gap-4">
                     <div>
                       <h5 className="mb-1 fw-bold text-secondary">{selectedLine.name}</h5>
@@ -226,7 +274,7 @@ const Transport = () => {
                 </Col>
 
                 {/* Actions */}
-                <Col md={4} className="d-flex flex-column gap-2">
+                <Col md={5} className="d-flex flex-column gap-2">
                   {/* Sélecteur de date */}
                   <Form.Group controlId="datePicker" className="w-100">
                     <Form.Label className="form-label small text-muted fw-semibold mb-1">
@@ -262,6 +310,15 @@ const Transport = () => {
                     >
                       <FontAwesomeIcon icon={faPen} />
                       Modifier équipe
+                    </Button>
+                    <Button
+                      variant="light"
+                      size="sm"
+                      style={{ width: "100%" }}
+                      onClick={handleOpenAddTour}
+                    >
+                      <FontAwesomeIcon icon={faPlus} />
+                      Ajouter un tour
                     </Button>
                   </div>
                 </Col>
@@ -314,6 +371,7 @@ const Transport = () => {
               showModal={showModal}
               selectedLine={selectedLine}
               handleCloseModal={handleCloseModal}
+              pickups={pickupPoints}
             />
             <EditDriverAssistant
               show={showModalEditTeam}
@@ -321,6 +379,21 @@ const Transport = () => {
               line={selectedLine}
               employees={employees}
               onSave
+            />
+            <AddBus
+              show={showAddBus}
+              handleCloseAddBus={handleCloseAddBus}
+            />
+            <AddTourModal
+              isOpen={showAddTour}
+              onClose={handleCloseAddTour}
+              students={busStudents}
+            />
+            <AddBusLine
+              show={showAddBusLine}
+              handleClose={handleCloseAddBusLine}
+              handleSave={handleSaveAddBusLine}
+              employees={employees}
             />
           </Card>
         </Col>
@@ -535,22 +608,30 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       </Col>
 
       <Col md={8}>
-        <Card className="shadow-sm rounded-3 mb-3" style={{ height: "300px" }}>
+        <Card className="shadow-sm rounded-3 mb-3" style={{ height: "400px" }}>
           <Card.Header className="fw-bold bg-light d-flex justify-content-between align-items-center">
             <div>
               {activeStop === "Tous"
                 ? "Tous les élèves"
                 : `Arrêt : ${stops.find(s => s.PickupId === activeStop)?.stop || ""}`}
               {" "}
-              <span className="text-muted" style={{ fontWeight: 'normal', marginLeft: '8px' }}>
+              <span
+                className="text-muted"
+                style={{ fontWeight: "normal", marginLeft: "8px" }}
+              >
                 ({studentsToShow.length} élèves)
               </span>
             </div>
-            <Button size="sm" variant="success" onClick={() => downloadStudentList(activeStop)}>
-              <FontAwesomeIcon icon={faFileExcel} className="me-2" />{" "}Télécharger
+            {/* Bouton Télécharger */}
+            <Button
+              size="sm"
+              variant="success"
+              onClick={() => downloadStudentList(activeStop)}
+            >
+              <FontAwesomeIcon icon={faFileExcel} className="me-2" />{" "}
+              Télécharger
             </Button>
           </Card.Header>
-
           <div style={{ overflowY: "auto", height: "100%" }}>
             <ListGroup variant="flush">
               {stops.length > 0 ? (
@@ -572,7 +653,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
           </div>
         </Card>
 
-        <Card className="shadow-sm rounded-3" style={{ height: "300px" }}>
+        <Card className="shadow-sm rounded-3" style={{ height: "200px" }}>
           <Card.Header className="fw-bold bg-light">Carte Map</Card.Header>
           <div className="d-flex justify-content-center align-items-center h-100 text-muted">
             {gps.length > 0 ? (
