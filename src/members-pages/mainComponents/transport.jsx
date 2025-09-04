@@ -8,9 +8,7 @@ import * as XLSX from "xlsx-js-style";
 import moment from "moment";
 import { EditDriverAssistant } from "../modals/editDriverAssistant";
 import AddBus from "../modals/addBus";
-import AddTourModal from "../modals/addAddTour";
 import AddBusLine from "../modals/addBusLine";
-import { post } from "jquery";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -84,7 +82,8 @@ const Transport = () => {
               assistantName: line.assistantName,
               stops: stopsList,
               nbStudents: line.nbStudents,
-              students: students
+              students: students,
+              arrival: line.Arrival
             };
           })
         );
@@ -384,11 +383,6 @@ const Transport = () => {
               show={showAddBus}
               handleCloseAddBus={handleCloseAddBus}
             />
-            <AddTourModal
-              isOpen={showAddTour}
-              onClose={handleCloseAddTour}
-              students={busStudents}
-            />
             <AddBusLine
               show={showAddBusLine}
               handleClose={handleCloseAddBusLine}
@@ -436,7 +430,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     const month = currentDate.getMonth(); // 0-11
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // ➝ Liste des dates sans weekends
+    // ➝ Liste des dates sans weekends (inclure le dernier jour du mois)
     const dateHeaders = [];
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(year, month, d);
@@ -453,18 +447,23 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     const data = [
       [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`], // ligne 1 : titre
       [`Chauffeur : ${selectedLine.driverName}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee], // ligne 2 : IDs + Mois/Année
-      ["Nom", "Classe", "Arrêt", ...dateHeaders], // ligne 3 : en-tête
-      ...students.map(s => [s.name, s.classe, s.stop, ...Array(dateHeaders.length).fill("")])
+      ["Nom", "Classe", "Arrêt", "Heures", ...dateHeaders], // ligne 3 : en-tête
+      ...students.map(s => [
+        s.name,
+        s.classe,
+        s.stop,
+        moment(stops.find(stop => stop.stop === s.stop)?.time || "", "HH:mm:ss").format("HH:mm"),
+        ...Array(dateHeaders.length).fill("")
+      ])
     ];
 
     // ➝ Transformer en worksheet
     const ws = XLSX.utils.aoa_to_sheet(data);
 
-    // ➝ Fusionner le titre, l'assistant et le mois/année
+    // ➝ Fusionner le titre et mois/année
     ws["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 2 + dateHeaders.length } }, // ligne 1 : titre fusionné
-      { s: { r: 1, c: 1 }, e: { r: 1, c: 2 } },                       // ligne 2 : fusion B2:C2 (assistant)
-      { s: { r: 1, c: 3 }, e: { r: 1, c: 2 + dateHeaders.length } }   // ligne 2 : mois + année
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 + dateHeaders.length } }, // ligne 1 : fusionné jusqu’à la dernière date
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 3 } },                      // ligne 2 : Assistant + Mois/Année
     ];
 
     // ➝ Définir les bordures
@@ -490,7 +489,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       border: borderStyle
     };
 
-    // ➝ Style ligne 2 : Assistant (fusion B2:C2)
+    // ➝ Style ligne 2 : Assistant et mois/année
     const assistantCell = XLSX.utils.encode_cell({ r: 1, c: 1 });
     if (ws[assistantCell]) {
       ws[assistantCell].s = {
@@ -500,17 +499,8 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       };
     }
 
-    // ➝ Style ligne 2 : Mois + année
-    const moisCell = XLSX.utils.encode_cell({ r: 1, c: 3 });
-    if (ws[moisCell]) {
-      ws[moisCell].s = {
-        font: { bold: true, sz: 12 },
-        alignment: { horizontal: "center", vertical: "center" }
-      };
-    }
-
     // ➝ Style des en-têtes (ligne 3)
-    for (let c = 0; c < 3 + dateHeaders.length; c++) {
+    for (let c = 0; c < 4 + dateHeaders.length; c++) {
       const cell = XLSX.utils.encode_cell({ r: 2, c });
       if (ws[cell]) {
         ws[cell].s = {
@@ -524,7 +514,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
 
     // ➝ Style et bordures pour toutes les cellules élèves
     for (let r = 3; r < students.length + 3; r++) {
-      for (let c = 0; c < 3 + dateHeaders.length; c++) {
+      for (let c = 0; c < 4 + dateHeaders.length; c++) {
         const cell = XLSX.utils.encode_cell({ r, c });
         if (ws[cell]) {
           ws[cell].s = {
@@ -544,14 +534,20 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       data.forEach(row => {
         const val = row[c];
         const len = val ? val.toString().length : 0;
-        maxLen = Math.max(maxLen, len + 2);
+        maxLen = Math.max(maxLen, len);
       });
       colWidths[c] = { wch: maxLen };
     }
 
+    // Largeur fixe pour la colonne "Heures"
+    colWidths[3] = { wch: 10 };
+
+    // Largeur fixe pour la colonne "Classe"
+    colWidths[1] = { wch: 8 };
+
     // Largeur fixe pour les colonnes des dates
-    for (let c = 3; c < 3 + dateHeaders.length; c++) {
-      colWidths[c] = { wch: 5 };
+    for (let c = 4; c < 4 + dateHeaders.length; c++) {
+      colWidths[c] = { wch: 4 };
     }
 
     ws["!cols"] = colWidths;
@@ -568,6 +564,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
 
     XLSX.writeFile(wb, fileName);
   };
+
 
   return (
     <Row className="g-4">
