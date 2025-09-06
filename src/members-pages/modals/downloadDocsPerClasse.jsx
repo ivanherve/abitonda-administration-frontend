@@ -21,6 +21,8 @@ export default function DownloadDocsPerClasse(props) {
   const [presenceDataSet, setPresenceDataSet] = useState([]);
   const [contactListDataSet, setContactListDataSet] = useState([]);
   const [stickers, setStickers] = useState([]);
+  const [transportDataSet, setTransportDataSet] = useState([]);
+  const [notransportDataSet, setNoTransportDataSet] = useState([]);
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
 
   const BORDER_STYLE = "thin";
@@ -268,24 +270,155 @@ export default function DownloadDocsPerClasse(props) {
             data: res.response.map((r) =>
               props.classe.indexOf("S") > -1
                 ? [
-                    {
-                      value: r.Firstname,
-                      ...BODY_CELLS_BIG_CHARACTER,
-                    },
-                  ]
+                  {
+                    value: r.Firstname,
+                    ...BODY_CELLS_BIG_CHARACTER,
+                  },
+                ]
                 : [
-                    {
-                      value: r.Firstname,
-                      ...BODY_CELLS_SCHOOL,
-                    },
-                  ]
+                  {
+                    value: r.Firstname,
+                    ...BODY_CELLS_SCHOOL,
+                  },
+                ]
             ),
           },
         ]);
       });
   };
 
+  const exportTransport = () => {
+    fetch(ENDPOINT("transport?classe=" + props.classe), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setTransportDataSet([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 100 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "ADRESSE",
+                width: { wpx: 200 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "LIGNE DE BUS",
+                width: { wpx: 200 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r, index) => [
+              {
+                value: index + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Address || "N/A",
+                ...BODY_CELLS,
+              },
+              {
+                value: r.BusLine,
+                ...BODY_CELLS,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
+  const exportNoTransport = () => {
+    fetch(ENDPOINT("no-transport?classe=" + props.classe), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setNoTransportDataSet([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 100 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "ADRESSE",
+                width: { wpx: 200 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r, index) => [
+              {
+                value: index + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Address || "N/A",
+                ...BODY_CELLS,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
   useEffect(() => {
+    exportNoTransport();
+    exportTransport();
     getBirthdayList();
     getPresenceList();
     getContactList();
@@ -372,6 +505,40 @@ export default function DownloadDocsPerClasse(props) {
                   }
                 >
                   <ExcelSheet dataSet={stickers} name={"Étiquette"} />
+                </ExcelFile>
+              </Col>
+            </Row>
+          </ListGroup.Item>
+          <ListGroup.Item>
+            <Row>
+              <Col xs="9">Liste de ceux qui prennent le transport</Col>
+              <Col xs="3">
+                <ExcelFile
+                  filename={"Liste de transport des " + props.classe}
+                  element={
+                    <Button variant="light">
+                      <FontAwesomeIcon icon={["fas", "download"]} />
+                    </Button>
+                  }
+                >
+                  <ExcelSheet dataSet={transportDataSet} name={"Transport"} />
+                </ExcelFile>
+              </Col>
+            </Row>
+          </ListGroup.Item>
+          <ListGroup.Item>
+            <Row>
+              <Col xs="9">Liste de ceux qui ne prennent pas le transport</Col>
+              <Col xs="3">
+                <ExcelFile
+                  filename={"Liste de non transport des " + props.classe}
+                  element={
+                    <Button variant="light">
+                      <FontAwesomeIcon icon={["fas", "download"]} />
+                    </Button>
+                  }
+                >
+                  <ExcelSheet dataSet={notransportDataSet} name={"Non-Transport"} />
                 </ExcelFile>
               </Col>
             </Row>
