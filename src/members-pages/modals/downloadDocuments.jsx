@@ -34,6 +34,7 @@ export default function DownloadDocuments(props) {
   const [sorasDataSet, setSorasDataSet] = useState([]);
   const [canteenDataSet, setCanteenDataSet] = useState([]);
   const [transportDataSet, setTransportDataSet] = useState([]);
+  const [notransportDataSet, setNoTransportDataSet] = useState([]);
   const [registrationIncomplete, setRegistrationIncomplete] = useState([]);
   const [newStudents, setNewStudents] = useState([]);
   const [schoolsite, setSchoolsite] = useState([]);
@@ -564,6 +565,66 @@ export default function DownloadDocuments(props) {
       });
   };
 
+  const exportNoTransport = () => {
+    fetch(ENDPOINT("transport"), getAuthRequest(token))
+      .then((r) => r.json())
+      .then((res) => {
+        setNoTransportDataSet([
+          {
+            columns: [
+              {
+                title: "No",
+                width: { wpx: 40 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "PRÉNOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "NOMS",
+                width: { wpx: 150 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "CLASSE",
+                width: { wpx: 100 },
+                ...HEADER_CELLS,
+              },
+              {
+                title: "ADRESSE",
+                width: { wpx: 200 },
+                ...HEADER_CELLS,
+              },
+            ],
+            data: res.response.map((r, index) => [
+              {
+                value: index + 1,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Firstname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Lastname,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Classe,
+                ...BODY_CELLS,
+              },
+              {
+                value: r.Address || "N/A",
+                ...BODY_CELLS,
+              },
+            ]),
+          },
+        ]);
+      });
+  };
+
   const exportRegistrationIncomplete = () => {
     fetch(ENDPOINT("studentsregistrationsincomplete"), getAuthRequest(token))
       .then((r) => r.json())
@@ -722,6 +783,7 @@ export default function DownloadDocuments(props) {
 
   useEffect(() => {
     exportTransport();
+    exportNoTransport();
     exportCanteen();
     exportSoras();
     exportRegistrationIncomplete();
@@ -761,6 +823,7 @@ export default function DownloadDocuments(props) {
             data={schoolsite}
           />
           <ListsStudents title={`Liste de Transport`} data={transportDataSet} />
+          <ListsStudents title={`Liste des élèves sans Transport`} data={notransportDataSet} />
           <ListsStudents
             title={`Liste des dossiers d'inscription incomplète`}
             data={registrationIncomplete}
