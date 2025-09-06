@@ -518,35 +518,24 @@ export default function DownloadDocuments(props) {
                 ...HEADER_CELLS,
               },
               {
-                title: "Quartier",
-                width: { wpx: 130 },
+                title: "CLASSE",
+                width: { wpx: 100 },
                 ...HEADER_CELLS,
               },
               {
-                title: "Rue",
-                width: { wpx: 130 },
+                title: "ADRESSE",
+                width: { wpx: 200 },
                 ...HEADER_CELLS,
               },
               {
-                title: "Contact",
-                width: { wpx: 130 },
+                title: "LIGNE DE BUS",
+                width: { wpx: 200 },
                 ...HEADER_CELLS,
               },
-              {
-                title: "Numéro",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "Paiement",
-                width: { wpx: 115 },
-                ...HEADER_CELLS,
-              } /**/,
-              ...days,
             ],
-            data: res.response.map((r) => [
+            data: res.response.map((r, index) => [
               {
-                value: res.response.indexOf(r) + 1,
+                value: index + 1,
                 ...BODY_CELLS,
               },
               {
@@ -558,26 +547,17 @@ export default function DownloadDocuments(props) {
                 ...BODY_CELLS,
               },
               {
-                value: r.Neighborhood,
+                value: r.Classe,
                 ...BODY_CELLS,
               },
               {
-                value: r.Address,
+                value: r.Address || "N/A",
                 ...BODY_CELLS,
               },
               {
-                value: r.Contact,
+                value: r.BusLine,
                 ...BODY_CELLS,
               },
-              {
-                value: r.PhoneNumb,
-                ...BODY_CELLS,
-              },
-              {
-                value: "",
-                ...BODY_CELLS,
-              },
-              ...isPresent,
             ]),
           },
         ]);
@@ -740,362 +720,6 @@ export default function DownloadDocuments(props) {
       });
   };
 
-  const exportT1OMAR = () => {
-    fetch(ENDPOINT("ot1transport"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setT1Omar([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "SId",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "LIGNE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CHAUFFEUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "TOUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.SId,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Ligne,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Chauffeur,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Tour,
-                ...BODY_CELLS,
-              },
-              ...isPresent
-            ]),
-          },
-        ]);
-      });
-  };
-
-  const exportT2OMAR = () => {
-    fetch(ENDPOINT("ot2transport"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setT2Omar([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "SId",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "LIGNE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CHAUFFEUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "TOUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.SId,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Ligne,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Chauffeur,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Tour,
-                ...BODY_CELLS,
-              },
-              ...isPresent
-            ]),
-          },
-        ]);
-      });
-  };
-
-  const exportT1COSTA = () => {
-    fetch(ENDPOINT("ct1transport"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setT1Costa([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "SId",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "LIGNE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CHAUFFEUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "TOUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.SId,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Ligne,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Chauffeur,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Tour,
-                ...BODY_CELLS,
-              },
-              ...isPresent
-            ]),
-          },
-        ]);
-      });
-  };
-
-  const exportT2COSTA = () => {
-    fetch(ENDPOINT("ct2transport"), getAuthRequest(token))
-      .then((r) => r.json())
-      .then((res) => {
-        setT2Costa([
-          {
-            columns: [
-              {
-                title: "No",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "SId",
-                width: { wpx: 40 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "PRÉNOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "NOMS",
-                width: { wpx: 150 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CLASSE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "LIGNE",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "CHAUFFEUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              {
-                title: "TOUR",
-                width: { wpx: 125 },
-                ...HEADER_CELLS,
-              },
-              ...days,
-            ],
-            data: res.response.map((r) => [
-              {
-                value: res.response.indexOf(r) + 1,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.SId,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Firstname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Lastname,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Classe,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Ligne,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Chauffeur,
-                ...BODY_CELLS,
-              },
-              {
-                value: r.Tour,
-                ...BODY_CELLS,
-              },
-              ...isPresent
-            ]),
-          },
-        ]);
-      });
-  };
-
   useEffect(() => {
     exportTransport();
     exportCanteen();
@@ -1107,10 +731,6 @@ export default function DownloadDocuments(props) {
     exportFirstnamesKindergarden();
     exportFirstnamesSchool();
     exportBirthday();
-    exportT1OMAR();
-    exportT2OMAR();
-    exportT1COSTA();
-    exportT2COSTA();
   }, []);
 
   return (
@@ -1124,26 +744,6 @@ export default function DownloadDocuments(props) {
           <ListsStudents
             title={`Liste d'anniversaire du mois`}
             data={monthlyBirthday}
-          />
-          <ListsStudents
-            title={`Liste de Transport`}
-            subtitle={`1er Tour OMAR`}
-            data={T1Omar}
-          />
-          <ListsStudents
-            title={`Liste de Transport`}
-            subtitle={`1er Tour COSTA`}
-            data={T1Costa}
-          />
-          <ListsStudents
-            title={`Liste de Transport`}
-            subtitle={`2ème Tour OMAR`}
-            data={T2Omar}
-          />
-          <ListsStudents
-            title={`Liste de Transport`}
-            subtitle={`2ème Tour COSTA`}
-            data={T2Costa}
           />
           <ListsStudents
             title={`Liste de Présence`}
