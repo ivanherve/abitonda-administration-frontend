@@ -27,7 +27,9 @@ export default function Header(props) {
           {/*<Nav.Link href="/presence">Présence</Nav.Link>*/}
           <Nav.Link href="/students">Élèves</Nav.Link>
           <Nav.Link href="/classes">Classes</Nav.Link>
+          <Nav.Link href="/employees">Employées</Nav.Link>
           <Nav.Link href="/transport">Transport</Nav.Link>
+          <Nav.Link href="/ai">IA</Nav.Link>
           {/*
           <NavDropdown title="Activités Parascolaires" id="basic-nav-dropdown">
             <NavDropdown.Item href="/activity/swimmingpool" disabled>
@@ -44,16 +46,15 @@ export default function Header(props) {
             </NavDropdown.Item>
           </NavDropdown>
 */}
-          <Nav.Link href="/employees">Employés</Nav.Link>
-          <Nav.Link href="/birthdays">Anniversaires</Nav.Link>
-          <Nav.Link href="/statistics">Statistiques</Nav.Link>
+          {/* <Nav.Link href="/birthdays">Anniversaires</Nav.Link>
+          <Nav.Link href="/statistics">Statistiques</Nav.Link> */}
           {/*<Nav.Link href="/schoolreport">Livret scolaire</Nav.Link>*/}
-          <Nav.Link href="/invoices">Factures</Nav.Link>
+          {/* <Nav.Link href="/invoices">Factures</Nav.Link> */}
           {/*<Nav.Link href="/payment">Paiement</Nav.Link>
           <Nav.Link href="/food">Alimentaire</Nav.Link>
 <Nav.Link href="/stock">Stock</Nav.Link>*/}
-          <Nav.Link href="/soras">SORAS</Nav.Link>
-          <Nav.Link href="/ticket">Vente de Ticket</Nav.Link>
+          {/* <Nav.Link href="/soras">SORAS</Nav.Link> */}
+          {/* <Nav.Link href="/ticket">Vente de Ticket</Nav.Link> */}
           {/*<Nav.Link href="/prints">Impression</Nav.Link>*/}
         </Nav>
         <div inline={true}>

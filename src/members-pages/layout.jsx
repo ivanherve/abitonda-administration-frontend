@@ -19,6 +19,7 @@ import Student from "./mainComponents/students";
 import Soras from "./mainComponents/soras";
 import Transport from "./mainComponents/transport";
 import Ticket from "./mainComponents/ticket";
+import AIQuery from "./mainComponents/ai";
 
 export default function Layout(props) {
   if (!sessionStorage.getItem("userData")) {
@@ -46,17 +47,18 @@ export default function Layout(props) {
 
             <Route path="/activity/karate" render={() => <div>karaté</div>} />*/}
             <Route path="/employees" render={() => <Employees />} />
-            <Route path="/birthdays" component={Birthday} />
-            <Route path="/statistics" component={Statistics} />
+            {/* <Route path="/birthdays" component={Birthday} /> */}
+            {/* <Route path="/statistics" component={Statistics} /> */}
             {/*<Route path="/schoolreport" component={Transcripts} />*/}
-            <Route path="/invoices" component={PaymentBook} />
+            {/* <Route path="/invoices" component={PaymentBook} /> */}
             {/*<Route path="/prints" component={DocsToPrint} />*/}
             {/*<Route path="/payment" component={Payment} />
             <Route path="/stock" component={Stock} />
           <Route path="/food" component={Food} />*/}
-            <Route path="/soras" component={Soras} />
-            <Route path="/ticket" component={Ticket} />
+            {/* <Route path="/soras" component={Soras} /> */}
+            {/* <Route path="/ticket" component={Ticket} /> */}
             <Route path="/transport" component={Transport} />
+            <Route path="/ai" component={AIQuery} />
             <Redirect to="/students" />
           </Switch>
         </Router>

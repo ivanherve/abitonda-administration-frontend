@@ -24,8 +24,7 @@ export const postAuthRequest = (data, token) => {
   return {
     method: "post",
     headers: {
-      "Content-Type": "application/json",
-      Authorization: token,
+      Authorization: `Bearer ${token}`,
     },
     body: data,
   };
@@ -35,7 +34,8 @@ export const postAuthRequestFormData = (data, token) => {
   return {
     method: "post",
     headers: {
-      Authorization: token,
+      "Content-Type": "application/json",
+      "Authorization": token,
     },
     body: data,
   };
@@ -45,7 +45,8 @@ export const getAuthRequest = (token) => {
   return {
     method: "get",
     headers: {
-      Authorization: token,
+      "Content-Type": "application/json",
+      "Authorization": token,
     },
   };
 };
