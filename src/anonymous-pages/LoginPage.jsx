@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Card, Container, Form } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 import swal from "sweetalert";
-import Logo from "../img/logo-removebg.png";
+import Logo from "../img/logo-transparent.png";
 import { ENDPOINT, postRequest } from "../links/links";
 
 export default function Login(props) {
