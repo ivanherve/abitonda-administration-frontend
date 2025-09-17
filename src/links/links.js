@@ -24,7 +24,7 @@ export const postAuthRequest = (data, token) => {
   return {
     method: "post",
     headers: {
-      Authorization: `${token}`,
+      Authorization: token,
     },
     body: data,
   };
