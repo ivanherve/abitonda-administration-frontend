@@ -86,7 +86,7 @@ export default function AddStudent(props) {
       .then((r) => r.json())
       .then((r) => {
         if (!r.status) {
-          //console.log(r, classe);
+          console.log(r, classe, data);
           swal('Oups!', r.response, "warning");
         }
         else
