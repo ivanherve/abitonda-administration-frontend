@@ -27,7 +27,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
             ArrivalReturn: ReturnTime, // ⚠ correspond à la colonne DB
         };
 
-        fetch(ENDPOINT("pickup"), postAuthRequest(JSON.stringify(data), token))
+        fetch(ENDPOINT("pickup"), postAuthRequest(JSON.stringify(data), "Bearer " + token))
             .then(response => response.json())
             .then(data => {
                 console.log("Point de ramassage ajouté:", data);
