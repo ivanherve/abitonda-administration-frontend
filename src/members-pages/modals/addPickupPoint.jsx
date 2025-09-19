@@ -18,20 +18,33 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
 
     const storePickupPoint = () => {
         // logique d’enregistrement ici (à implémenter)
-        const data = {
-            Name: pickupName,
-            LineId: selectedLine.id,
-            Latitude: latitude,
-            Longitude: longitude,
-            ArrivalGo: GoTime,       // ⚠ correspond à la colonne DB
-            ArrivalReturn: ReturnTime, // ⚠ correspond à la colonne DB
-        };
+        // const data = {
+        //     Name: pickupName,
+        //     LineId: selectedLine.id,
+        //     Latitude: latitude,
+        //     Longitude: longitude,
+        //     ArrivalGo: GoTime,       // ⚠ correspond à la colonne DB
+        //     ArrivalReturn: ReturnTime, // ⚠ correspond à la colonne DB
+        // };
 
-        fetch(ENDPOINT("pickup"), postAuthRequest(JSON.stringify(data), "Bearer " + token))
+        const data = new FormData();
+        data.append("Name", pickupName);
+        data.append("LineId", selectedLine.id);
+        data.append("Latitude", latitude);
+        data.append("Longitude", longitude);
+        data.append("ArrivalGo", GoTime);
+        data.append("ArrivalReturn", ReturnTime);
+
+        fetch(ENDPOINT("pickup"), postAuthRequest(data, "Bearer " + token))
             .then(response => response.json())
             .then(data => {
-                console.log("Point de ramassage ajouté:", data);
-                handleCloseModal();
+                if (data.status) {
+                    console.log("Point de ramassage ajouté:", data);
+                    handleCloseModal();
+                } else {
+                    swal("Erreur", "Échec de l'ajout du point de ramassage", "error");
+                    return;
+                }
             })
             .catch(error => {
                 console.error("Erreur lors de l'ajout du point de ramassage:", error);
@@ -149,7 +162,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
                         <Form>
                             <Form.Group controlId="selectPickupPoint">
                                 <Form.Label>Sélectionner un point de ramassage</Form.Label>
-                                <Form.Control as="select" onChange={(e) => {setSelectedPickupPoint(e.target.value); console.log(e.target.value)}}>
+                                <Form.Control as="select" onChange={(e) => { setSelectedPickupPoint(e.target.value); console.log(e.target.value) }}>
                                     <option value="0">Sélectionner un point de ramassage</option>
                                     {
                                         pickups.map((point) => {
@@ -172,20 +185,20 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
                 <Button variant="secondary" onClick={handleCloseModal}>
                     Annuler
                 </Button>
-                {isEditing ? 
-                (
-                    <Button variant="warning" onClick={() => { updatePickupPoint() }}>
-                        Mettre à jour
-                    </Button>
-                )
-                : (
-                    <Button
-                        variant="success"
-                        onClick={() => { storePickupPoint() }}
-                    >
-                        Ajouter
-                    </Button>
-                )}
+                {isEditing ?
+                    (
+                        <Button variant="warning" onClick={() => { updatePickupPoint() }}>
+                            Mettre à jour
+                        </Button>
+                    )
+                    : (
+                        <Button
+                            variant="success"
+                            onClick={() => { storePickupPoint() }}
+                        >
+                            Ajouter
+                        </Button>
+                    )}
             </Modal.Footer>
         </Modal>
     );
