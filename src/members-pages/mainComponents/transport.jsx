@@ -11,6 +11,7 @@ import AddBus from "../modals/addBus";
 import AddBusLine from "../modals/addBusLine";
 import TakePresence from "../modals/takePresence";
 import EditPickupPoint from "../modals/editPickupPoint";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -606,6 +607,29 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
   const handleOpenTakePresence = () => setShowTakePresence(true);
   const handleCloseTakePresence = () => setShowTakePresence(false);
 
+  const sendMessage = () => {
+    let message = "🚌 Planning du ramassage de la Ligne " + selectedLine.id + " (" + selectedLine.name + ") :\n\n";
+    // console.log("Stops for message:", stops);
+    stops.forEach(p => {
+      // Générer le lien Google Maps
+      const mapsUrl = `https://www.google.com/maps?q=${p.Latitude},${p.Longitude}`;
+
+      message += `🚏 ${p.stop} - ${p.time.slice(0, 5)}\n`;
+      message += `   📍 ${mapsUrl}\n`; // lien cliquable vers l'arrêt
+
+      p.students.forEach(s => {
+        message += ` - ${s.name} (${s.classe})\n`;
+      });
+
+      message += "\n";
+    });
+
+    // 3. Ouvrir WhatsApp avec le texte
+    const url = "https://wa.me/?text=" + encodeURIComponent(message);
+    window.open(url, "_blank");
+    // console.log(message);
+  };
+
   useEffect(() => {
     console.log("Stop selected:", selectedStop);
   }, [selectedStop]);
@@ -687,7 +711,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
           </div>
           <Card.Footer className="bg-light">
             <Row className="g-2">
-              <Col xs={4}>
+              <Col xs="3">
                 <Button
                   size="sm"
                   variant="light"
@@ -697,7 +721,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                   <FontAwesomeIcon icon={faFileExcel} className="me-2" /> Télécharger
                 </Button>
               </Col>
-              <Col xs={4}>
+              <Col xs="3">
                 <Button
                   size="sm"
                   variant="light"
@@ -709,7 +733,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                   <FontAwesomeIcon icon={faPen} className="me-2" /> Présences
                 </Button>
               </Col>
-              <Col xs={4}>
+              <Col xs="3">
                 <Button
                   size="sm"
                   variant="light"
@@ -718,6 +742,16 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                   disabled={activeStop === "Tous"}
                 >
                   <FontAwesomeIcon icon={faEdit} className="me-2" /> Modifier Arrêt
+                </Button>
+              </Col>
+              <Col xs="3">
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={() => sendMessage()}
+                  className="w-100"
+                >
+                  <FontAwesomeIcon icon={faWhatsapp} className="me-2" /> Message
                 </Button>
               </Col>
             </Row>
