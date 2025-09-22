@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 //export const ENDPOINT = "http://localhost:8080/api/";
 export const ENDPOINT = (link) => {
   let http = "http://";
-  //let domain = "localhost:8080";
+  // let domain = "localhost:8080";
   let domain = "vps-7bed9a50.vps.ovh.net:8082";
   let api = "/api/";
   let wholeLink = http + domain + api + link;
@@ -30,11 +30,22 @@ export const postAuthRequest = (data, token) => {
   };
 };
 
+export const putAuthRequest = (data, token) => {
+  return {
+    method: "PUT",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json",
+    },
+    body: data,
+  };
+};
+
 export const postAuthRequestFormData = (data, token) => {
   return {
     method: "post",
     headers: {
-      "Content-Type": "application/json",
+      // "Content-Type": "application/json",
       "Authorization": token,
     },
     body: data,
