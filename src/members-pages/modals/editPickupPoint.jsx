@@ -1,28 +1,70 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { ENDPOINT, postAuthRequest, putAuthRequest } from "../../links/links";
 
-const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint }) => {
+const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, directionId }) => {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
     const [formData, setFormData] = useState({
-        name: pickupPoint?.name || "",
-        latitude: pickupPoint?.latitude || "",
-        longitude: pickupPoint?.longitude || "",
-        departureTime: pickupPoint?.departureTime || "",
-        returnTime: pickupPoint?.returnTime || "",
-        busLine: pickupPoint?.busLine || "",
+        name: pickupPoint?.stop || "",
+        latitude: pickupPoint?.Latitude || "",
+        longitude: pickupPoint?.Longitude || "",
+        time: pickupPoint?.time || "",
+        busLine: parseInt(pickupPoint?.busLine) || "",
+        directionId: directionId || 1,
+        coordinates: pickupPoint?.Latitude && pickupPoint?.Longitude
+            ? `${pickupPoint.Latitude}, ${pickupPoint.Longitude}`
+            : ""
     });
+
+    useEffect(() => {
+        if (pickupPoint) {
+            setFormData({
+                name: pickupPoint.stop || "",
+                latitude: pickupPoint.Latitude || "",
+                longitude: pickupPoint.Longitude || "",
+                time: pickupPoint?.time || "",
+                directionId: directionId || 1,
+                busLine: parseInt(pickupPoint.busLine) || "",
+                coordinates: pickupPoint.Latitude && pickupPoint.Longitude
+                    ? `${pickupPoint.Latitude}, ${pickupPoint.Longitude}`
+                    : ""
+            });
+        }
+    }, [pickupPoint]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+
+        if (name === "coordinates") {
+            const [lat, lng] = value.split(",").map(v => v.trim());
+            setFormData({
+                ...formData,
+                coordinates: value,
+                latitude: lat || "",
+                longitude: lng || ""
+            });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = () => {
-        onSave(formData);
-        handleClose();
+        console.log("Saved Data:", formData);
+        fetch(ENDPOINT(`pickup/${pickupPoint.PickupId}`), putAuthRequest(JSON.stringify(formData), "Bearer "+token))
+            .then(res => res.json())
+            .then(data => {
+                if (data.status) {
+                    console.log("Pickup point updated successfully:", data.response);
+                    //onSave(data.response);
+                } else {
+                    console.error("Error updating pickup point:", data);
+                }
+            })
+            .catch(err => console.error("Fetch error:", err));
     };
 
     return (
-        <Modal show={show} onHide={handleClose}>
+        <Modal show={show} onHide={handleClose} centered size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Modifier un arrêt de bus</Modal.Title>
             </Modal.Header>
@@ -38,53 +80,43 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint }) => {
                             placeholder="Nom de l'arrêt"
                         />
                     </Form.Group>
-                    <Form.Group controlId="pickupPointLatitude">
-                        <Form.Label>Latitude</Form.Label>
+
+                    <Form.Group controlId="pickupPointCoordinates">
+                        <Form.Label>Coordonnées (Latitude, Longitude)</Form.Label>
                         <Form.Control
                             type="text"
-                            name="latitude"
-                            value={formData.latitude}
+                            name="coordinates"
+                            value={formData.coordinates || ""}
                             onChange={handleChange}
-                            placeholder="Latitude"
+                            placeholder="-1.9752915937195084, 30.07707954608123"
                         />
                     </Form.Group>
-                    <Form.Group controlId="pickupPointLongitude">
-                        <Form.Label>Longitude</Form.Label>
-                        <Form.Control
-                            type="text"
-                            name="longitude"
-                            value={formData.longitude}
-                            onChange={handleChange}
-                            placeholder="Longitude"
-                        />
-                    </Form.Group>
+
                     <Form.Group controlId="pickupPointDepartureTime">
-                        <Form.Label>Heure d'aller</Form.Label>
+                        <Form.Label>Heure {directionId === 1 ? "d'aller" : "de retour"}</Form.Label>
                         <Form.Control
                             type="time"
-                            name="departureTime"
-                            value={formData.departureTime}
+                            name="time"
+                            value={formData.time}
                             onChange={handleChange}
                         />
                     </Form.Group>
-                    <Form.Group controlId="pickupPointReturnTime">
-                        <Form.Label>Heure de retour</Form.Label>
-                        <Form.Control
-                            type="time"
-                            name="returnTime"
-                            value={formData.returnTime}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
+
                     <Form.Group controlId="pickupPointBusLine">
                         <Form.Label>Ligne de bus</Form.Label>
                         <Form.Control
-                            type="text"
+                            as="select"
                             name="busLine"
-                            value={formData.busLine}
+                            value={parseInt(formData.busLine)}
                             onChange={handleChange}
-                            placeholder="Ligne de bus"
-                        />
+                        >
+                            <option value="">Sélectionner une ligne</option>
+                            {busLines.map((line) => (
+                                <option key={line.id} value={line.id}>
+                                    Ligne {line.id} {"->"} {line.name}
+                                </option>
+                            ))}
+                        </Form.Control>
                     </Form.Group>
                 </Form>
             </Modal.Body>

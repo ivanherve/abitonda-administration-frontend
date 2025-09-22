@@ -10,6 +10,7 @@ import { EditDriverAssistant } from "../modals/editDriverAssistant";
 import AddBus from "../modals/addBus";
 import AddBusLine from "../modals/addBusLine";
 import TakePresence from "../modals/takePresence";
+import EditPickupPoint from "../modals/editPickupPoint";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -63,9 +64,6 @@ const Transport = () => {
         const lines = data.response;
         const formattedLines = await Promise.all(
           lines.map(async (line) => {
-            // Charger les arrêts
-
-
             // Charger les élèves pour cette ligne
             const students = busStudents;
 
@@ -163,7 +161,8 @@ const Transport = () => {
           nbStudents: stop.nbStudents,
           time: stop.Arrival,
           Latitude: stop.Latitude,
-          Longitude: stop.Longitude
+          Longitude: stop.Longitude,
+          busLine: selectedLine.id
         }));
 
         // Liste globale des élèves
@@ -385,6 +384,7 @@ const Transport = () => {
                     date={date}
                     gps={gps}
                     setGps={setGps}
+                    busLines={busData}
                   />
                 </Tab>
 
@@ -399,6 +399,7 @@ const Transport = () => {
                     date={date}
                     gps={gps}
                     setGps={setGps}
+                    busLines={busData}
                   />
                 </Tab>
               </Tabs>
@@ -434,9 +435,13 @@ const Transport = () => {
 };
 
 // Composant StopTab
-const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date, gps, setGps }) => {
+const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date, gps, setGps, busLines }) => {
   const activeStop = selectedStop || "Tous";
   const [showTakePresence, setShowTakePresence] = useState(false);
+  const [showEditPickupPoint, setShowEditPickupPoint] = useState(false);
+
+  const handleOpenEditPickupPoint = () => setShowEditPickupPoint(true);
+  const handleCloseEditPickupPoint = () => setShowEditPickupPoint(false);
 
   const studentsToShow =
     activeStop === "Tous"
@@ -601,6 +606,10 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
   const handleOpenTakePresence = () => setShowTakePresence(true);
   const handleCloseTakePresence = () => setShowTakePresence(false);
 
+  useEffect(() => {
+    console.log("Stop selected:", selectedStop);
+  }, [selectedStop]);
+
   return (
     <Row className="g-4">
       <Col md={4}>
@@ -627,7 +636,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 key={stopObj.PickupId}
                 action
                 active={activeStop === stopObj.PickupId}
-                onClick={() => { setSelectedStop(stopObj.PickupId); setGps([stopObj.Latitude, stopObj.Longitude]) }}
+                onClick={() => { setSelectedStop(Number(stopObj.PickupId)); setGps([stopObj.Latitude, stopObj.Longitude]) }}
                 className="d-flex flex-column"
               >
                 <strong>{stopObj.stop}</strong>
@@ -704,9 +713,9 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 <Button
                   size="sm"
                   variant="light"
-                  onClick={() => console.log("Modifier arrêt")}
-                  disabled
+                  onClick={handleOpenEditPickupPoint}
                   className="w-100"
+                  disabled={activeStop === "Tous"}
                 >
                   <FontAwesomeIcon icon={faEdit} className="me-2" /> Modifier Arrêt
                 </Button>
@@ -739,6 +748,14 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
           show={showTakePresence}
           handleClose={handleCloseTakePresence}
           students={busStudents}
+        />
+        <EditPickupPoint
+          show={showEditPickupPoint}
+          handleClose={handleCloseEditPickupPoint}
+          onSave
+          pickupPoint={stops.find(s => s.PickupId === activeStop)}
+          busLines={busLines}
+          directionId={directionId}
         />
       </Col>
     </Row>
