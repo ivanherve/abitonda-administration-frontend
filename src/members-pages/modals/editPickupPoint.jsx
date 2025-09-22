@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import { ENDPOINT, postAuthRequest, putAuthRequest } from "../../links/links";
+import swal from "sweetalert";
 
 const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, directionId }) => {
   const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
@@ -54,9 +55,10 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, dir
             .then(res => res.json())
             .then(data => {
                 if (data.status) {
-                    console.log("Pickup point updated successfully:", data.response);
+                    swal('Mis à jour réussi', "Pickup point updated successfully:", "success");
                     //onSave(data.response);
                 } else {
+                    swal("Erreur lors de la mise à jour","Contactez le dev.","error");
                     console.error("Error updating pickup point:", data);
                 }
             })
