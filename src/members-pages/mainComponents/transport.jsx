@@ -2,13 +2,14 @@ import React, { useState, useEffect, use } from "react";
 import { Container, Row, Col, ListGroup, Card, Tabs, Tab, Badge, Button, Form } from "react-bootstrap";
 import { ENDPOINT, getAuthRequest, Loading, postAuthRequest } from "../../links/links";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileExcel, faLocationArrow, faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faFileExcel, faLocationArrow, faMap, faMapMarked, faPen, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { AddPickupPoint } from "../modals/addPickupPoint";
 import * as XLSX from "xlsx-js-style";
 import moment from "moment";
 import { EditDriverAssistant } from "../modals/editDriverAssistant";
 import AddBus from "../modals/addBus";
 import AddBusLine from "../modals/addBusLine";
+import TakePresence from "../modals/takePresence";
 
 const Transport = () => {
   const [busData, setBusData] = useState([]);
@@ -25,7 +26,6 @@ const Transport = () => {
   const [employees, setEmployees] = useState([]);
   const [gps, setGps] = useState([]);
   const [showAddBus, setShowAddBus] = useState(false);
-  const [showAddTour, setShowAddTour] = useState(false);
   const [showAddBusLine, setShowAddBusLine] = useState(false);
   const [pickupPoints, setPickupPoints] = useState([]);
 
@@ -37,9 +37,6 @@ const Transport = () => {
 
   const handleOpenAddBus = () => setShowAddBus(true);
   const handleCloseAddBus = () => setShowAddBus(false);
-
-  const handleOpenAddTour = () => setShowAddTour(true);
-  const handleCloseAddTour = () => setShowAddTour(false);
 
   const handleOpenAddBusLine = () => setShowAddBusLine(true);
   const handleCloseAddBusLine = () => setShowAddBusLine(false);
@@ -175,7 +172,8 @@ const Transport = () => {
           name: `${s.Firstname} ${s.Lastname}`,
           classe: s.Classe,
           stop: s.PickupPoint,
-          Direction: Number(s.DirectionId) === 1 ? "go" : "return"
+          Direction: Number(s.DirectionId) === 1 ? "go" : "return",
+          DaysOfWeek: s.DaysOfWeek
         }));
 
         setStops(stopsData);
@@ -190,6 +188,46 @@ const Transport = () => {
       setLoading(false);
     }
   };
+
+  const downloadCSVGoogleMyMaps = (lineId) => {
+    console.log("Downloading CSV for Google My Maps for line:", lineId);
+    if (!lineId) return;
+    fetch(ENDPOINT(`line/${lineId}/google-mymaps`), getAuthRequest(token))
+      .then(res => res.json())
+      .then(r => {
+        if (r.status) {
+          const data = r.response;
+
+          // Colonnes que tu veux exporter
+          const headers = ["PickupId", "LineId", "WKT", "name", "ligne", "nbEleve", "eleves"];
+
+          // Construire le CSV
+          const csvRows = [];
+          csvRows.push(headers.join(",")); // entêtes
+          data.forEach(obj => {
+            const values = headers.map(h => {
+              let val = obj[h] ?? "";
+              // échapper les virgules, guillemets et retours à la ligne
+              val = String(val).replace(/"/g, '""');
+              return `"${val}"`;
+            });
+            csvRows.push(values.join(","));
+          });
+
+          const csvData = csvRows.join("\n");
+
+          // Télécharger
+          const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `line_${lineId}_google_mymaps.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      });
+  }
 
   // Charger les élèves pour la ligne sélectionnée
   useEffect(() => {
@@ -222,8 +260,7 @@ const Transport = () => {
           <Button variant="info" onClick={handleOpenAddBus} disabled style={{ width: "100%" }}>
             <FontAwesomeIcon icon={faPlus} /> Ajouter un bus
           </Button>
-          <br />
-          <Card className="shadow-sm rounded-3">
+          <Card className="shadow-sm rounded-3" style={{ marginTop: "10px" }}>
             <Card.Header className="bg-secondary text-white">
               <Row>
                 <Col xs={8}>
@@ -307,17 +344,17 @@ const Transport = () => {
                       style={{ width: "100%" }}
                       onClick={handleOpenModalEditTeam}
                     >
-                      <FontAwesomeIcon icon={faPen} />
+                      <FontAwesomeIcon icon={faPen} />{" "}
                       Modifier équipe
                     </Button>
                     <Button
                       variant="light"
                       size="sm"
                       style={{ width: "100%" }}
-                      onClick={handleOpenAddTour}
+                      onClick={() => downloadCSVGoogleMyMaps(selectedLine.id)}
                     >
-                      <FontAwesomeIcon icon={faPlus} />
-                      Ajouter un tour
+                      <FontAwesomeIcon icon={faMapMarked} />{" "}
+                      Google My Maps
                     </Button>
                   </div>
                 </Col>
@@ -399,6 +436,7 @@ const Transport = () => {
 // Composant StopTab
 const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date, gps, setGps }) => {
   const activeStop = selectedStop || "Tous";
+  const [showTakePresence, setShowTakePresence] = useState(false);
 
   const studentsToShow =
     activeStop === "Tous"
@@ -409,64 +447,67 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     let students = [];
 
     if (stopName === "Tous") {
-      // Tous les élèves
       students = busStudents;
+      console.log(busStudents)
     } else {
-      // Chercher l'arrêt
       const stopObj = stops.find(s => s.PickupId === stopName);
       if (!stopObj) return;
       students = stopObj.students.map(s => ({
         name: s.name,
         classe: s.classe,
-        stop: s.stop
+        stop: s.stop,
+        DaysOfWeek: s.DaysOfWeek
       }));
     }
 
     if (students.length === 0) return;
 
-    // ➝ Générer les dates du mois sélectionné
-    const currentDate = new Date(date); // variable date sélectionnée
+    const currentDate = new Date(date);
     const year = currentDate.getFullYear();
-    const month = currentDate.getMonth(); // 0-11
+    const month = currentDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // ➝ Liste des dates sans weekends (inclure le dernier jour du mois)
     const dateHeaders = [];
     for (let d = 1; d <= daysInMonth; d++) {
       const dateObj = new Date(year, month, d);
-      const day = dateObj.getDay(); // 0=Dimanche, 6=Samedi
+      const day = dateObj.getDay();
       if (day !== 0 && day !== 6) dateHeaders.push(d.toString().padStart(2, "0"));
     }
 
-    // ➝ Texte du mois et année (ex: "Août 2025")
     const moisNom = currentDate.toLocaleString("fr-FR", { month: "long" });
     const moisEtAnnee = `${moisNom.charAt(0).toUpperCase() + moisNom.slice(1)} ${year}`;
 
-    // ➝ Construire les données
     const directionText = directionId === 1 ? "Aller" : "Retour";
     const data = [
-      [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`], // ligne 1 : titre
-      [`Chauffeur : ${selectedLine.driverName}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee], // ligne 2 : IDs + Mois/Année
-      ["Nom", "Classe", "Arrêt", "Heures", ...dateHeaders], // ligne 3 : en-tête
+      [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`],
+      [`Chauffeur : ${selectedLine.driverName}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee],
+      ["Nom", "Classe", "Arrêt", "Heures", ...dateHeaders],
       ...students.map(s => [
         s.name,
         s.classe,
         s.stop,
         moment(stops.find(stop => stop.stop === s.stop)?.time || "", "HH:mm:ss").format("HH:mm"),
-        ...Array(dateHeaders.length).fill("")
+        ...dateHeaders.map((day) => {
+          const dayOfWeek = new Date(year, month, parseInt(day)).toLocaleString("fr-FR", { weekday: "long" });
+          const dayKey = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
+
+          // Vérifie d’abord si DaysOfWeek existe et contient bien la clé
+          if (!s.DaysOfWeek || !(dayKey in s.DaysOfWeek)) {
+            return ""; // ou une valeur par défaut
+          }
+
+          return s.DaysOfWeek[dayKey] === null ? "__NOIR__" : "";
+        })
       ])
     ];
 
-    // ➝ Transformer en worksheet
     const ws = XLSX.utils.aoa_to_sheet(data);
 
-    // ➝ Fusionner le titre et mois/année
     ws["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 + dateHeaders.length } }, // ligne 1 : fusionné jusqu’à la dernière date
-      { s: { r: 1, c: 1 }, e: { r: 1, c: 3 } },                      // ligne 2 : Assistant + Mois/Année
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 + dateHeaders.length } },
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 3 } },
     ];
 
-    // ➝ Définir les bordures
     const borderStyle = {
       top: { style: "thin", color: { rgb: "000000" } },
       bottom: { style: "thin", color: { rgb: "000000" } },
@@ -474,7 +515,6 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       right: { style: "thin", color: { rgb: "000000" } }
     };
 
-    // ➝ Style du titre
     ws["A1"].s = {
       font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "1E90FF" } },
@@ -482,14 +522,12 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       border: borderStyle
     };
 
-    // ➝ Style ligne 2 : Chauffeur
     ws["A2"].s = {
       font: { bold: true },
       alignment: { horizontal: "center", vertical: "center" },
       border: borderStyle
     };
 
-    // ➝ Style ligne 2 : Assistant et mois/année
     const assistantCell = XLSX.utils.encode_cell({ r: 1, c: 1 });
     if (ws[assistantCell]) {
       ws[assistantCell].s = {
@@ -499,7 +537,6 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       };
     }
 
-    // ➝ Style des en-têtes (ligne 3)
     for (let c = 0; c < 4 + dateHeaders.length; c++) {
       const cell = XLSX.utils.encode_cell({ r: 2, c });
       if (ws[cell]) {
@@ -512,23 +549,27 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       }
     }
 
-    // ➝ Style et bordures pour toutes les cellules élèves
     for (let r = 3; r < students.length + 3; r++) {
       for (let c = 0; c < 4 + dateHeaders.length; c++) {
         const cell = XLSX.utils.encode_cell({ r, c });
         if (ws[cell]) {
-          ws[cell].s = {
-            alignment: { horizontal: "left", vertical: "left" },
-            border: borderStyle
-          };
+          if (ws[cell].v === "__NOIR__") {
+            ws[cell].v = ""; // enlever le texte
+            ws[cell].s = {
+              fill: { fgColor: { rgb: "000000" } },
+              border: borderStyle
+            };
+          } else {
+            ws[cell].s = {
+              alignment: { horizontal: "left", vertical: "left" },
+              border: borderStyle
+            };
+          }
         }
       }
     }
 
-    // ➝ Largeur des colonnes
     const colWidths = [];
-
-    // Largeur auto pour Nom, Classe, Arrêt
     for (let c = 0; c < 3; c++) {
       let maxLen = 3;
       data.forEach(row => {
@@ -539,24 +580,16 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       colWidths[c] = { wch: maxLen };
     }
 
-    // Largeur fixe pour la colonne "Heures"
     colWidths[3] = { wch: 10 };
-
-    // Largeur fixe pour la colonne "Classe"
     colWidths[1] = { wch: 8 };
-
-    // Largeur fixe pour les colonnes des dates
     for (let c = 4; c < 4 + dateHeaders.length; c++) {
       colWidths[c] = { wch: 4 };
     }
-
     ws["!cols"] = colWidths;
 
-    // ➝ Créer un workbook
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Élèves");
 
-    // ➝ Nom du fichier
     const fileName =
       stopName === "Tous"
         ? `Liste Transport - Ligne_${selectedLine.id}_(${selectedLine.name.toUpperCase()}) - ${directionId === 1 ? "ALLER" : "RETOUR"} - ${moisEtAnnee}.xlsx`
@@ -565,12 +598,17 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     XLSX.writeFile(wb, fileName);
   };
 
+  const handleOpenTakePresence = () => setShowTakePresence(true);
+  const handleCloseTakePresence = () => setShowTakePresence(false);
 
   return (
     <Row className="g-4">
       <Col md={4}>
         <Card className="shadow-sm rounded-3" style={{ height: "616px", overflowY: "auto" }}>
-          <Card.Header className="fw-bold bg-secondary text-white">Arrêts</Card.Header>
+          <Card.Header className="fw-bold d-flex align-items-center">
+            <FontAwesomeIcon icon={faLocationArrow} className="me-2" />
+            Arrêts
+          </Card.Header>
           <ListGroup variant="flush">
             <ListGroup.Item
               key="Tous"
@@ -580,7 +618,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
               className="d-flex justify-content-between align-items-center"
             >
               Tous
-              {activeStop === "Tous" && <Badge bg="light" text="dark">✓</Badge>}
+              {activeStop === "Tous" && <Badge bg="success">✓</Badge>}
             </ListGroup.Item>
 
             {/* Arrêts de bus */}
@@ -590,14 +628,13 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 action
                 active={activeStop === stopObj.PickupId}
                 onClick={() => { setSelectedStop(stopObj.PickupId); setGps([stopObj.Latitude, stopObj.Longitude]) }}
+                className="d-flex flex-column"
               >
-                <div className="d-flex flex-column">
-                  <strong>{stopObj.stop}</strong>
-                  <small className={activeStop === stopObj.PickupId ? "" : "text-muted"}>
-                    {moment(stopObj.time, "HH:mm:ss").format('HH:mm')}
-                  </small>
-                  <small><i>({stopObj.nbStudents} élèves)</i></small>
-                </div>
+                <strong>{stopObj.stop}</strong>
+                <small className={activeStop === stopObj.PickupId ? "" : "text-muted"}>
+                  {moment(stopObj.time, "HH:mm:ss").format('HH:mm')}
+                </small>
+                <small className=""><i>({stopObj.nbStudents} élèves)</i></small>
               </ListGroup.Item>
             ))}
           </ListGroup>
@@ -611,23 +648,14 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
               {activeStop === "Tous"
                 ? "Tous les élèves"
                 : `Arrêt : ${stops.find(s => s.PickupId === activeStop)?.stop || ""}`}
-              {" "}
+              <br />
               <span
                 className="text-muted"
-                style={{ fontWeight: "normal", marginLeft: "8px" }}
+                style={{ fontWeight: "normal", fontStyle: "italic", fontSize: "0.9em" }}
               >
                 ({studentsToShow.length} élèves)
               </span>
             </div>
-            {/* Bouton Télécharger */}
-            <Button
-              size="sm"
-              variant="success"
-              onClick={() => downloadStudentList(activeStop)}
-            >
-              <FontAwesomeIcon icon={faFileExcel} className="me-2" />{" "}
-              Télécharger
-            </Button>
           </Card.Header>
           <div style={{ overflowY: "auto", height: "100%" }}>
             <ListGroup variant="flush">
@@ -637,7 +665,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                     key={student.id}
                     className="d-flex justify-content-between align-items-center"
                   >
-                    {student.name}
+                    <span>{student.name}</span>
                     <small className="text-muted">{student.classe}</small>
                   </ListGroup.Item>
                 ))
@@ -648,16 +676,57 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
               )}
             </ListGroup>
           </div>
+          <Card.Footer className="bg-light">
+            <Row className="g-2">
+              <Col xs={4}>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={() => downloadStudentList(activeStop)}
+                  className="w-100"
+                >
+                  <FontAwesomeIcon icon={faFileExcel} className="me-2" /> Télécharger
+                </Button>
+              </Col>
+              <Col xs={4}>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={handleOpenTakePresence}
+                  // disabled={directionId === 1}
+                  disabled
+                  className="w-100"
+                >
+                  <FontAwesomeIcon icon={faPen} className="me-2" /> Présences
+                </Button>
+              </Col>
+              <Col xs={4}>
+                <Button
+                  size="sm"
+                  variant="light"
+                  onClick={() => console.log("Modifier arrêt")}
+                  disabled
+                  className="w-100"
+                >
+                  <FontAwesomeIcon icon={faEdit} className="me-2" /> Modifier Arrêt
+                </Button>
+              </Col>
+            </Row>
+          </Card.Footer>
         </Card>
 
         <Card className="shadow-sm rounded-3" style={{ height: "200px" }}>
-          <Card.Header className="fw-bold bg-light">Carte Map</Card.Header>
+          <Card.Header className="fw-bold bg-light">
+            <FontAwesomeIcon icon={faLocationArrow} className="me-2" />
+            Carte Map
+          </Card.Header>
           <div className="d-flex justify-content-center align-items-center h-100 text-muted">
             {gps.length > 0 ? (
               <a
                 href={`https://www.google.com/maps/@${gps[0]},${gps[1]},15z`}
                 target="_blank"
                 rel="noopener noreferrer"
+                className="text-primary text-decoration-underline"
               >
                 {`${gps[0]}, ${gps[1]}`}
               </a>
@@ -666,7 +735,11 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
             )}
           </div>
         </Card>
-
+        <TakePresence
+          show={showTakePresence}
+          handleClose={handleCloseTakePresence}
+          students={busStudents}
+        />
       </Col>
     </Row>
   );
