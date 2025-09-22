@@ -6,7 +6,7 @@ import { faEdit, faFileExcel, faLocationArrow, faMap, faMapMarked, faPen, faPlus
 import { AddPickupPoint } from "../modals/addPickupPoint";
 import * as XLSX from "xlsx-js-style";
 import moment from "moment";
-import { EditDriverAssistant } from "../modals/editDriverAssistant";
+import { EditBusLine } from "../modals/editBusLine";
 import AddBus from "../modals/addBus";
 import AddBusLine from "../modals/addBusLine";
 import TakePresence from "../modals/takePresence";
@@ -344,7 +344,7 @@ const Transport = () => {
                       onClick={handleOpenModalEditTeam}
                     >
                       <FontAwesomeIcon icon={faPen} />{" "}
-                      Modifier équipe
+                      Modifier la ligne
                     </Button>
                     <Button
                       variant="light"
@@ -410,7 +410,7 @@ const Transport = () => {
               handleCloseModal={handleCloseModal}
               pickups={pickupPoints}
             />
-            <EditDriverAssistant
+            <EditBusLine
               show={showModalEditTeam}
               handleCloseModal={handleCloseModalEditTeam}
               line={selectedLine}
