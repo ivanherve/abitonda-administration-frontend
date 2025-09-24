@@ -11,6 +11,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
     const [longitude, setLongitude] = useState("");
     const [GoTime, setGoTime] = useState("");
     const [ReturnTime, setReturnTime] = useState("");
+    const [ReturnTimeHalfDay, setReturnTimeHalfDay] = useState("");
     const [selectedPickupPoint, setSelectedPickupPoint] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
@@ -34,6 +35,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
         data.append("Longitude", longitude);
         data.append("ArrivalGo", GoTime);
         data.append("ArrivalReturn", ReturnTime);
+        data.append("ArrivalReturnHalfDay", ReturnTimeHalfDay);
 
         fetch(ENDPOINT("pickup"), postAuthRequest(data, "Bearer " + token))
             .then(response => response.json())
@@ -76,7 +78,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
             });
     };
     return (
-        <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal show={showModal} onHide={handleCloseModal} centered size="lg">
             <Modal.Header closeButton>
                 <Modal.Title>Gestion des points de ramassage</Modal.Title>
             </Modal.Header>
@@ -123,6 +125,17 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
                                         <Form.Label>Heure de retour</Form.Label>
                                         <Form.Control
                                             onChange={(e) => setReturnTime(e.target.value)}
+                                            type="time"
+                                            min="11:00"
+                                            max="20:00"
+                                        />
+                                    </Form.Group>
+                                </Col>
+                                <Col>
+                                    <Form.Group controlId="pickupReturnTime" className="mt-3">
+                                        <Form.Label>Heure de retour (demi-journée)</Form.Label>
+                                        <Form.Control
+                                            onChange={(e) => setReturnTimeHalfDay(e.target.value)}
                                             type="time"
                                             min="11:00"
                                             max="20:00"

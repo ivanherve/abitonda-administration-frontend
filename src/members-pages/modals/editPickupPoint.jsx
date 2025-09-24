@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { ENDPOINT, postAuthRequest, putAuthRequest } from "../../links/links";
 import swal from "sweetalert";
 
 const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, directionId }) => {
-  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+    const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
     const [formData, setFormData] = useState({
         name: pickupPoint?.stop || "",
         latitude: pickupPoint?.Latitude || "",
         longitude: pickupPoint?.Longitude || "",
         time: pickupPoint?.time || "",
+        returnTime: pickupPoint?.returnTime || "",
+        returnTimeHalfDay: pickupPoint?.returnTimeHalfDay || "",
         busLine: parseInt(pickupPoint?.busLine) || "",
         directionId: directionId || 1,
         coordinates: pickupPoint?.Latitude && pickupPoint?.Longitude
@@ -24,6 +26,8 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, dir
                 latitude: pickupPoint.Latitude || "",
                 longitude: pickupPoint.Longitude || "",
                 time: pickupPoint?.time || "",
+                returnTime: pickupPoint?.returnTime || "",
+                returnTimeHalfDay: pickupPoint?.returnTimeHalfDay || "",
                 directionId: directionId || 1,
                 busLine: parseInt(pickupPoint.busLine) || "",
                 coordinates: pickupPoint.Latitude && pickupPoint.Longitude
@@ -51,14 +55,14 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, dir
 
     const handleSubmit = () => {
         console.log("Saved Data:", formData);
-        fetch(ENDPOINT(`pickup/${pickupPoint.PickupId}`), putAuthRequest(JSON.stringify(formData), "Bearer "+token))
+        fetch(ENDPOINT(`pickup/${pickupPoint.PickupId}`), putAuthRequest(JSON.stringify(formData), "Bearer " + token))
             .then(res => res.json())
             .then(data => {
                 if (data.status) {
                     swal('Mis à jour réussi', "Pickup point updated successfully:", "success");
                     //onSave(data.response);
                 } else {
-                    swal("Erreur lors de la mise à jour","Contactez le dev.","error");
+                    swal("Erreur lors de la mise à jour", "Contactez le dev.", "error");
                     console.error("Error updating pickup point:", data);
                 }
             })
@@ -94,15 +98,40 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, dir
                         />
                     </Form.Group>
 
-                    <Form.Group controlId="pickupPointDepartureTime">
-                        <Form.Label>Heure {directionId === 1 ? "d'aller" : "de retour"}</Form.Label>
-                        <Form.Control
-                            type="time"
-                            name="time"
-                            value={formData.time}
-                            onChange={handleChange}
-                        />
-                    </Form.Group>
+                    {
+                        directionId === 1 ? (
+                            <Form.Group controlId="pickupPointDepartureTime">
+                                <Form.Label>Heure d'aller</Form.Label>
+                                <Form.Control
+                                    type="time"
+                                    name="time"
+                                    value={formData.time}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        ) : directionId === 2 ? (
+                            <Form.Group controlId="pickupPointReturnTime">
+                                <Form.Label>Heure de retour</Form.Label>
+                                <Form.Control
+                                    type="time"
+                                    name="returnTime"
+                                    value={formData.returnTime}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        ) : (
+                            <Form.Group controlId="pickupPointReturnTime">
+                                <Form.Label>Heure de retour (demi-journée)</Form.Label>
+                                <Form.Control
+                                    type="time"
+                                    name="returnTimeHalfDay"
+                                    value={formData.returnTimeHalfDay}
+                                    onChange={handleChange}
+                                />
+                            </Form.Group>
+                        )
+                    }
+
 
                     <Form.Group controlId="pickupPointBusLine">
                         <Form.Label>Ligne de bus</Form.Label>

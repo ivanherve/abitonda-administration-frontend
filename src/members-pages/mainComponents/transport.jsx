@@ -362,7 +362,7 @@ const Transport = () => {
             </Card.Header>
             <Card.Body>
               <Tabs
-                activeKey={directionId === 1 ? "go" : "return"}
+                activeKey={directionId === 1 ? "go" : directionId === 2 ? "return" : "returnHalfDay"}
                 id="transport-tabs"
                 className="mb-3"
                 variant="pills"
@@ -370,11 +370,25 @@ const Transport = () => {
                 onSelect={(key) => {
                   if (key === "go") setDirectionId(1);
                   else if (key === "return") setDirectionId(2);
-
+                  else if (key === "returnHalfDay") setDirectionId(3);
                   // Pas besoin de fetch ici : le useEffect ci-dessus va se déclencher automatiquement
                 }}
               >
                 <Tab eventKey="go" title="Aller">
+                  <StopTab
+                    selectedStop={selectedStop}
+                    setSelectedStop={setSelectedStop}
+                    stops={stops}
+                    busStudents={busStudents}
+                    selectedLine={selectedLine}
+                    directionId={directionId}
+                    date={date}
+                    gps={gps}
+                    setGps={setGps}
+                    busLines={busData}
+                  />
+                </Tab>
+                <Tab eventKey="returnHalfDay" title="Retour (demi-journée)">
                   <StopTab
                     selectedStop={selectedStop}
                     setSelectedStop={setSelectedStop}
