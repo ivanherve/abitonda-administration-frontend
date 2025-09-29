@@ -109,7 +109,7 @@ export default function AddStudent(props) {
       pointDeRamassage
     });
 
-    fetch(ENDPOINT("student/create"), postAuthRequest(data, token))
+    fetch(ENDPOINT("student/create"), postAuthRequest(data, "Bearer "+token))
       .then((r) => r.json())
       .then((r) => {
         if (!r.status) {
