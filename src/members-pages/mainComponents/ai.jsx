@@ -16,7 +16,7 @@ const AIQuery = () => {
 
     try {
       const res = await fetch(
-        ENDPOINT("ai-query"), // génère automatiquement http://localhost:8080/api/ai-query
+        ENDPOINT("ai-query"), // génère automatiquement
         postRequest(JSON.stringify({ question }))
       );
 
