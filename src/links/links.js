@@ -22,8 +22,9 @@ export const postRequest = (data) => {
 
 export const postAuthRequest = (data, token) => {
   return {
-    method: "post",
+    method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: token,
     },
     body: data,
