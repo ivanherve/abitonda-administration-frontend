@@ -46,7 +46,6 @@ export const postAuthRequestFormData = (data, token) => {
   return {
     method: "post",
     headers: {
-      // "Content-Type": "application/json",
       "Authorization": token,
     },
     body: data,

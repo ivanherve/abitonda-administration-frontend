@@ -1,5 +1,5 @@
 import { Modal, Form, Button, Row, Col } from "react-bootstrap"
-import { ENDPOINT, postAuthRequest } from "../../links/links"
+import { ENDPOINT, postAuthRequest, postAuthRequestFormData } from "../../links/links"
 import { Line } from "react-chartjs-2"
 import { useState } from "react"
 import { Tab, Tabs } from "react-bootstrap";
@@ -37,7 +37,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
         data.append("ArrivalReturn", ReturnTime);
         data.append("ArrivalReturnHalfDay", ReturnTimeHalfDay);
 
-        fetch(ENDPOINT("pickup"), postAuthRequest(data, "Bearer " + token))
+        fetch(ENDPOINT("pickup"), postAuthRequestFormData(data, "Bearer " + token))
             .then(response => response.json())
             .then(data => {
                 if (data.status) {
