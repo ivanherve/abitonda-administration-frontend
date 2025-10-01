@@ -2,7 +2,7 @@ import moment from "moment";
 import { useEffect, useState, useRef } from "react";
 import { Modal, Row, Col, Image, Table, Button } from "react-bootstrap";
 import pic from "../../img/ppx.jpg";
-import logo from "../../img/logo-removebg.png";
+import logo from "../../img/logo-transparent.png";
 import Pdf from "react-to-pdf";
 import { ENDPOINT, getAuthRequest } from "../../links/links";
 
