@@ -3,6 +3,8 @@ import { Button, Card, Container, Form } from "react-bootstrap";
 import { Redirect } from "react-router-dom";
 import swal from "sweetalert";
 import Logo from "../img/logo-transparent.png";
+import LogoMaternelle from "../img/logo-maternelle-transparent.png";
+import LogoCreche from "../img/logo-creche-transparent.png";
 import { ENDPOINT, postRequest } from "../links/links";
 
 export default function Login(props) {
@@ -46,6 +48,8 @@ export default function Login(props) {
         className="d-flex justify-content-center"
         style={{ paddingTop: "100px" }}
       >
+        <img src={LogoCreche} alt="Logo" width="199.5" height="225" />
+        <img src={LogoMaternelle} alt="Logo" width="199.5" height="225" />
         <img src={Logo} alt="Logo" width="199.5" height="225" />
       </div>
       <div className="d-flex justify-content-center" style={{ color: "blue" }}>
