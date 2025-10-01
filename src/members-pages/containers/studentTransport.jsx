@@ -44,7 +44,7 @@ const StudentTransport = ({ student }) => {
     useEffect(() => {
         const fetchPickupPoints = async () => {
             try {
-                const res = await fetch(ENDPOINT("pickup"), getAuthRequest(token));
+                const res = await fetch(ENDPOINT(`pickup`), getAuthRequest(token));
                 const data = await res.json();
                 if (data.status === 0) return;
                 console.log("Student pickup points:", data);
