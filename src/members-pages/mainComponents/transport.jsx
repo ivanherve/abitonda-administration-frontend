@@ -132,7 +132,7 @@ const Transport = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`)
+        ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`, getAuthRequest(token))
       );
       const data = await response.json();
 
@@ -621,6 +621,11 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
   const handleOpenTakePresence = () => setShowTakePresence(true);
   const handleCloseTakePresence = () => setShowTakePresence(false);
 
+
+  useEffect(() => {
+    console.log("Stop selected:", selectedStop);
+  }, [selectedStop]);
+
   const sendMessage = () => {
     let message = "🚌 Planning du ramassage de la Ligne " + selectedLine.id + " (" + selectedLine.name + ") :\n\n";
     // console.log("Stops for message:", stops);
@@ -644,9 +649,41 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     // console.log(message);
   };
 
-  useEffect(() => {
-    console.log("Stop selected:", selectedStop);
-  }, [selectedStop]);
+  const downloadCSV = () => {
+    let rows = [];
+
+    // En-têtes du CSV
+    rows.push(["Ligne", "Arrêt", "Heure", "Élève", "Classe", "Latitude", "Longitude"]);
+
+    // Remplissage des données
+    stops.forEach(p => {
+      p.students.forEach(s => {
+        rows.push([
+          selectedLine.name,   // Ligne
+          p.stop,              // Arrêt
+          p.time.slice(0, 5),  // Heure
+          s.name,              // Élève
+          s.classe,            // Classe
+          p.Latitude,          // Latitude
+          p.Longitude          // Longitude
+        ]);
+      });
+    });
+
+    // Conversion en CSV
+    let csvContent =
+      "data:text/csv;charset=utf-8," +
+      rows.map(e => e.map(v => `"${v}"`).join(",")).join("\n");
+
+    // Télécharger le fichier
+    const link = document.createElement("a");
+    link.setAttribute("href", encodeURI(csvContent));
+    link.setAttribute("download", `eleves_ligne_${selectedLine.id}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
 
   return (
     <Row className="g-4">
@@ -739,9 +776,9 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 <Button
                   size="sm"
                   variant="light"
-                  onClick={handleOpenTakePresence}
+                  onClick={() => downloadCSV()}
                   // disabled={directionId === 1}
-                  disabled
+                  disabled={selectedStop === null}
                   className="w-100"
                 >
                   <FontAwesomeIcon icon={faPen} className="me-2" /> Présences
