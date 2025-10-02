@@ -54,9 +54,9 @@ export const postAuthRequestFormData = (data, token) => {
 
 export const getAuthRequest = (token) => {
   return {
-    method: "get",
+    method: "GET",
     headers: {
-      // "Content-Type": "application/json",
+      "Content-Type": "application/json",
       "Authorization": token,
     },
   };
