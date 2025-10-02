@@ -180,7 +180,7 @@ const Transport = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`, // <-- ajouter Bearer
+          "Authorization": `${token}`, // <-- ajouter Bearer
         },
       }))
         .then(res => res.json())
