@@ -136,7 +136,7 @@ const Transport = () => {
       // );
       // const data = await response.json();
 
-      fetch(ENDPOINT(`bus/${selectedLine.id || 1}/pickups?directionId=${directionId}&date=${date}`, getAuthRequest(token)))
+      fetch(ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`, getAuthRequest(token)))
         .then(res => res.json())
         .then(data => {
           // Vérifie qu'on a bien la structure attendue
