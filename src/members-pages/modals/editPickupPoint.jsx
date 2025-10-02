@@ -55,7 +55,7 @@ const EditPickupPoint = ({ show, handleClose, onSave, pickupPoint, busLines, dir
 
     const handleSubmit = () => {
         console.log("Saved Data:", formData);
-        fetch(ENDPOINT(`pickup/${pickupPoint.PickupId}`), putAuthRequest(JSON.stringify(formData), "Bearer " + token))
+        fetch(ENDPOINT(`pickup/${pickupPoint.PickupId}`), putAuthRequest(JSON.stringify(formData), token))
             .then(res => res.json())
             .then(data => {
                 if (data.status) {
