@@ -169,36 +169,18 @@ const Transport = () => {
   }
 
   const fetchBusData = async () => {
+    let lId = selectedLine?.id || 1;
+    // const payload = JSON.stringify(ENDPOINT(`bus/${lId}/students?directionId=${directionId}&date=${date}`,getAuthRequest(token)));
     try {
       setLoading(true);
-      // const response = await fetch(
-      //   ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`, getAuthRequest(token))
-      // );
-      // const data = await response.json();
-
-      fetch(ENDPOINT(`bus/${selectedLine.id || 1}/students?directionId=${directionId}&date=${date}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `${token}`, // <-- ajouter Bearer
-        },
-      }))
+      // console.log(payload);
+      fetch(ENDPOINT(`bus/${lId}/students?directionId=${directionId}&date=${date}`), getAuthRequest(token))
         .then(res => res.json())
         .then(data => {
-          // Vérifie qu'on a bien la structure attendue
           if (data.status) {
             const res = data.response;
             console.log("API response for bus data:", res);
-            if (res.pickups.length > 0) {
-              console.log("Fetched pickups data:", res.pickups);
-            }
-            if (res.students.length > 0) {
-              console.log("Fetched students data:", res.students);
-            } else {
-              console.log("No students data found with fetchBusData");
-            }
 
-            // Stops avec élèves
             const stopsData = res.pickups.map(stop => ({
               PickupId: stop.PickupId,
               stop: stop.Name,
@@ -215,7 +197,6 @@ const Transport = () => {
               busLine: selectedLine.id
             }));
 
-            // Liste globale des élèves
             const studentsData = res.students.map(s => ({
               id: s.StudentId,
               name: `${s.Firstname} ${s.Lastname}`,
