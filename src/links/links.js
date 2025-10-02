@@ -56,7 +56,7 @@ export const getAuthRequest = (token) => {
   return {
     method: "get",
     headers: {
-      "Content-Type": "application/json",
+      // "Content-Type": "application/json",
       "Authorization": token,
     },
   };
