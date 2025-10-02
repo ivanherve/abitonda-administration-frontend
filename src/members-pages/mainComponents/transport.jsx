@@ -128,6 +128,46 @@ const Transport = () => {
       });
   }, [token]);
 
+  const downloadCSVGoogleMyMaps = (lineId) => {
+    console.log("Downloading CSV for Google My Maps for line:", lineId);
+    if (!lineId) return;
+    fetch(ENDPOINT(`line/${lineId}/google-mymaps`), getAuthRequest(token))
+      .then(res => res.json())
+      .then(r => {
+        if (r.status) {
+          const data = r.response;
+
+          // Colonnes que tu veux exporter
+          const headers = ["PickupId", "LineId", "WKT", "name", "ligne", "nbEleve", "eleves"];
+
+          // Construire le CSV
+          const csvRows = [];
+          csvRows.push(headers.join(",")); // entêtes
+          data.forEach(obj => {
+            const values = headers.map(h => {
+              let val = obj[h] ?? "";
+              // échapper les virgules, guillemets et retours à la ligne
+              val = String(val).replace(/"/g, '""');
+              return `"${val}"`;
+            });
+            csvRows.push(values.join(","));
+          });
+
+          const csvData = csvRows.join("\n");
+
+          // Télécharger
+          const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `line_${lineId}_google_mymaps.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }
+      });
+  }
+
   const fetchBusData = async () => {
     try {
       setLoading(true);
@@ -140,7 +180,7 @@ const Transport = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer " + token,
+          "Authorization": `Bearer ${token}`, // <-- ajouter Bearer
         },
       }))
         .then(res => res.json())
@@ -198,46 +238,6 @@ const Transport = () => {
       setLoading(false);
     }
   };
-
-  const downloadCSVGoogleMyMaps = (lineId) => {
-    console.log("Downloading CSV for Google My Maps for line:", lineId);
-    if (!lineId) return;
-    fetch(ENDPOINT(`line/${lineId}/google-mymaps`), getAuthRequest(token))
-      .then(res => res.json())
-      .then(r => {
-        if (r.status) {
-          const data = r.response;
-
-          // Colonnes que tu veux exporter
-          const headers = ["PickupId", "LineId", "WKT", "name", "ligne", "nbEleve", "eleves"];
-
-          // Construire le CSV
-          const csvRows = [];
-          csvRows.push(headers.join(",")); // entêtes
-          data.forEach(obj => {
-            const values = headers.map(h => {
-              let val = obj[h] ?? "";
-              // échapper les virgules, guillemets et retours à la ligne
-              val = String(val).replace(/"/g, '""');
-              return `"${val}"`;
-            });
-            csvRows.push(values.join(","));
-          });
-
-          const csvData = csvRows.join("\n");
-
-          // Télécharger
-          const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `line_${lineId}_google_mymaps.csv`;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }
-      });
-  }
 
   // Charger les élèves pour la ligne sélectionnée
   useEffect(() => {
