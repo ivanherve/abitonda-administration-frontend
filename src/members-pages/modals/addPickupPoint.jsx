@@ -58,7 +58,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
+                "Authorization": token
             },
             body: JSON.stringify({
                 LineId: selectedLine.id
