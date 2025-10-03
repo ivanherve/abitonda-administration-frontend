@@ -37,7 +37,7 @@ export const AddPickupPoint = ({ showModal, selectedLine, handleCloseModal, pick
         data.append("ArrivalReturn", ReturnTime);
         data.append("ArrivalReturnHalfDay", ReturnTimeHalfDay);
 
-        fetch(ENDPOINT("pickup"), postAuthRequestFormData(data, "Bearer " + token))
+        fetch(ENDPOINT("pickup"), postAuthRequestFormData(data, token))
             .then(response => response.json())
             .then(data => {
                 if (data.status) {
