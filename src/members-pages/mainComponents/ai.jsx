@@ -3,6 +3,7 @@ import { Table, Spinner, Form, Button, Alert } from "react-bootstrap";
 import { ENDPOINT, postRequest } from "../../links/links"; // adapte le chemin selon ton projet
 
 const AIQuery = () => {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
   const [question, setQuestion] = useState("");
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,7 @@ const AIQuery = () => {
     try {
       const res = await fetch(
         ENDPOINT("ai-query"), // génère automatiquement
-        postRequest(JSON.stringify({ question }))
+        postRequest(JSON.stringify({ question }), token)
       );
 
       const data = await res.json();
