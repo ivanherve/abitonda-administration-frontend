@@ -85,13 +85,30 @@ const StudentTransport = ({ student }) => {
         try {
             console.log("student", student);
 
-            const payload = daysOfWeek.map(day => ({
-                day: day.value,
-                goPoint: transportSettings[day.value]?.goPoint || defaultSettings.goPoint,
-                goTime: transportSettings[day.value]?.goTime || defaultSettings.goTime,
-                returnPoint: transportSettings[day.value]?.returnPoint || defaultSettings.returnPoint,
-                returnTime: transportSettings[day.value]?.returnTime || defaultReturnTimes[day.value]
-            }));
+            let payload;
+
+            if (activeTab === "all") {
+                // Cas : "Tous les jours"
+                payload = daysOfWeek.map(day => ({
+                    day: day.value,
+                    goPoint: defaultSettings.goPoint || "",
+                    goTime: defaultSettings.goTime || "",
+                    returnPoint: defaultSettings.returnPoint || "",
+                    returnTime: defaultReturnTimes[day.value] || "16:30"
+                }));
+            } else {
+                // Cas : un seul jour sélectionné
+                const dayValue = parseInt(activeTab);
+                payload = [{
+                    day: dayValue,
+                    goPoint: transportSettings[dayValue]?.goPoint || defaultSettings.goPoint,
+                    goTime: transportSettings[dayValue]?.goTime || defaultSettings.goTime,
+                    returnPoint: transportSettings[dayValue]?.returnPoint || defaultSettings.returnPoint,
+                    returnTime: transportSettings[dayValue]?.returnTime || defaultReturnTimes[dayValue],
+                    returnPointHalfDay: transportSettings[dayValue]?.returnPointHalfDay || "",
+                    returnTimeHalfDay: transportSettings[dayValue]?.returnTimeHalfDay || "12:30"
+                }];
+            }
 
             const dataToSend = { studentId: student.StudentId, settings: payload };
             console.log("Payload to send:", JSON.stringify(dataToSend));
@@ -107,9 +124,9 @@ const StudentTransport = ({ student }) => {
 
             const data = await res.json();
             if (data.status === 1) {
-                alert("Mise à jour réussie !");
+                swal("✅ Mise à jour réussie !");
             } else {
-                alert("Erreur : " + data.response);
+                swal("Erreur : " + data.response);
             }
         } catch (err) {
             console.error(err);
@@ -130,16 +147,16 @@ const StudentTransport = ({ student }) => {
         try {
             console.log("Delete pickup:", data);
             fetch(ENDPOINT("student/unset-pickup-point"), postAuthRequest(JSON.stringify(data), token))
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 1) {
-                    swal("Arrêt supprimé avec succès !", {
-                        icon: "success",
-                    }).then(() => console.log(data.response));
-                } else {
-                    swal("Erreur : " + data.response);
-                }
-            });
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 1) {
+                        swal("Arrêt supprimé avec succès !", {
+                            icon: "success",
+                        }).then(() => console.log(data.response));
+                    } else {
+                        swal("Erreur : " + data.response);
+                    }
+                });
         } catch (err) {
             console.error(err);
             alert("Erreur lors de la connexion au serveur.");
@@ -263,12 +280,13 @@ const StudentTransport = ({ student }) => {
                                                             </a>
                                                         </h4> */}
                                                         <h4>{sp.name}</h4>
+                                                        <h6><i style={{ color: "green" }}>({moment(sp.ArrivalGo, "HH:mm:ss").format("HH:mm")})</i></h6>
                                                     </div>
                                                     <small className="text-muted">
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                     </small>
                                                 </div>
-                                                <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, 1) }>
+                                                <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, 1)}>
                                                     <FontAwesomeIcon icon={faTimes} /> Supprimer
                                                 </Button>
                                             </ListGroup.Item>
@@ -277,44 +295,48 @@ const StudentTransport = ({ student }) => {
                                 </div>
                             )
                         }
-                        <hr />{
-                            Object.keys(studentPickups.returnPickups).length === 0 ? (
-                                <p className="text-muted mt-3">🚫 Aucun arrêt de retour assigné
-                                    pour cet élève.</p>
-                            ) : (
-                                <div>
-                                    <p className="fw-bold">Arrêts assignés pour le <strong>Retour</strong> :</p>
-                                    <ListGroup variant="flush">
-                                        {studentPickups.returnPickups?.map((sp, i) => (
-                                            <ListGroup.Item key={`return-${i}`} className="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    {<h6>
-                                                        <i>{sp.days.map((d, idx) => (moment().day(d).format("dddd").charAt(0).toUpperCase() + moment().day(d).format("dddd").slice(1))).join(", ")}</i>
-                                                    </h6>}
-                                                    <div className="mt-1 fw-bold">
-                                                        {/* <h4>
-                                                            <a
-                                                                href={`https://www.google.com/maps/search/?api=1&query=${sp.latitude},${sp.longitude}`}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="ms-2">
-                                                                {sp.name}
-                                                            </a>
-                                                        </h4> */}
-                                                        <h4>{sp.name}</h4>
+                        <hr />
+                        {/* Retour */}
+                        {
+                            (() => {
+                                // Inclure les retours demi-journée du vendredi si tous les jours
+                                const pickupsToShow = activeTab === "all"
+                                    ? [...(studentPickups.returnPickups || []), ...(studentPickups.returnPickupsHalfDay || [])]
+                                    : day === 5
+                                        ? studentPickups.returnPickupsHalfDay || []
+                                        : studentPickups.returnPickups || [];
+
+                                if (pickupsToShow.length === 0) {
+                                    return <p className="text-muted mt-3">🚫 Aucun arrêt de retour assigné pour cet élève.</p>;
+                                }
+
+                                return (
+                                    <div>
+                                        <p className="fw-bold">Arrêts assignés pour le <strong>{activeTab === "all" && studentPickups.returnPickupsHalfDay?.length ? "Retour (incluant vendredi demi-journée)" : (day === 5 ? "Retour demi-journée" : "Retour")}</strong> :</p>
+                                        <ListGroup variant="flush">
+                                            {pickupsToShow.map((sp, i) => (
+                                                <ListGroup.Item key={`return-${i}`} className="d-flex justify-content-between align-items-start">
+                                                    <div>
+                                                        <h6>
+                                                            <i>{sp.days.map(d => (moment().day(d).format("dddd").charAt(0).toUpperCase() + moment().day(d).format("dddd").slice(1))).join(", ")}</i>
+                                                        </h6>
+                                                        <div className="mt-1 fw-bold">
+                                                            <h4>{sp.name}</h4>
+                                                            <h6><i style={{ color: "green" }}>({moment(sp.ArrivalGo, "HH:mm:ss").format("HH:mm")})</i></h6>
+                                                        </div>
+                                                        <small className="text-muted">
+                                                            {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
+                                                        </small>
                                                     </div>
-                                                    <small className="text-muted">
-                                                        {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
-                                                    </small>
-                                                </div>
-                                                <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, 2) }>
-                                                    <FontAwesomeIcon icon={faTimes} /> Supprimer
-                                                </Button>
-                                            </ListGroup.Item>
-                                        ))}
-                                    </ListGroup>
-                                </div>
-                            )
+                                                    <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, sp.isHalfDay ? 3 : 2)}>
+                                                        <FontAwesomeIcon icon={faTimes} /> Supprimer
+                                                    </Button>
+                                                </ListGroup.Item>
+                                            ))}
+                                        </ListGroup>
+                                    </div>
+                                );
+                            })()
                         }
                     </>
                 </Card.Body>
@@ -337,11 +359,10 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
         ? (settings.returnTime || "16:30")
         : (settings.returnTime || autoReturnTimes[dayValue]);
 
-    // Trouver les arrêts sélectionnés
     const selectedGoPoint = pickupPoints.find(p => p.Name === settings.goPoint);
     const selectedReturnPoint = pickupPoints.find(p => p.Name === settings.returnPoint);
+    const selectedReturnHalfDayPoint = pickupPoints.find(p => p.Name === settings.returnPointHalfDay);
 
-    // Composant réutilisable pour un champ (Aller / Retour)
     const RenderRow = ({ label, field, point, time, onPointChange, onTimeChange, defaultTime, readOnly }) => (
         <Form.Group as={Row} className="align-items-center mb-3">
             <Form.Label column sm="2" className="fw-bold">
@@ -392,7 +413,6 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 defaultTime=""
                 onPointChange={val => {
                     onChange("goPoint", val);
-                    onChange("returnPoint", val); // garder la synchro Aller = Retour
                 }}
                 onTimeChange={val => onChange("goTime", val)}
             />
@@ -405,6 +425,17 @@ const TransportForm = ({ pickupPoints, toEdit, settings, onChange, dayValue, aut
                 time={selectedReturnPoint?.ArrivalReturn}
                 defaultTime=""
                 onPointChange={val => onChange("returnPoint", val)}
+                readOnly={isDefault}
+            />
+
+            {/* Retour demi-journée */}
+            <RenderRow
+                label="Retour (demi-journée)"
+                field="returnPointHalfDay"
+                point={selectedReturnHalfDayPoint}
+                time={selectedReturnHalfDayPoint?.ArrivalReturnHalfDay}
+                defaultTime=""
+                onPointChange={val => onChange("returnPointHalfDay", val)}
                 readOnly={isDefault}
             />
         </>
