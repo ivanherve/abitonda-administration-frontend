@@ -15,6 +15,7 @@ export default function AddParent(props) {
   const [listParent, setListParent] = useState([]);
   const [parentId, setParentId] = useState(0);
   const [parentSelected, setParentSelected] = useState("");
+  const [languages, setLanguages] = useState([]);
 
   const addParent = () => {
     let data;
@@ -34,6 +35,7 @@ export default function AddParent(props) {
         email: email,
         address: address,
         linkChild: linkChild,
+        languages: languages,
       });
     }
 
@@ -221,6 +223,25 @@ export default function AddParent(props) {
                             setParentSelected("");
                           }}
                         />
+                      </Col>
+                    </Form.Group>
+                    <Form.Group as={Row} controlId="languagesSpoken">
+                      <Form.Label column sm="2">Langues Parlées</Form.Label>
+                      <Col sm="10">
+                        {["Français", "Anglais", "Kinyarwanda"].map((lang) => (
+                          <Form.Check
+                            key={lang}
+                            type="checkbox"
+                            label={lang}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setLanguages((prev) => [...prev, lang]);
+                              } else {
+                                setLanguages((prev) => prev.filter((l) => l !== lang));
+                              }
+                            }}
+                          />
+                        ))}
                       </Col>
                     </Form.Group>
                   </Form>

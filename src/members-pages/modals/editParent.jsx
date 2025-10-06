@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Form, Modal } from "react-bootstrap";
+import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 import swal from "sweetalert";
 import { ENDPOINT, postAuthRequestFormData } from "../../links/links";
 import { FrmGroupText } from "./editEmployee";
@@ -14,6 +14,7 @@ export default function EditParent(props) {
   const [address, setAddress] = useState("");
   const [email, setEmail] = useState("");
   const [linkChild, setLinkChild] = useState("");
+  const [languages, setLanguages] = useState([]);
 
   const editParent = () => {
     let data = new FormData();
@@ -24,6 +25,7 @@ export default function EditParent(props) {
     data.append("Address", address);
     data.append("Email", email);
     data.append("LinkChild", linkChild);
+    data.append("languages", JSON.stringify(languages));
     fetch(ENDPOINT("editparent"), postAuthRequestFormData(data, token))
       .then((r) => r.json())
       .then((r) => {
@@ -36,6 +38,11 @@ export default function EditParent(props) {
 
   useEffect(() => {
     setParent(props.parent);
+    setLanguages([
+      props.parent.French ? "Français" : null,
+      props.parent.English ? "Anglais" : null,
+      props.parent.Kinyarwanda ? "Kinyarwanda" : null
+    ].filter(Boolean));
   }, [props.parent]);
 
   return (
@@ -83,6 +90,26 @@ export default function EditParent(props) {
             placeholder={parent.LinkChild}
             change={(e) => setLinkChild(e.target.value)}
           />
+          <Form.Group as={Row}>
+            <Form.Label column sm="2">Langues Parlées</Form.Label>
+            <Col sm="10">
+            {["Français", "Anglais", "Kinyarwanda"].map((lang) => (
+              <Form.Check
+                key={lang}
+                type="checkbox"
+                label={lang}
+                checked={languages.includes(lang)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setLanguages((prev) => [...prev, lang]);
+                  } else {
+                    setLanguages((prev) => prev.filter((l) => l !== lang));
+                  }
+                }}
+              />
+            ))}
+            </Col>
+          </Form.Group>
         </Form>
       </Modal.Body>
       <Modal.Footer>
