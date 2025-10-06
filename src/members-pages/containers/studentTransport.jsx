@@ -280,7 +280,11 @@ const StudentTransport = ({ student }) => {
                                                             </a>
                                                         </h4> */}
                                                         <h4>{sp.name}</h4>
-                                                        <h6><i style={{ color: "green" }}>({moment(sp.ArrivalGo, "HH:mm:ss").format("HH:mm")})</i></h6>
+                                                        <h6>
+                                                            <i style={{ color: "green" }}>
+                                                                ({moment(sp.ArrivalGo, "HH:mm:ss").format("HH:mm")})
+                                                            </i>
+                                                        </h6>
                                                     </div>
                                                     <small className="text-muted">
                                                         {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
@@ -312,7 +316,7 @@ const StudentTransport = ({ student }) => {
 
                                 return (
                                     <div>
-                                        <p className="fw-bold">Arrêts assignés pour le <strong>{activeTab === "all" && studentPickups.returnPickupsHalfDay?.length ? "Retour (incluant vendredi demi-journée)" : (day === 5 ? "Retour demi-journée" : "Retour")}</strong> :</p>
+                                        <p className="fw-bold">Arrêts assignés pour le <strong>{activeTab === "all" && studentPickups.returnPickupsHalfDay?.length ? "Retour" : (day === 5 ? "Retour demi-journée" : "Retour")}</strong> :</p>
                                         <ListGroup variant="flush">
                                             {pickupsToShow.map((sp, i) => (
                                                 <ListGroup.Item key={`return-${i}`} className="d-flex justify-content-between align-items-start">
@@ -322,7 +326,15 @@ const StudentTransport = ({ student }) => {
                                                         </h6>
                                                         <div className="mt-1 fw-bold">
                                                             <h4>{sp.name}</h4>
-                                                            <h6><i style={{ color: "green" }}>({moment(sp.ArrivalGo, "HH:mm:ss").format("HH:mm")})</i></h6>
+                                                            <h6>
+                                                                <i style={{ color: "green" }}>
+                                                                    {sp.ArrivalReturnHalfDay
+                                                                        ? `(${moment(sp.ArrivalReturnHalfDay, "HH:mm:ss").format("HH:mm")})`
+                                                                        : sp.ArrivalReturn
+                                                                            ? `(${moment(sp.ArrivalReturn, "HH:mm:ss").format("HH:mm")})`
+                                                                            : ""}
+                                                                </i>
+                                                            </h6>
                                                         </div>
                                                         <small className="text-muted">
                                                             {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
