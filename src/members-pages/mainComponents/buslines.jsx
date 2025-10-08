@@ -276,9 +276,9 @@ const BusLine = () => {
                 >
                   {line.id}. <strong>{line.name}</strong>
                   <br />
-                  <small><i>{line.nbStudents} élèves / {line.maxPlaces}</i> 
-                  <br /> 
-                  {(line.maxPlaces - line.nbStudents) > 0 ? `${(line.maxPlaces - line.nbStudents)} places disponibles` : (line.maxPlaces - line.nbStudents) === 0 ? `COMPLETS` : `SATURÉ`}</small>
+                  <small><i>{line.nbStudents} élèves / {line.maxPlaces}</i> </small>
+                  <br />
+                  <Badge variant={(line.maxPlaces - line.nbStudents) > 0 ? "light" : "danger"}>{(line.maxPlaces - line.nbStudents) > 0 ? `${(line.maxPlaces - line.nbStudents)} places disponibles` : (line.maxPlaces - line.nbStudents) === 0 ? `COMPLETS` : `SATURÉ`}</Badge>
                 </ListGroup.Item>
               ))}
             </ListGroup>
@@ -464,7 +464,6 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
 
     if (stopName === "Tous") {
       students = busStudents;
-      console.log(busStudents)
     } else {
       const stopObj = stops.find(s => s.PickupId === stopName);
       if (!stopObj) return;
@@ -481,19 +480,25 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     const currentDate = new Date(date);
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const day = currentDate.getDate();
 
-    const dateHeaders = [];
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateObj = new Date(year, month, d);
-      const day = dateObj.getDay();
-      if (day !== 0 && day !== 6) dateHeaders.push(d.toString().padStart(2, "0"));
-    }
+    // ✅ Formate la date : sur deux lignes (jour + date complète)
+    const weekday = currentDate.toLocaleDateString("fr-FR", { weekday: "long" });
+    const fullDate = currentDate.toLocaleDateString("fr-FR", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+    // Première lettre majuscule
+    const dayName = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    const dateOnTwoLines = `${dayName}\n${fullDate}`;
+    const dateHeaders = [dateOnTwoLines];
 
     const moisNom = currentDate.toLocaleString("fr-FR", { month: "long" });
     const moisEtAnnee = `${moisNom.charAt(0).toUpperCase() + moisNom.slice(1)} ${year}`;
-
     const directionText = directionId === 1 ? "Aller" : "Retour";
+
     const data = [
       [`LIGNE ${selectedLine.id} - (${selectedLine.name}) - ${directionText.toUpperCase()}`],
       [`Chauffeur : ${selectedLine.driverName}`, `Assistant : ${selectedLine.assistantName}`, "", moisEtAnnee],
@@ -503,27 +508,18 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
         s.classe,
         s.stop,
         moment(stops.find(stop => stop.stop === s.stop)?.time || "", "HH:mm:ss").format("HH:mm"),
-        ...dateHeaders.map((day) => {
-          const dayOfWeek = new Date(year, month, parseInt(day)).toLocaleString("fr-FR", { weekday: "long" });
+        (() => {
+          const dayOfWeek = currentDate.toLocaleString("fr-FR", { weekday: "long" });
           const dayKey = dayOfWeek.charAt(0).toUpperCase() + dayOfWeek.slice(1);
-
-          // Vérifie d’abord si DaysOfWeek existe et contient bien la clé
-          if (!s.DaysOfWeek || !(dayKey in s.DaysOfWeek)) {
-            return ""; // ou une valeur par défaut
-          }
-
+          if (!s.DaysOfWeek || !(dayKey in s.DaysOfWeek)) return "";
           return s.DaysOfWeek[dayKey] === null ? "__NOIR__" : "";
-        })
+        })()
       ])
     ];
 
     const ws = XLSX.utils.aoa_to_sheet(data);
 
-    ws["!merges"] = [
-      { s: { r: 0, c: 0 }, e: { r: 0, c: 3 + dateHeaders.length } },
-      { s: { r: 1, c: 1 }, e: { r: 1, c: 3 } },
-    ];
-
+    // === Styles ===
     const borderStyle = {
       top: { style: "thin", color: { rgb: "000000" } },
       bottom: { style: "thin", color: { rgb: "000000" } },
@@ -531,53 +527,59 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       right: { style: "thin", color: { rgb: "000000" } }
     };
 
+    // Fusion du titre principal
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 4 } },
+      { s: { r: 1, c: 1 }, e: { r: 1, c: 3 } }
+    ];
+
+    // === Ligne 1 : Titre ===
     ws["A1"].s = {
-      font: { bold: true, sz: 14, color: { rgb: "FFFFFF" } },
+      font: { bold: true, sz: 16, color: { rgb: "FFFFFF" } },
       fill: { fgColor: { rgb: "1E90FF" } },
-      alignment: { horizontal: "center", vertical: "center" },
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
       border: borderStyle
     };
 
-    ws["A2"].s = {
-      font: { bold: true },
-      alignment: { horizontal: "center", vertical: "center" },
-      border: borderStyle
-    };
-
-    const assistantCell = XLSX.utils.encode_cell({ r: 1, c: 1 });
-    if (ws[assistantCell]) {
-      ws[assistantCell].s = {
-        font: { bold: true },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: borderStyle
-      };
-    }
-
-    for (let c = 0; c < 4 + dateHeaders.length; c++) {
-      const cell = XLSX.utils.encode_cell({ r: 2, c });
+    // === Ligne 2 : Chauffeur & assistant ===
+    for (let c = 0; c <= 3; c++) {
+      const cell = XLSX.utils.encode_cell({ r: 1, c });
       if (ws[cell]) {
         ws[cell].s = {
-          font: { bold: true, color: { rgb: "FFFFFF" } },
-          fill: { fgColor: { rgb: "228B22" } },
-          alignment: { horizontal: "center", vertical: "center" },
+          font: { bold: true },
+          alignment: { horizontal: "center", vertical: "center", wrapText: true },
           border: borderStyle
         };
       }
     }
 
+    // === Ligne 3 : En-têtes (avec date sur 2 lignes) ===
+    for (let c = 0; c < 5; c++) {
+      const cell = XLSX.utils.encode_cell({ r: 2, c });
+      if (ws[cell]) {
+        ws[cell].s = {
+          font: { bold: true, color: { rgb: "FFFFFF" } },
+          fill: { fgColor: { rgb: "228B22" } },
+          alignment: { horizontal: "center", vertical: "center", wrapText: true },
+          border: borderStyle
+        };
+      }
+    }
+
+    // === Corps du tableau ===
     for (let r = 3; r < students.length + 3; r++) {
-      for (let c = 0; c < 4 + dateHeaders.length; c++) {
+      for (let c = 0; c < 5; c++) {
         const cell = XLSX.utils.encode_cell({ r, c });
         if (ws[cell]) {
           if (ws[cell].v === "__NOIR__") {
-            ws[cell].v = ""; // enlever le texte
+            ws[cell].v = "";
             ws[cell].s = {
               fill: { fgColor: { rgb: "000000" } },
               border: borderStyle
             };
           } else {
             ws[cell].s = {
-              alignment: { horizontal: "left", vertical: "left" },
+              alignment: { horizontal: "left", vertical: "center", wrapText: true },
               border: borderStyle
             };
           }
@@ -585,24 +587,16 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
       }
     }
 
-    const colWidths = [];
-    for (let c = 0; c < 3; c++) {
-      let maxLen = 3;
-      data.forEach(row => {
-        const val = row[c];
-        const len = val ? val.toString().length : 0;
-        maxLen = Math.max(maxLen, len);
-      });
-      colWidths[c] = { wch: maxLen };
-    }
+    // === Largeurs de colonnes ===
+    ws["!cols"] = [
+      { wch: 25 }, // Nom
+      { wch: 10 }, // Classe
+      { wch: 20 }, // Arrêt
+      { wch: 8 },  // Heures
+      { wch: 25 }  // Date complète sur deux lignes
+    ];
 
-    colWidths[3] = { wch: 10 };
-    colWidths[1] = { wch: 8 };
-    for (let c = 4; c < 4 + dateHeaders.length; c++) {
-      colWidths[c] = { wch: 4 };
-    }
-    ws["!cols"] = colWidths;
-
+    // === Export Excel ===
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Élèves");
 
