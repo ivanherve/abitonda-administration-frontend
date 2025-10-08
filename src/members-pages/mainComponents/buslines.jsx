@@ -496,7 +496,15 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     const dateHeaders = [dateOnTwoLines];
 
     const moisNom = currentDate.toLocaleString("fr-FR", { month: "long" });
-    const moisEtAnnee = `${moisNom.charAt(0).toUpperCase() + moisNom.slice(1)} ${year}`;
+    const moisEtAnnee = currentDate.toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+
+    // Première lettre en majuscule
+    const formattedMoisEtAnnee = moisEtAnnee.charAt(0).toUpperCase() + moisEtAnnee.slice(1);
     const directionText = directionId === 1 ? "Aller" : "Retour";
 
     const data = [
@@ -602,7 +610,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
 
     const fileName =
       stopName === "Tous"
-        ? `Liste Transport - Ligne_${selectedLine.id}_(${selectedLine.name.toUpperCase()}) - ${directionId === 1 ? "ALLER" : "RETOUR"} - ${moisEtAnnee}.xlsx`
+        ? `Liste Transport - Ligne_${selectedLine.id}_(${selectedLine.name.toUpperCase()}) - ${directionId === 1 ? "ALLER" : "RETOUR"} - ${formattedMoisEtAnnee}.xlsx`
         : `Liste_Transport_${stopName}_${directionId === 1 ? "ALLER" : "RETOUR"}.xlsx`;
 
     XLSX.writeFile(wb, fileName);
