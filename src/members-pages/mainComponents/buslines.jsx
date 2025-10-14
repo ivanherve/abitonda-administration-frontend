@@ -447,9 +447,18 @@ const BusLine = () => {
 
 // Composant StopTab
 const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLine, directionId, date, gps, setGps, busLines }) => {
+  const token = JSON.parse(sessionStorage.getItem("userData")).token.Api_token;
+  // let jsonData = null;
+  // let now = new Date();
+  // let hour = now.getHours();
+  // let minute = now.getMinutes();
+  // if (minute < 10) minute = "0" + minute;
+  // const currentTime = `${hour}:${minute}`;
+  // console.log("Current time:", currentTime);
   const activeStop = selectedStop || "Tous";
   const [showTakePresence, setShowTakePresence] = useState(false);
   const [showEditPickupPoint, setShowEditPickupPoint] = useState(false);
+  const [departureTime, setDepartureTime] = useState("00:00");
 
   const handleOpenEditPickupPoint = () => setShowEditPickupPoint(true);
   const handleCloseEditPickupPoint = () => setShowEditPickupPoint(false);
@@ -624,27 +633,85 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
     console.log("Stop selected:", selectedStop);
   }, [selectedStop]);
 
-  const sendMessage = () => {
-    let message = "🚌 Planning du ramassage de la Ligne " + selectedLine.id + " (" + selectedLine.name + ") :\n\n";
-    // console.log("Stops for message:", stops);
-    stops.forEach(p => {
-      // Générer le lien Google Maps
-      const mapsUrl = `https://www.google.com/maps?q=${p.Latitude},${p.Longitude}`;
+  const sendMessage = (newStartTime) => {
+    const addMinutes = (timeStr, minutesToAdd) => {
+      const [h, m] = timeStr.split(":").map(Number);
+      const totalMinutes = h * 60 + m + minutesToAdd;
+      const newH = Math.floor(totalMinutes / 60) % 24;
+      const newM = totalMinutes % 60;
+      return `${newH.toString().padStart(2, "0")}:${newM.toString().padStart(2, "0")}`;
+    };
+    let dtime = newStartTime;
+    if (directionId === 1) {
+      newStartTime = stops[0].time.slice(0, 5);
+      dtime = newStartTime;
+    } else {
+      switch (selectedLine.id) {
+        // Comment ajouter des minutes à stops[0].time.slice(0, 5) ?
+        case 1:
+          newStartTime = addMinutes(newStartTime, 3); // Ajouter 5 minutes
+          break;
+        case 2:
+          newStartTime = addMinutes(newStartTime, 9); // Ajouter 10 minutes
+          break;
+        case 3:
+          newStartTime = addMinutes(newStartTime, 20); // Ajouter 15 minutes
+          break;
+        case 4:
+          newStartTime = addMinutes(newStartTime, 5); // Ajouter 15 minutes
+          break;
+        case 5:
+          newStartTime = addMinutes(newStartTime, 15); // Ajouter 15 minutes
+          break;
+        case 6:
+          newStartTime = addMinutes(newStartTime, 15); // Ajouter 15 minutes
+          break;
+        default:
+          break;
+      }
+    } 
+    // newStartTime doit être une chaîne au format "HH:MM" (par ex. "07:30")
 
-      message += `🚏 ${p.stop} - ${p.time.slice(0, 5)}\n`;
-      message += `   📍 ${mapsUrl}\n`; // lien cliquable vers l'arrêt
+    // Convertir une heure "HH:MM" en minutes
+    const toMinutes = (time) => {
+      const [h, m] = time.split(":").map(Number);
+      return h * 60 + m;
+    };
+
+    // Convertir des minutes en "HH:MM"
+    const toTimeString = (minutes) => {
+      const h = Math.floor(minutes / 60) % 24;
+      const m = minutes % 60;
+      return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+    };
+
+    // 1️⃣ Calculer les écarts entre chaque arrêt
+    const baseTimes = stops.map(p => toMinutes(p.time));
+    const deltas = baseTimes.map((t, i) => i === 0 ? 0 : t - baseTimes[0]);
+
+    // 2️⃣ Recalculer les heures en fonction du nouveau départ
+    const newStart = toMinutes(newStartTime);
+    const adjustedStops = stops.map((p, i) => ({
+      ...p,
+      adjustedTime: toTimeString(newStart + deltas[i])
+    }));
+
+    // 3️⃣ Construire le message
+    let message = `🚌 Planning du ramassage de la Ligne ${selectedLine.id} ${directionId === 1 ? 'MATIN' : directionId === 2 ? 'SOIR' : 'MIDI'} (${selectedLine.name}) \n Le ${moment(date).locale('fr').format('LL')} (Départ du bus : ${dtime}) :\n\n`;
+    adjustedStops.forEach(p => {
+      const mapsUrl = `https://www.google.com/maps?q=${p.Latitude},${p.Longitude}`;
+      message += `🚏 ${p.adjustedTime}\n`;
+      // message += `   📍 ${mapsUrl}\n`;
 
       p.students.forEach(s => {
         message += ` - ${s.name} (${s.classe})\n`;
       });
-
       message += "\n";
     });
-
-    // 3. Ouvrir WhatsApp avec le texte
+    console.log(message);
+    // 4️⃣ Ouvrir WhatsApp avec le texte
     const url = "https://wa.me/?text=" + encodeURIComponent(message);
     window.open(url, "_blank");
-    // console.log(message);
   };
 
   const downloadCSV = () => {
@@ -725,7 +792,9 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
 
       <Col md={8}>
         <Card className="shadow-sm rounded-3 mb-3" style={{ height: "400px" }}>
-          <Card.Header className="fw-bold bg-light d-flex justify-content-between align-items-center">
+          <Card.Header className="fw-bold bg-light justify-content-between align-items-center">
+            <Row>
+              <Col>
             <div>
               {activeStop === "Tous"
                 ? "Tous les élèves"
@@ -738,6 +807,14 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 ({studentsToShow.length} élèves)
               </span>
             </div>
+              </Col>
+              <Col>
+                <Form.Label className="form-label small text-muted fw-semibold mb-1">
+                  Heure de départ
+                </Form.Label>
+                <Form.Control type="time" size="sm" disabled={directionId === 1} onChange={(e) => setDepartureTime(e.target.value)} />
+              </Col>
+            </Row>
           </Card.Header>
           <div style={{ overflowY: "auto", height: "100%" }}>
             <ListGroup variant="flush">
@@ -797,7 +874,7 @@ const StopTab = ({ selectedStop, setSelectedStop, stops, busStudents, selectedLi
                 <Button
                   size="sm"
                   variant="light"
-                  onClick={() => sendMessage()}
+                  onClick={() => sendMessage(departureTime)}
                   className="w-100"
                 >
                   <FontAwesomeIcon icon={faWhatsapp} className="me-2" /> Message
