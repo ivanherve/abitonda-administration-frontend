@@ -328,7 +328,7 @@ const StudentTransport = ({ student }) => {
                                                             <h4>{sp.name}</h4>
                                                             <h6>
                                                                 <i style={{ color: "green" }}>
-                                                                    {sp.ArrivalReturnHalfDay
+                                                                    {sp.ArrivalReturnHalfDay && sp.days.includes(5)
                                                                         ? `(${moment(sp.ArrivalReturnHalfDay, "HH:mm:ss").format("HH:mm")})`
                                                                         : sp.ArrivalReturn
                                                                             ? `(${moment(sp.ArrivalReturn, "HH:mm:ss").format("HH:mm")})`
@@ -340,7 +340,7 @@ const StudentTransport = ({ student }) => {
                                                             {sp.line ? `(Ligne ${sp.line.LineId} - ${sp.line.Name})` : ""}
                                                         </small>
                                                     </div>
-                                                    <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, sp.isHalfDay ? 3 : 2)}>
+                                                    <Button variant="outline-danger" onClick={() => handleDeletePickup(sp.id, sp.days, sp.ArrivalReturnHalfDay  ? 3 : 2)}>
                                                         <FontAwesomeIcon icon={faTimes} /> Supprimer
                                                     </Button>
                                                 </ListGroup.Item>
